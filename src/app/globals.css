@@ -1,0 +1,938 @@
+/*
+ * سَنَد — نظام التصميم
+ * الهوية: نسيج السدو (الخيط) + ليل نيلي + دفء التمر.
+ * قاعدة: الجرأة كلها في "الخيط"، والباقي هادئ ومنضبط.
+ */
+@import "@fontsource/alexandria/500.css";
+@import "@fontsource/alexandria/700.css";
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/500.css";
+@import "@fontsource/ibm-plex-sans-arabic/600.css";
+
+:root {
+  --night: #14213d;
+  --night-2: #22335a;
+  --gypsum: #f1f3f7;
+  --surface: #ffffff;
+  --surface-2: #e7ebf2;
+  --ink: #14213d;
+  --ink-soft: #56607a;
+  --line: #d7dde8;
+  --sadu: #a83a2f;
+  --sadu-2: #d9674f;
+  --date: #d9962e;
+  --date-soft: #f7e6c8;
+  --palm: #2c6e4f;
+  --palm-soft: #d7ebe1;
+  --focus: #3b6fd8;
+
+  --font-display: "Alexandria", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Arabic", system-ui, sans-serif;
+
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.3125rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+
+  --r-sm: 10px;
+  --r-md: 18px;
+  --r-lg: 28px;
+  --r-arch: 999px 999px 22px 22px;
+
+  --shadow: 0 1px 0 rgba(20, 33, 61, 0.04), 0 8px 24px -12px rgba(20, 33, 61, 0.18);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --nav-h: 76px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gypsum: #0c1424;
+    --surface: #142039;
+    --surface-2: #1c2a48;
+    --ink: #e9edf5;
+    --ink-soft: #9aa6c0;
+    --line: #26375c;
+    --sadu: #d9674f;
+    --sadu-2: #f08c72;
+    --date: #f0b457;
+    --date-soft: #3a2f1c;
+    --palm: #5fbf8f;
+    --palm-soft: #183a2c;
+    --focus: #7aa2ff;
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 10px 30px -14px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--gypsum);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--gypsum);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.35;
+  margin: 0;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--fs-xl);
+}
+h2 {
+  font-size: var(--fs-lg);
+}
+h3 {
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.small {
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.xs {
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------ الهيكل ------------------------------ */
+
+.shell {
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 18px 16px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+.shell--bare {
+  padding-bottom: 32px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card--arch {
+  border-radius: var(--r-arch);
+  padding-top: 42px;
+  text-align: center;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin: 10px 0 2px;
+}
+
+/* ------------------------------ الأزرار ------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-md);
+  background: var(--night);
+  color: #fff;
+  transition: transform 0.15s var(--ease), background 0.2s;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn {
+    background: var(--date);
+    color: #1b1406;
+  }
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+
+.btn--soft {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn--ghost,
+  .btn--soft {
+    color: var(--ink);
+  }
+  .btn--soft {
+    background: var(--surface-2);
+  }
+  .btn--ghost {
+    background: transparent;
+  }
+}
+
+.btn--sm {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: var(--fs-sm);
+}
+
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 0;
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--night);
+  border-color: var(--night);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chip[aria-pressed="true"] {
+    background: var(--date);
+    border-color: var(--date);
+    color: #1b1406;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ------------------------------ الحقول ------------------------------ */
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: var(--fs-md);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--focus);
+}
+
+.input--num {
+  direction: ltr;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+
+/* ------------------------------ شريط التنقل ------------------------------ */
+
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+}
+
+.nav ul {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: end;
+}
+
+.nav a {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 52px;
+  padding-top: 4px;
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.nav a[aria-current="page"] {
+  color: var(--ink);
+}
+
+.nav a[aria-current="page"] .nav-dot {
+  opacity: 1;
+}
+
+.nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--sadu);
+  opacity: 0;
+}
+
+.nav-coach {
+  width: 58px;
+  height: 58px;
+  margin-top: -26px;
+  border-radius: 20px 20px 999px 999px;
+  display: grid;
+  place-items: center;
+  background: var(--night);
+  color: #fff;
+  box-shadow: 0 10px 24px -10px rgba(20, 33, 61, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-coach {
+    background: var(--date);
+    color: #1b1406;
+  }
+}
+
+/* ------------------------------ الطاقة ------------------------------ */
+
+.energy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.energy-opt {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px 6px 12px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  min-height: 108px;
+}
+
+.energy-opt[aria-pressed="true"] {
+  border-color: var(--date);
+  background: var(--date-soft);
+}
+
+.battery {
+  width: 30px;
+  height: 50px;
+  border-radius: 8px;
+  border: 2.5px solid currentColor;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 3px;
+  gap: 3px;
+}
+
+.battery::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  width: 12px;
+  height: 5px;
+  border-radius: 3px 3px 0 0;
+  background: currentColor;
+}
+
+[dir="rtl"] .battery::before {
+  translate: 50% 0;
+}
+
+.battery i {
+  display: block;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+
+.battery i.on {
+  background: var(--date);
+}
+
+/* ------------------------------ المهمات ------------------------------ */
+
+.mission {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: background 0.3s var(--ease);
+}
+
+.mission--done {
+  background: var(--palm-soft);
+  box-shadow: none;
+}
+
+.check {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+}
+
+.mission--done .check {
+  background: var(--palm);
+  border-color: var(--palm);
+  color: #fff;
+}
+
+.mission h3 {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.mission--done h3 {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: color-mix(in srgb, var(--palm) 60%, transparent);
+}
+
+.kind {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--sadu);
+}
+
+/* ------------------------------ أشرطة الوقود ------------------------------ */
+
+.fuel {
+  display: grid;
+  gap: 12px;
+}
+
+.bar {
+  height: 12px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--night);
+  transition: inline-size 0.6s var(--ease);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bar > span {
+    background: var(--ink);
+  }
+}
+
+.bar--protein > span {
+  background: var(--palm);
+}
+
+.bar--over > span {
+  background: var(--date);
+}
+
+.cups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cup {
+  width: 30px;
+  height: 36px;
+  border-radius: 4px 4px 10px 10px;
+  border: 2px solid var(--line);
+  background: transparent;
+  padding: 0;
+}
+
+.cup--full {
+  background: color-mix(in srgb, var(--focus) 70%, transparent);
+  border-color: transparent;
+}
+
+/* ------------------------------ الخيط (السدو) ------------------------------ */
+
+.thread-card {
+  background: var(--night);
+  color: #fff;
+  border-radius: var(--r-md);
+  padding: 16px 16px 14px;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .thread-card {
+    background: #0a1120;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+}
+
+.thread-card .muted {
+  color: #b7c1d9;
+}
+
+.weave {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+}
+
+.weave .row-new {
+  animation: weave-in 0.9s var(--ease) both;
+}
+
+@keyframes weave-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------ المدرب ------------------------------ */
+
+.chat {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.bubble {
+  max-width: 86%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: var(--fs-md);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.bubble--coach {
+  justify-self: start;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  border-start-start-radius: 6px;
+}
+
+.bubble--user {
+  justify-self: end;
+  background: var(--night);
+  color: #fff;
+  border-start-end-radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bubble--user {
+    background: var(--night-2);
+  }
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.composer {
+  position: sticky;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 6px);
+  display: flex;
+  gap: 8px;
+  align-items: end;
+  padding: 8px;
+  border-radius: 26px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.composer textarea {
+  flex: 1;
+  border: 0;
+  resize: none;
+  background: transparent;
+  padding: 10px 12px;
+  min-height: 48px;
+  max-height: 140px;
+  line-height: 1.6;
+}
+
+.composer textarea:focus {
+  outline: none;
+}
+
+.typing {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--ink-soft);
+  animation: blink 1.2s infinite both;
+}
+
+.typing i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------ القوائم ------------------------------ */
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 0;
+  text-align: start;
+  width: 100%;
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  background: var(--palm-soft);
+  color: var(--palm);
+}
+
+.badge--date {
+  background: var(--date-soft);
+  color: color-mix(in srgb, var(--date) 70%, var(--ink));
+}
+
+/* ------------------------------ المشغّل ------------------------------ */
+
+.player {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--night);
+  color: #fff;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.player-body {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.player .muted {
+  color: #b7c1d9;
+}
+
+.timer {
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ring {
+  width: min(70vw, 280px);
+  aspect-ratio: 1;
+}
+
+.player .btn {
+  background: var(--date);
+  color: #1b1406;
+}
+
+.player .btn--ghost {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
+}
+
+/* ------------------------------ الإعداد ------------------------------ */
+
+.steps-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.steps-dots i {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--line);
+}
+
+.steps-dots i.on {
+  background: var(--sadu);
+}
+
+.hero-weave {
+  margin: 8px auto 0;
+  width: 100%;
+  max-width: 300px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stat {
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  line-height: 1.4;
+}
+
+.note {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--date-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.note--alert {
+  background: color-mix(in srgb, var(--sadu) 14%, var(--surface));
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.toast {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom));
+  z-index: 40;
+  max-width: 528px;
+  margin-inline: auto;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: var(--palm);
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+  animation: weave-in 0.3s var(--ease) both;
+}
