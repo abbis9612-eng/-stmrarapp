@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { actions, deriveTargets, getState, useApp } from "@/lib/store";
 import { coachContext, offlineReply } from "@/lib/offline-coach";
@@ -29,6 +29,18 @@ function Coach() {
   const endRef = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
   const toast = useToast();
+  const online = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("online", cb);
+      window.addEventListener("offline", cb);
+      return () => {
+        window.removeEventListener("online", cb);
+        window.removeEventListener("offline", cb);
+      };
+    },
+    () => navigator.onLine,
+    () => true,
+  );
 
   const send = async (raw: string) => {
     const msg = raw.trim();
@@ -39,6 +51,7 @@ function Coach() {
     const st = getState();
     const targets = deriveTargets(st)!;
     try {
+      if (!navigator.onLine) throw new Error("offline");
       const res = await fetch("/api/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -95,6 +108,12 @@ function Coach() {
           </button>
         )}
       </header>
+
+      {!online && (
+        <p className="note" role="status">
+          أنت بدون إنترنت. سند المحلي يرد عليك ويحسب أكلك من القاعدة، والمدرب الذكي يرجع أول ما يرجع الاتصال.
+        </p>
+      )}
 
       <div className="chat" aria-live="polite">
         {s.chat.length === 0 && (

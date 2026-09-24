@@ -6,6 +6,7 @@ import { computeThread, trendWeights, type TrendPoint } from "@/lib/science";
 import { n, parseNum } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 import { useToast } from "@/components/Toast";
+import { ReminderCard } from "@/components/ReminderCard";
 
 export default function Progress() {
   const s = useApp();
@@ -137,6 +138,8 @@ export default function Progress() {
           ))}
         </ul>
       </section>
+
+      <ReminderCard onDone={toast.show} />
 
       <details className="card">
         <summary style={{ cursor: "pointer", fontWeight: 600, minHeight: 32 }}>بياناتك</summary>

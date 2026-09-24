@@ -78,7 +78,7 @@ function seed() {
 async function run(scheme) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme, locale: "ar-SA" });
   const page = await ctx.newPage();
-  page.on("console", (m) => m.type() === "error" && !m.text().includes("503") && errors.push(`[${scheme}] ${m.text()}`));
+  page.on("console", (m) => m.type() === "error" && !m.text().includes("503") && !m.text().includes("ERR_INTERNET_DISCONNECTED") && errors.push(`[${scheme}] ${m.text()}`));
   page.on("pageerror", (e) => errors.push(`[${scheme}] ${e.message}`));
 
   // ١) الإعداد من الصفر
@@ -138,6 +138,29 @@ async function run(scheme) {
 
   await page.goto(`${BASE}/progress`);
   await page.screenshot({ path: `${OUT}/${scheme}-12-progress.png`, fullPage: true });
+
+  // التذكير: ينزّل ملف تقويم صالح
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "أضف التذكيرات لتقويمي" }).click()]);
+  const icsPath = await download.path();
+  const ics = (await import("node:fs")).readFileSync(icsPath, "utf8");
+  if (!ics.includes("RRULE:FREQ=DAILY") || (ics.match(/BEGIN:VEVENT/g) ?? []).length !== 2) errors.push(`[${scheme}] bad ics download`);
+
+  // بدون إنترنت: الصفحات تفتح من الـ Service Worker، والمدرب المحلي يرد
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+  for (const path of ["/today", "/eat", "/coach", "/move", "/progress"]) await page.goto(`${BASE}${path}`);
+  await ctx.setOffline(true);
+  const offlineFail = (r) => r.url().includes("/_next/static/") && errors.push(`[${scheme}] offline asset missing: ${r.url()}`);
+  page.on("requestfailed", offlineFail);
+  await page.goto(`${BASE}/eat`);
+  if (!(await page.getByRole("heading", { name: "الأكل" }).isVisible())) errors.push(`[${scheme}] /eat not available offline`);
+  await page.goto(`${BASE}/coach`);
+  await page.getByRole("status").filter({ hasText: "بدون إنترنت" }).waitFor({ timeout: 5000 });
+  await page.fill("#msg", "فطرت بيضتين وشاي كرك");
+  await page.keyboard.press("Enter");
+  await page.getByText("وضع محلي").last().waitFor({ timeout: 5000 });
+  await page.screenshot({ path: `${OUT}/${scheme}-13-offline-coach.png`, fullPage: true });
+  page.off("requestfailed", offlineFail);
+  await ctx.setOffline(false);
 
   // فحص: لا تمرير أفقي
   for (const path of ["/today", "/eat", "/coach", "/move", "/progress"]) {
