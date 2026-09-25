@@ -7,6 +7,7 @@ import app.sanad.core.CoachReply
 import app.sanad.core.ROUTINES
 import app.sanad.core.Targets
 import app.sanad.core.trendWeights
+import app.sanad.core.weeklyReview
 import app.sanad.core.weightPoints
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -116,6 +117,9 @@ fun coachContext(s: AppState, t: Targets, today: String, localTime: String): Str
         "why: ${p.why.ifBlank { "-" }}; barriers: ${p.barriers.joinToString(",").ifEmpty { "-" }}; ramadan_mode: ${p.ramadan}",
         "health_flags: ${p.flags.joinToString(",").ifEmpty { "none" }}",
         "if_then_plans: ${p.ifThens.joinToString(" | ") { "${it.whenText} → ${it.thenText}" }.ifEmpty { "none" }}",
+        weeklyReview(p, s.days, t, today).let { r ->
+            "last_7_days: active ${r.activeDays}/7, food_logged ${r.foodDays}, avg_kcal ${r.avgKcal ?: "-"}, avg_protein ${r.avgProtein ?: "-"} g, protein_target_days ${r.proteinDays}, workouts ${r.workouts} (${r.workoutMinutes} min), trend_change_kg ${r.trendChangeKg ?: "unknown"} (plan ${r.expectedChangeKg}), pacing ${r.pacing}, suggested_focus ${r.focus}"
+        },
         "local_time: $localTime",
     ).joinToString("\n")
 }

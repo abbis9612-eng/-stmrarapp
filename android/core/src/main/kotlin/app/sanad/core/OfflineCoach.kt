@@ -65,6 +65,11 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
             emptyList(),
         )
     }
+    val profile = state.profile
+    if (profile != null && Regex("(اسبوعي|الاسبوع|مراجعه|تقييمي|كيف ماشي)").containsMatchIn(q)) {
+        val r = weeklyReview(profile, state.days, t, today)
+        return CoachReply("مراجعة آخر ٧ أيام: حضرت ${ar(r.activeDays)} من ٧، وتمرنت ${ar(r.workouts)} مرات.\n${r.win}\n${r.focusText}", emptyList())
+    }
     if (Regex("(حلا|حلويات|سكر|شوكولا|ابي حلو)").containsMatchIn(q)) {
         return CoachReply("ما في أكل ممنوع. خذ حصة صغيرة وأنت مستمتع، بعد وجبة فيها بروتين — مو على جوع. وسجّلها بدون تأنيب.", emptyList())
     }

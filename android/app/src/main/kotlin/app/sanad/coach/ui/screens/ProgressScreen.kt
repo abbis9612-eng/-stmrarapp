@@ -43,6 +43,7 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.data.latestWeight
 import app.sanad.coach.data.targets
 import app.sanad.coach.data.today
+import app.sanad.coach.ui.Routes
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.Meter
@@ -62,6 +63,9 @@ import app.sanad.core.computeThread
 import app.sanad.core.parseNum
 import app.sanad.core.trendWeights
 import app.sanad.core.weightPoints
+import app.sanad.core.weeklyReview
+import app.sanad.core.WeeklyReview
+import app.sanad.core.Pacing
 import java.time.LocalDate
 import kotlin.math.ceil
 import kotlin.math.max
@@ -117,6 +121,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Stat(if (toGo > 0) ar(weeks) else "✓", if (toGo > 0) "أسبوع تقريباً" else "وصلت!", Modifier.weight(1f))
             }
         }
+        item { WeekReviewCard(weeklyReview(p, state.days, t, day.date)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
         item {
             SCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -221,5 +226,45 @@ private fun TrendChart(points: List<TrendPoint>, goal: Double) {
             drawCircle(c.date, 6.dp.toPx(), Offset(x(last.date), y(last.trend)))
             drawCircle(c.night, 3.dp.toPx(), Offset(x(last.date), y(last.trend)))
         }
+    }
+}
+
+/** مراجعة الأسبوع: أرقام قليلة، نجاح واحد، وتركيز واحد للأسبوع الجاي. */
+@Composable
+private fun WeekReviewCard(r: WeeklyReview, onAsk: () -> Unit) {
+    val c = Sanad.colors
+    SCard {
+        Text("مراجعة الأسبوع", style = Type.h2.copy(color = c.ink))
+        Text("آخر ٧ أيام", style = Type.label.copy(color = c.inkSoft))
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Stat("${ar(r.activeDays)}/٧", "أيام حضور", Modifier.weight(1f))
+            Stat(ar(r.workouts), "تمارين", Modifier.weight(1f))
+            Stat(r.avgProtein?.let { "${ar(it)} غ" } ?: "—", "بروتين/يوم", Modifier.weight(1f))
+        }
+        val change = r.trendChangeKg
+        if (change != null) {
+            val (label, col) = when (r.pacing) {
+                Pacing.TOO_FAST -> "أسرع من اللازم" to c.date
+                Pacing.ON_TRACK -> "على الخطة" to c.palm
+                Pacing.SLOW -> "أبطأ من الخطة" to c.inkSoft
+                else -> "طالع شوي" to c.inkSoft
+            }
+            Text(
+                "الاتجاه: ${if (change <= 0) "نزول" else "زيادة"} ${ar(kotlin.math.abs(change))} كغ — $label",
+                style = Type.bodyStrong.copy(color = col),
+                modifier = Modifier.padding(top = 10.dp),
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface2).padding(12.dp)) {
+            Text(r.win, style = Type.small.copy(color = c.ink))
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.palm.copy(alpha = 0.12f)).padding(12.dp)) {
+            Text(r.focusText, style = Type.small.copy(color = c.ink))
+        }
+        Spacer(Modifier.height(10.dp))
+        SButton("ناقشها مع المدرب", onAsk, Modifier.fillMaxWidth(), style = BtnStyle.SOFT)
     }
 }
