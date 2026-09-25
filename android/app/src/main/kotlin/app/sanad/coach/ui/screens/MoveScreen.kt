@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
@@ -383,9 +384,10 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                     if (e != null) ExerciseFigure(e, Modifier.fillMaxSize().padding(8.dp), playing = running, onDark = true)
                     else Box(Modifier.fillMaxSize())
                 }
-                AnimatedVisibility(move.isRest && !finished, enter = fadeIn(), exit = fadeOut()) {
+                val restAlpha by animateFloatAsState(if (move.isRest && !finished) 1f else 0f, tween(500), label = "rest")
+                if (restAlpha > 0.01f) {
                     Column(
-                        Modifier.fillMaxSize().background(Color(0xB80A0D12)),
+                        Modifier.fillMaxSize().graphicsLayer { alpha = restAlpha }.background(Color(0xB80A0D12)),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
