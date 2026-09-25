@@ -20,7 +20,11 @@ kotlin {
 
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    // المدرب الذكي: مكتبة Anthropic الرسمية + OkHttp لأي مزوّد متوافق مع OpenAI
+    implementation("com.anthropic:anthropic-java:2.65.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(kotlin("test"))
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 tasks.test { useJUnitPlatform() }

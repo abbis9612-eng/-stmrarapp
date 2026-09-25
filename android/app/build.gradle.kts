@@ -8,7 +8,7 @@ val runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
 
 android {
     namespace = "app.sanad.coach"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.sanad.coach"
