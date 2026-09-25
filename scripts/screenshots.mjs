@@ -10,6 +10,8 @@ mkdirSync(OUT, { recursive: true });
 const exe = process.env.CHROMIUM ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const browser = await chromium.launch({ executablePath: exe });
 const errors = [];
+// NATIVE_SIM=1: يحاكي داخل تطبيق أندرويد (بدون Service Worker، الملفات محلية أصلاً)
+const nativeSim = process.env.NATIVE_SIM === "1";
 
 function localKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -76,39 +78,39 @@ function seed() {
 }
 
 async function run(scheme) {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme, locale: "ar-SA" });
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme, locale: "ar-SA", serviceWorkers: nativeSim ? "block" : "allow" });
   const page = await ctx.newPage();
-  page.on("console", (m) => m.type() === "error" && !m.text().includes("503") && !m.text().includes("ERR_INTERNET_DISCONNECTED") && errors.push(`[${scheme}] ${m.text()}`));
+  page.on("console", (m) => m.type() === "error" && !m.text().includes("503") && !(process.env.ALLOW_404 && m.text().includes("404")) && !m.text().includes("ERR_INTERNET_DISCONNECTED") && errors.push(`[${scheme}] ${m.text()}`));
   page.on("pageerror", (e) => errors.push(`[${scheme}] ${e.message}`));
 
   // ١) الإعداد من الصفر
   await page.goto(`${BASE}/`);
-  await page.waitForURL("**/start");
-  await page.screenshot({ path: `${OUT}/${scheme}-01-welcome.png`, fullPage: true });
+  await page.waitForURL(/\/start\/?$/);
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-01-welcome.png`, fullPage: true });
   await page.getByRole("button", { name: /نبدأ/ }).click();
   await page.fill("#name", "سارة");
   await page.getByRole("button", { name: "أنثى" }).click();
   await page.fill("#age", "34");
   await page.fill("#h", "162");
   await page.fill("#w", "88");
-  await page.screenshot({ path: `${OUT}/${scheme}-02-basics.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-02-basics.png`, fullPage: true });
   await page.getByRole("button", { name: "التالي" }).click();
   await page.getByRole("button", { name: "خذ المحطة المقترحة" }).click();
-  await page.screenshot({ path: `${OUT}/${scheme}-03-goal.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-03-goal.png`, fullPage: true });
   await page.getByRole("button", { name: "التالي" }).click();
   await page.getByRole("button", { name: "صحتي وتحاليلي" }).click();
   await page.getByRole("button", { name: "أكل الليل" }).click();
   await page.getByRole("button", { name: "ما عندي وقت" }).click();
   await page.getByRole("button", { name: "التالي" }).click();
   await page.getByRole("button", { name: "اعرض خطتي" }).click();
-  await page.screenshot({ path: `${OUT}/${scheme}-04-plan.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-04-plan.png`, fullPage: true });
   await page.getByRole("button", { name: "ابدأ يومي الأول" }).click();
-  await page.waitForURL("**/today");
-  await page.screenshot({ path: `${OUT}/${scheme}-05-checkin.png`, fullPage: true });
+  await page.waitForURL(/\/today\/?$/);
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-05-checkin.png`, fullPage: true });
   await page.getByRole("button", { name: "طاقتي تحت" }).click();
   await page.getByRole("button", { name: "دقيقتين" }).click();
   await page.getByRole("button", { name: "فصّل لي خطة اليوم" }).click();
-  await page.screenshot({ path: `${OUT}/${scheme}-06-today-low.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-06-today-low.png`, fullPage: true });
 
   // ٢) بيانات ٣ أسابيع
   await page.evaluate((s) => localStorage.setItem("sanad:v1", JSON.stringify(s)), seed());
@@ -117,27 +119,27 @@ async function run(scheme) {
   await page.getByRole("button", { name: "٢٠ دقيقة" }).click();
   await page.getByRole("button", { name: "فصّل لي خطة اليوم" }).click();
   await page.getByRole("button", { name: /أنجزت: سجّل وجباتك/ }).click();
-  await page.screenshot({ path: `${OUT}/${scheme}-07-today-high.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-07-today-high.png`, fullPage: true });
 
   await page.goto(`${BASE}/eat`);
   await page.fill("#q", "كبسه");
   await page.getByRole("button", { name: /كبسة دجاج/ }).first().click();
-  await page.screenshot({ path: `${OUT}/${scheme}-08-eat.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-08-eat.png`, fullPage: true });
   await page.getByRole("button", { name: /^حصة \d|^حصة [٠-٩]/ }).click();
 
   await page.goto(`${BASE}/coach`);
   await page.getByRole("button", { name: "تغديت كبسة دجاج ولبن" }).click();
   await page.getByText(/حسبتها|سعرة/).first().waitFor({ timeout: 15000 });
-  await page.screenshot({ path: `${OUT}/${scheme}-09-coach.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-09-coach.png`, fullPage: true });
 
   await page.goto(`${BASE}/move`);
-  await page.screenshot({ path: `${OUT}/${scheme}-10-move.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-10-move.png`, fullPage: true });
   await page.goto(`${BASE}/move?play=strength-10`);
   await page.waitForTimeout(1500);
-  await page.screenshot({ path: `${OUT}/${scheme}-11-player.png` });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-11-player.png` });
 
   await page.goto(`${BASE}/progress`);
-  await page.screenshot({ path: `${OUT}/${scheme}-12-progress.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-12-progress.png`, fullPage: true });
 
   // التذكير: ينزّل ملف تقويم صالح
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "أضف التذكيرات لتقويمي" }).click()]);
@@ -146,6 +148,7 @@ async function run(scheme) {
   if (!ics.includes("RRULE:FREQ=DAILY") || (ics.match(/BEGIN:VEVENT/g) ?? []).length !== 2) errors.push(`[${scheme}] bad ics download`);
 
   // بدون إنترنت: الصفحات تفتح من الـ Service Worker، والمدرب المحلي يرد
+  if (!nativeSim) {
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   for (const path of ["/today", "/eat", "/coach", "/move", "/progress"]) await page.goto(`${BASE}${path}`);
   await ctx.setOffline(true);
@@ -158,13 +161,16 @@ async function run(scheme) {
   await page.fill("#msg", "فطرت بيضتين وشاي كرك");
   await page.keyboard.press("Enter");
   await page.getByText("وضع محلي").last().waitFor({ timeout: 5000 });
-  await page.screenshot({ path: `${OUT}/${scheme}-13-offline-coach.png`, fullPage: true });
+  await page.screenshot({ path: `${OUT}/${nativeSim ? "native-" : ""}${scheme}-13-offline-coach.png`, fullPage: true });
   page.off("requestfailed", offlineFail);
   await ctx.setOffline(false);
+  }
 
   // فحص: لا تمرير أفقي
   for (const path of ["/today", "/eat", "/coach", "/move", "/progress"]) {
     await page.goto(`${BASE}${path}`);
+    if (nativeSim) await page.waitForURL(/index\.html$/);
+    await page.locator("h1").first().waitFor();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     if (overflow > 1) errors.push(`[${scheme}] horizontal overflow on ${path}: ${overflow}px`);
   }

@@ -57,6 +57,17 @@ Next.js 16 (App Router) + React 19 + TypeScript
 
 قرار «محلي أولاً» سببه إن التطبيق لازم يشتغل بدون حساب وبدون إنترنت. **متى نعيد النظر؟** لما نحتاج مزامنة بين الأجهزة أو نصير نقرأ الخطوات من Apple Health / Health Connect. وقتها نضيف خادم (Supabase مثلاً) ونغلّف التطبيق بـ Capacitor.
 
+## تطبيق أندرويد (APK)
+
+**رابط التحميل المباشر (آخر نسخة):**
+https://github.com/abbis9612-eng/-stmrarapp/releases/latest/download/sanad.apk
+
+- GitHub Actions يبني الـ APK تلقائياً مع كل push (`.github/workflows/android.yml`)، وينشره كـ Release.
+- التطبيق يشتغل بالكامل على الجهاز بدون إنترنت (Capacitor + نسخة ثابتة من الواجهة)، والمدرب يشتغل بوضعه المحلي.
+- لتفعيل المدرب الذكي داخل الـ APK: انشر نسخة الويب (مثلاً Vercel مع `ANTHROPIC_API_KEY`)، ثم ضع رابطها في متغير المستودع `SANAD_API_BASE`.
+- التوقيع: مفتاح تجريبي ثابت حتى تتثبت كل نسخة فوق اللي قبلها بدون مسح البيانات. **قبل Google Play** أضف مفتاحاً سرياً في أسرار GitHub: `ANDROID_KEYSTORE_BASE64`، `ANDROID_KEYSTORE_PASSWORD`، `ANDROID_KEY_ALIAS`، `ANDROID_KEY_PASSWORD`.
+- بناء محلي: `npm run build:mobile` ثم `cd android && ./gradlew assembleRelease` (يحتاج Android SDK وJDK 21).
+
 ## التشغيل
 
 ```bash

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 
 export function RegisterSW() {
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
+    // داخل تطبيق أندرويد الملفات أصلاً على الجهاز، فما نحتاج Service Worker
+    if (process.env.NODE_ENV !== "production" || Capacitor.isNativePlatform() || !("serviceWorker" in navigator)) return;
     navigator.serviceWorker
       .register("/sw.js")
       .then(() => navigator.serviceWorker.ready)

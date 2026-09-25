@@ -26,7 +26,31 @@ const ReplySchema = z.object({ reply: z.string().min(1), actions: z.array(Action
 
 const MODEL = process.env.COACH_MODEL || "claude-opus-5";
 
+// تطبيق أندرويد (Capacitor) يطلب من أصل https://localhost
+const APP_ORIGINS = new Set(["https://localhost", "capacitor://localhost", "http://localhost"]);
+
+function cors(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin");
+  if (!origin || !APP_ORIGINS.has(origin)) return {};
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+}
+
+export function OPTIONS(req: Request) {
+  return new Response(null, { status: 204, headers: cors(req) });
+}
+
 export async function POST(req: Request) {
+  const res = await handle(req);
+  for (const [k, v] of Object.entries(cors(req))) res.headers.set(k, v);
+  return res;
+}
+
+async function handle(req: Request): Promise<Response> {
   if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
     return Response.json({ error: "no_key" }, { status: 503 });
   }

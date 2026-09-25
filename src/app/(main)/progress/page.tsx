@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { actions, deriveTargets, emptyDay, getState, latestWeight, todayKey, useApp } from "@/lib/store";
 import { computeThread, trendWeights, type TrendPoint } from "@/lib/science";
 import { n, parseNum } from "@/lib/format";
@@ -16,6 +17,7 @@ export default function Progress() {
   const day = s.days[today] ?? emptyDay(today);
   const [w, setW] = useState("");
   const toast = useToast();
+  const router = useRouter();
 
   const points = Object.values(s.days)
     .filter((d) => d.weightKg !== null)
@@ -177,7 +179,7 @@ export default function Progress() {
             onClick={() => {
               if (confirm("متأكد؟ بينمسح كل شي على هذا الجهاز ولا يمكن استرجاعه بدون نسخة احتياطية.")) {
                 actions.reset();
-                location.href = "/start";
+                router.replace("/start");
               }
             }}
           >

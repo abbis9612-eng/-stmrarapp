@@ -52,7 +52,7 @@ function Coach() {
     const targets = deriveTargets(st)!;
     try {
       if (!navigator.onLine) throw new Error("offline");
-      const res = await fetch("/api/coach", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE ?? ""}/api/coach`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
