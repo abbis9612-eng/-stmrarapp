@@ -172,6 +172,7 @@ enum class MissionKind { MOVE, EAT, RESTORE }
 data class Mission(val id: String, val kind: MissionKind, val title: String, val detail: String, val routineId: String? = null)
 
 fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<Mission> {
+    if (p.ramadan) return ramadanMissions(energy, time, t)
     val proteinMeal = roundTo(t.protein / 3.0, 5)
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(

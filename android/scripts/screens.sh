@@ -46,6 +46,10 @@ shot 22-dark-player 5 --ez skipIntro true --es route player/low-impact-10
 shot 23-dark-progress 4 --ez skipIntro true --es route progress
 adb shell cmd uimode night no
 
+# وضع رمضان (آخر شي لأنه يبقى مفعّل)
+shot 30-ramadan-today 4 --ez demo true --ez skipIntro true --es checkin HIGH --ez ramadan true
+scroll_shot 31-ramadan-today-scrolled
+
 # أي انهيار؟
 if adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime: Process: app.sanad.coach" ; then
   adb logcat -d | grep -A 30 "FATAL EXCEPTION" > "$OUT/crash.txt" || true

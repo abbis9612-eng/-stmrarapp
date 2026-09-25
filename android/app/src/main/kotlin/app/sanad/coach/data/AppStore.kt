@@ -68,6 +68,8 @@ class AppStore(context: Context) {
         updateDay { it.copy(weightKg = it.weightKg ?: p.startWeightKg) }
     }
 
+    fun setRamadan(on: Boolean) = set { s -> s.profile?.let { s.copy(profile = it.copy(ramadan = on)) } ?: s }
+
     fun checkIn(energy: Energy, time: TimeBudget) = updateDay { it.copy(energy = energy, time = time) }
 
     fun clearCheckIn() = updateDay { it.copy(energy = null, time = null) }

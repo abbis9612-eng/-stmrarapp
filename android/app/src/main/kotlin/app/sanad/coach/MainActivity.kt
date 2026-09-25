@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
             intent?.let {
                 if (it.getBooleanExtra("demo", false)) Graph.store.replaceAll(demoState())
                 if (it.getBooleanExtra("fresh", false)) Graph.store.reset()
+                if (it.hasExtra("ramadan")) Graph.store.setRamadan(it.getBooleanExtra("ramadan", false))
                 it.getStringExtra("checkin")?.let { e -> Graph.store.checkIn(Energy.valueOf(e), TimeBudget.TWENTY) }
                 startRoute = it.getStringExtra("route")
                 skipIntro = it.getBooleanExtra("skipIntro", false)

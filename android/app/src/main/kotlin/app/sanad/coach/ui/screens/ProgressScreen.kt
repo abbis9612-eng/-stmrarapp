@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -171,6 +173,22 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                             SIcon(Ico.TRASH, size = 20.dp, tint = c.inkSoft)
                         }
                     }
+                }
+            }
+        }
+        item {
+            SCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("وضع رمضان", style = Type.h2.copy(color = c.ink))
+                        Text("يوزّع هدفك على الفطور والسحور، والتمرين بعد الفطور.", style = Type.small.copy(color = c.inkSoft))
+                    }
+                    Switch(
+                        checked = p.ramadan,
+                        onCheckedChange = store::setRamadan,
+                        colors = SwitchDefaults.colors(checkedTrackColor = c.palm),
+                        modifier = Modifier.semantics { contentDescription = "وضع رمضان" },
+                    )
                 }
             }
         }

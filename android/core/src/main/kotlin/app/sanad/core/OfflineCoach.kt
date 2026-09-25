@@ -66,6 +66,12 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
         )
     }
     val profile = state.profile
+    if (profile != null && (Regex("(رمضان|صيام|صايم|سحور)").containsMatchIn(q) || (profile.ramadan && Regex("(فطور|افطار)").containsMatchIn(q)))) {
+        val plan = ramadanPlan(profile, t)
+        val split = plan.meals.joinToString("\n") { "${it.name}: ${ar(it.kcal)} سعرة و${ar(it.protein)} غ بروتين" }
+        val lead = if (profile.ramadan) "خطتك الرمضانية لليوم:" else "إذا صايم، هذا توزيع هدفك على رمضان (فعّل وضع رمضان من صفحة التقدّم):"
+        return CoachReply("$lead\n$split\n${plan.meals.first().tip}\n${plan.move}", emptyList())
+    }
     if (profile != null && Regex("(اسبوعي|الاسبوع|مراجعه|تقييمي|كيف ماشي)").containsMatchIn(q)) {
         val r = weeklyReview(profile, state.days, t, today)
         return CoachReply("مراجعة آخر ٧ أيام: حضرت ${ar(r.activeDays)} من ٧، وتمرنت ${ar(r.workouts)} مرات.\n${r.win}\n${r.focusText}", emptyList())

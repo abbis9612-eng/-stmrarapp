@@ -78,6 +78,8 @@ import app.sanad.core.TimeBudget
 import app.sanad.core.ar
 import app.sanad.core.computeThread
 import app.sanad.core.dayMissions
+import app.sanad.core.RamadanPlan
+import app.sanad.core.ramadanPlan
 import app.sanad.core.routineById
 import app.sanad.core.weaveCells
 import java.time.LocalTime
@@ -160,6 +162,8 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 }
             }
         }
+
+        if (p.ramadan) item { RamadanCard(ramadanPlan(p, t)) }
 
         if (checkedIn) {
             val missions = dayMissions(day.energy!!, day.time!!, t, p)
@@ -345,5 +349,31 @@ private fun AskCoach(onAsk: (String) -> Unit) {
                 .semantics { contentDescription = "أرسل لسند" },
             contentAlignment = Alignment.Center,
         ) { SIcon(Ico.SEND, size = 22.dp, tint = if (c.isDark) Color(0xFF1B1406) else Color.White) }
+    }
+}
+
+/** خطة رمضان: هدف اليوم موزّع على نافذة الأكل. */
+@Composable
+private fun RamadanCard(plan: RamadanPlan) {
+    val c = Sanad.colors
+    SCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SIcon(Ico.MOON, tint = c.sadu)
+            Spacer(Modifier.width(8.dp))
+            Text("خطتك الرمضانية", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(10.dp))
+        plan.meals.forEach { m ->
+            Row(
+                Modifier.padding(bottom = 8.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface2).padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(m.name, style = Type.bodyStrong.copy(color = c.ink), modifier = Modifier.weight(1f))
+                Text("${ar(m.kcal)} سعرة، ${ar(m.protein)} غ بروتين", style = Type.small.copy(color = c.inkSoft))
+            }
+        }
+        Text(plan.water, style = Type.small.copy(color = c.ink))
+        Spacer(Modifier.height(6.dp))
+        plan.cautions.forEach { Text(it, style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 2.dp)) }
     }
 }
