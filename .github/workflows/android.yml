@@ -21,9 +21,9 @@ jobs:
     env:
       HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -40,13 +40,15 @@ jobs:
           NEXT_PUBLIC_API_BASE: ${{ vars.SANAD_API_BASE }}
           NEXT_TELEMETRY_DISABLED: "1"
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
           cache: gradle
 
-      - uses: android-actions/setup-android@v3
+      # Android SDK مثبّت مسبقاً على ubuntu-latest (ANDROID_HOME)، وGradle ينزّل أي منصة ناقصة.
+      - name: Check Android SDK
+        run: echo "ANDROID_HOME=$ANDROID_HOME" && ls "$ANDROID_HOME/build-tools" | tail -3
 
       - name: Use release keystore from secrets (if configured)
         env:
