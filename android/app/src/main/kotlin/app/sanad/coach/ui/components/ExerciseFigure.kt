@@ -68,8 +68,10 @@ fun DrawScope.drawFigure(f: Pose, prop: Prop, c: SanadColors, onDark: Boolean) {
     fun pt(j: Joint) = Offset(ox + f.x(j) * s, oy + f.y(j) * s)
     fun o(x: Float, y: Float) = Offset(ox + x * s, oy + y * s)
 
-    val near = if (onDark) c.wool else c.night
-    val far = if (onDark) c.onNightSoft.copy(alpha = 0.55f) else c.inkSoft.copy(alpha = 0.45f)
+    // في الوضع الداكن الأطراف فاتحة حتى تبان على الخلفيات الداكنة
+    val light = onDark || c.isDark
+    val near = if (light) c.wool else c.night
+    val far = if (light) c.onNightSoft.copy(alpha = 0.55f) else c.inkSoft.copy(alpha = 0.45f)
     val propColor = if (onDark) Color.White.copy(alpha = 0.16f) else c.line
 
     // الأرض + ظل ناعم تحت الجسم
