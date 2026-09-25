@@ -107,7 +107,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
         item {
-            SCard(color = if (c.isDark) c.surface2 else c.night, pad = 14.dp) {
+            SCard(color = c.saffron, pad = 14.dp) {
                 Row(Modifier.press({ nav.navigate(Routes.COACH) }), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(c.date), contentAlignment = Alignment.Center) {
                         SIcon(Ico.COACH, tint = Color(0xFF1B1406))
@@ -115,9 +115,9 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("أسرع طريقة", style = Type.label.copy(color = c.date))
-                        Text("اكتب لسند وش أكلت بجملة، ويحسبها لك.", style = Type.body.copy(color = Color.White))
+                        Text("اكتب لسند وش أكلت بجملة، ويحسبها لك.", style = Type.body.copy(color = c.ink))
                     }
-                    SIcon(Ico.NEXT, tint = Color.White)
+                    SIcon(Ico.NEXT, tint = c.ink)
                 }
             }
         }
@@ -163,7 +163,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         item { SectionTitle("سجل اليوم") }
         if (day.meals.isEmpty()) item {
-            Text("ما سجلت شي اليوم. أول وجبة تسجلها تنجز مهمة الأكل وتنسج صف بخيطك.", style = Type.small.copy(color = c.inkSoft))
+            Text("ما سجلت شي اليوم. أول وجبة تسجلها تنجز مهمة الأكل وتحسب يوم بسلسلتك.", style = Type.small.copy(color = c.inkSoft))
         }
         day.meals.forEach { m ->
             item(key = "m-${m.id}") {

@@ -1,27 +1,31 @@
 package app.sanad.coach.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import app.sanad.coach.R
+import app.sanad.core.Energy
 
-/** هوية سند: ليل نيلي + نسيج السدو + ذهب التمر. الجرأة في "الخيط"، والباقي هادئ. */
+/**
+ * هوية سند: ليل عميق، زجاج شفاف، ونور حي (الكرة) يتلوّن حسب طاقتك.
+ * الجرأة في الكرة والحلقات؛ الباقي هادئ.
+ */
 @Immutable
 data class SanadColors(
     val bg: Color,
@@ -29,51 +33,78 @@ data class SanadColors(
     val surface2: Color,
     val ink: Color,
     val inkSoft: Color,
+    val faint: Color,
     val line: Color,
-    val night: Color,
-    val night2: Color,
-    val onNight: Color,
-    val onNightSoft: Color,
-    val sadu: Color,
-    val sadu2: Color,
-    val date: Color,
-    val dateSoft: Color,
-    val palm: Color,
-    val palmSoft: Color,
+    val glassTop: Color,
+    val glassBottom: Color,
+    val glass2: Color,
+    /** زعفران — التقدّم والسلسلة */
+    val saffron: Color,
+    /** جمر — الطاقة والأزرار الأساسية */
+    val ember: Color,
+    /** واحة — الإنجاز والبروتين */
+    val oasis: Color,
+    /** سماء — الماء */
     val sky: Color,
-    val wool: Color,
-    val isDark: Boolean,
+    val rose: Color,
+    /** نص فوق الأزرار الذهبية */
+    val onGold: Color,
+) {
+    // أسماء قديمة تبقى تعمل في الشاشات الثانوية
+    val night: Color get() = surface
+    val night2: Color get() = surface2
+    val onNight: Color get() = ink
+    val onNightSoft: Color get() = inkSoft
+    val sadu: Color get() = ember
+    val sadu2: Color get() = saffron
+    val date: Color get() = saffron
+    val dateSoft: Color get() = saffron.copy(alpha = 0.14f)
+    val palm: Color get() = oasis
+    val palmSoft: Color get() = oasis.copy(alpha = 0.14f)
+    val wool: Color get() = ink
+    val isDark: Boolean get() = true
+}
+
+val SanadDark = SanadColors(
+    bg = Color(0xFF0A0D12),
+    surface = Color(0xFF141922),
+    surface2 = Color(0xFF1C222C),
+    ink = Color(0xFFF2F0EB),
+    inkSoft = Color(0xFF98A1AF),
+    faint = Color(0xFF5E6776),
+    line = Color(0x14FFFFFF),
+    glassTop = Color(0x13FFFFFF),
+    glassBottom = Color(0x08FFFFFF),
+    glass2 = Color(0x17FFFFFF),
+    saffron = Color(0xFFFFB648),
+    ember = Color(0xFFFF7A45),
+    oasis = Color(0xFF34D7B8),
+    sky = Color(0xFF5B8CFF),
+    rose = Color(0xFFFF5C7A),
+    onGold = Color(0xFF1A0F06),
 )
 
-val LightColors = SanadColors(
-    bg = Color(0xFFF1F3F7), surface = Color(0xFFFFFFFF), surface2 = Color(0xFFE8ECF3),
-    ink = Color(0xFF14213D), inkSoft = Color(0xFF56607A), line = Color(0xFFD7DDE8),
-    night = Color(0xFF14213D), night2 = Color(0xFF263A66), onNight = Color(0xFFFFFFFF), onNightSoft = Color(0xFFB7C1D9),
-    sadu = Color(0xFFA83A2F), sadu2 = Color(0xFFD9674F), date = Color(0xFFD9962E), dateSoft = Color(0xFFF7E6C8),
-    palm = Color(0xFF2C6E4F), palmSoft = Color(0xFFD7EBE1), sky = Color(0xFF3B6FD8), wool = Color(0xFFF4EFE6),
-    isDark = false,
+/** ألوان الكرة الحيّة والإضاءة المحيطة لكل مستوى طاقة. */
+@Immutable
+data class Mood(val a: Color, val b: Color, val c: Color)
+
+val MOODS = mapOf(
+    Energy.LOW to Mood(Color(0xFF7C8BFF), Color(0xFF34D7B8), Color(0xFFA57BFF)),
+    Energy.MID to Mood(Color(0xFF34D7B8), Color(0xFFFFB648), Color(0xFF5B8CFF)),
+    Energy.HIGH to Mood(Color(0xFFFF7A45), Color(0xFFFFB648), Color(0xFFFF5C7A)),
 )
 
-val DarkColors = SanadColors(
-    bg = Color(0xFF0B1322), surface = Color(0xFF131E36), surface2 = Color(0xFF1B2946),
-    ink = Color(0xFFE9EDF5), inkSoft = Color(0xFF9AA6C0), line = Color(0xFF26375C),
-    night = Color(0xFF0A1120), night2 = Color(0xFF1B2B4F), onNight = Color(0xFFFFFFFF), onNightSoft = Color(0xFFB7C1D9),
-    sadu = Color(0xFFD9674F), sadu2 = Color(0xFFF08C72), date = Color(0xFFF0B457), dateSoft = Color(0xFF3A2F1C),
-    palm = Color(0xFF5FBF8F), palmSoft = Color(0xFF183A2C), sky = Color(0xFF7AA2FF), wool = Color(0xFFF4EFE6),
-    isDark = true,
+fun moodFor(e: Energy?): Mood = MOODS.getValue(e ?: Energy.MID)
+
+val LocalSanad = staticCompositionLocalOf { SanadDark }
+val LocalMood = compositionLocalOf { moodFor(null) }
+
+/** الخط الكوفي للهوية والأرقام الكبيرة. */
+val Display = FontFamily(
+    Font(R.font.reem_medium, FontWeight.Medium),
+    Font(R.font.reem_semibold, FontWeight.SemiBold),
+    Font(R.font.reem_bold, FontWeight.Bold),
 )
-
-val LocalSanad = staticCompositionLocalOf { LightColors }
-
-@OptIn(ExperimentalTextApi::class)
-private fun alexandria(weight: Int) = Font(
-    R.font.alexandria,
-    weight = FontWeight(weight),
-    variationSettings = FontVariation.Settings(FontVariation.weight(weight)),
-)
-
-@OptIn(ExperimentalTextApi::class)
-val Display = FontFamily(alexandria(500), alexandria(700), alexandria(800))
 
 val Body = FontFamily(
     Font(R.font.plex_regular, FontWeight.Normal),
@@ -82,35 +113,42 @@ val Body = FontFamily(
     Font(R.font.plex_bold, FontWeight.Bold),
 )
 
-/** مقاسات عربية: أسطر أعلى (١٫٧) وعناوين أكبر ~١٠٪، بدون تباعد حروف. */
+/** سلّم الخطوط: الكوفي للعناوين الكبيرة والأرقام، وبلكس للقراءة. */
 object Type {
-    val hero = TextStyle(fontFamily = Display, fontWeight = FontWeight(800), fontSize = 38.sp, lineHeight = 1.3.em)
-    val h1 = TextStyle(fontFamily = Display, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 1.35.em)
-    val h2 = TextStyle(fontFamily = Display, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 1.4.em)
-    val h3 = TextStyle(fontFamily = Display, fontWeight = FontWeight.Medium, fontSize = 17.sp, lineHeight = 1.45.em)
-    val body = TextStyle(fontFamily = Body, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 1.7.em)
+    val hero = TextStyle(fontFamily = Display, fontWeight = FontWeight.Bold, fontSize = 52.sp, lineHeight = 1.15.em)
+    val h1 = TextStyle(fontFamily = Display, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 1.3.em)
+    val h2 = TextStyle(fontFamily = Body, fontWeight = FontWeight.Bold, fontSize = 18.sp, lineHeight = 1.45.em)
+    val h3 = TextStyle(fontFamily = Body, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 1.5.em)
+    val body = TextStyle(fontFamily = Body, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 1.75.em)
     val bodyStrong = body.copy(fontWeight = FontWeight.SemiBold)
-    val small = TextStyle(fontFamily = Body, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 1.65.em)
-    val label = TextStyle(fontFamily = Body, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 1.5.em)
-    val number = TextStyle(fontFamily = Display, fontWeight = FontWeight.Bold, fontSize = 30.sp, lineHeight = 1.2.em)
+    val small = TextStyle(fontFamily = Body, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 1.6.em)
+    val label = TextStyle(fontFamily = Body, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 1.5.em)
+    val number = TextStyle(fontFamily = Display, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 1.15.em)
 }
 
 @Composable
 fun SanadTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
-    val c = if (dark) DarkColors else LightColors
-    val scheme = if (dark) darkColorScheme(
-        primary = c.date, onPrimary = Color(0xFF1B1406), background = c.bg, surface = c.surface,
-        onBackground = c.ink, onSurface = c.ink, secondary = c.sadu, outline = c.line,
-    ) else lightColorScheme(
-        primary = c.night, onPrimary = Color.White, background = c.bg, surface = c.surface,
-        onBackground = c.ink, onSurface = c.ink, secondary = c.sadu, outline = c.line,
+    val c = SanadDark
+    val scheme = darkColorScheme(
+        primary = c.saffron, onPrimary = c.onGold, background = c.bg, surface = c.surface,
+        onBackground = c.ink, onSurface = c.ink, secondary = c.oasis, outline = c.line,
     )
     CompositionLocalProvider(LocalSanad provides c, LocalLayoutDirection provides LayoutDirection.Rtl) {
         MaterialTheme(colorScheme = scheme, content = content)
     }
 }
 
+/** يلوّن الكرة والإضاءة المحيطة بطاقة اليوم، بانتقال ناعم عند التغيير. */
+@Composable
+fun ProvideMood(energy: Energy?, content: @Composable () -> Unit) {
+    val target = moodFor(energy)
+    val a by animateColorAsState(target.a, tween(1200), label = "mood-a")
+    val b by animateColorAsState(target.b, tween(1200), label = "mood-b")
+    val m by animateColorAsState(target.c, tween(1200), label = "mood-c")
+    CompositionLocalProvider(LocalMood provides Mood(a, b, m), content = content)
+}
+
 object Sanad {
     val colors: SanadColors @Composable get() = LocalSanad.current
+    val mood: Mood @Composable get() = LocalMood.current
 }

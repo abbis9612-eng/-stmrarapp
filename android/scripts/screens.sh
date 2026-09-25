@@ -23,7 +23,7 @@ scroll_shot() {
 }
 
 adb shell cmd uimode night no
-shot 00-intro 0.9 --ez fresh true
+shot 00-intro 2.2 --ez fresh true
 shot 01-welcome 3 --ez fresh true
 shot 02-today-checkin 4 --ez demo true --ez skipIntro true
 scroll_shot 03-today-checkin-scrolled

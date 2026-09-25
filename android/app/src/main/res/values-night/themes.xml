@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- سند داكن دائماً: خلفية الليل حتى لا يومض أبيض عند الفتح -->
     <style name="Theme.Sanad" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/gypsum</item>
+        <item name="android:windowBackground">@color/night_bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

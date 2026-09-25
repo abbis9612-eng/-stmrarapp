@@ -3,6 +3,7 @@ package app.sanad.coach
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import app.sanad.coach.data.AppStore
 import app.sanad.coach.data.CoachSettings
@@ -27,7 +28,11 @@ object Graph {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // الهوية داكنة دائماً: أيقونات شريط الحالة فاتحة
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+        )
         Graph.init(this)
 
         // نسخة المطوّر فقط: بيانات تجريبية ومسار بدء للقطات الشاشة الآلية في CI

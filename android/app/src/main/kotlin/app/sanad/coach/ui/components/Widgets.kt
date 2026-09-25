@@ -1,5 +1,6 @@
 package app.sanad.coach.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -49,9 +51,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.sanad.coach.ui.theme.Sanad
 import app.sanad.coach.ui.theme.Type
 
@@ -123,34 +127,36 @@ fun Modifier.press(onClick: () -> Unit, role: Role = Role.Button, haptic: Boolea
         }
 }
 
-/* ---------------- بطاقات وأزرار ---------------- */
+/* ---------------- بطاقات وأزرار (زجاج فوق الليل) ---------------- */
 
+/** سطح زجاجي: تدرّج شفاف + حد رفيع. */
 @Composable
-fun SCard(modifier: Modifier = Modifier, color: Color = Sanad.colors.surface, shape: Shape = RoundedCornerShape(22.dp), pad: Dp = 18.dp, content: @Composable ColumnScope.() -> Unit) {
+fun Modifier.glass(shape: Shape = RoundedCornerShape(28.dp), tint: Color? = null): Modifier {
     val c = Sanad.colors
-    Column(
-        modifier
-            .fillMaxWidth()
-            .shadow(if (c.isDark) 0.dp else 10.dp, shape, ambientColor = c.night.copy(alpha = 0.10f), spotColor = c.night.copy(alpha = 0.14f))
-            .clip(shape)
-            .background(color)
-            .then(if (c.isDark) Modifier.border(1.dp, c.line, shape) else Modifier)
-            .padding(pad),
-        content = content,
-    )
+    val top = tint?.copy(alpha = 0.16f) ?: c.glassTop
+    val bottom = tint?.copy(alpha = 0.06f) ?: c.glassBottom
+    return this
+        .clip(shape)
+        .background(Brush.verticalGradient(listOf(top, bottom)))
+        .border(1.dp, c.line, shape)
 }
 
-/** بطاقة ليلية فاخرة بتدرّج نيلي — للبطاقات البطلة (الخيط، الخطة). */
 @Composable
-fun NightCard(modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(26.dp), pad: Dp = 18.dp, content: @Composable ColumnScope.() -> Unit) {
+fun SCard(modifier: Modifier = Modifier, color: Color? = null, shape: Shape = RoundedCornerShape(28.dp), pad: Dp = 18.dp, content: @Composable ColumnScope.() -> Unit) {
+    Column(modifier.fillMaxWidth().glass(shape, color).padding(pad), content = content)
+}
+
+/** بطاقة بطلة تتوهّج بلون مزاج اليوم. */
+@Composable
+fun NightCard(modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(30.dp), pad: Dp = 18.dp, content: @Composable ColumnScope.() -> Unit) {
     val c = Sanad.colors
+    val m = Sanad.mood
     Column(
         modifier
             .fillMaxWidth()
-            .shadow(if (c.isDark) 0.dp else 16.dp, shape, spotColor = c.night.copy(alpha = 0.4f))
             .clip(shape)
-            .background(Brush.linearGradient(listOf(c.night2, c.night)))
-            .then(if (c.isDark) Modifier.border(1.dp, c.line, shape) else Modifier)
+            .background(Brush.linearGradient(listOf(m.a.copy(alpha = 0.20f), c.surface.copy(alpha = 0.6f), m.b.copy(alpha = 0.10f))))
+            .border(1.dp, c.line, shape)
             .padding(pad),
         content = content,
     )
@@ -169,19 +175,26 @@ fun SButton(
     small: Boolean = false,
 ) {
     val c = Sanad.colors
-    val (bg, fg) = when (style) {
-        BtnStyle.PRIMARY -> if (c.isDark) c.date to Color(0xFF1B1406) else c.night to Color.White
-        BtnStyle.GOLD -> c.date to Color(0xFF1B1406)
-        BtnStyle.SOFT -> c.surface2 to c.ink
-        BtnStyle.GHOST -> Color.Transparent to c.ink
+    val shape = if (small) CircleShape else RoundedCornerShape(22.dp)
+    val fg = when (style) {
+        BtnStyle.PRIMARY -> c.bg
+        BtnStyle.GOLD -> c.onGold
+        BtnStyle.SOFT, BtnStyle.GHOST -> c.ink
     }
     val alpha by animateFloatAsState(if (enabled) 1f else 0.4f, tween(200), label = "btn-alpha")
+    val bg: Modifier = when (style) {
+        BtnStyle.PRIMARY -> Modifier.background(c.ink.copy(alpha = alpha), shape)
+        BtnStyle.GOLD -> Modifier
+            .shadow(if (enabled && !small) 18.dp else 0.dp, shape, ambientColor = c.ember, spotColor = c.ember)
+            .background(Brush.linearGradient(listOf(c.saffron.copy(alpha = alpha), c.ember.copy(alpha = alpha))), shape)
+        BtnStyle.SOFT -> Modifier.background(c.glass2, shape).border(1.dp, c.line, shape)
+        BtnStyle.GHOST -> Modifier.border(BorderStroke(1.dp, c.line), shape)
+    }
     Row(
         modifier
-            .heightIn(min = if (small) 42.dp else 54.dp)
-            .clip(CircleShape)
-            .background(bg.copy(alpha = bg.alpha * alpha))
-            .then(if (style == BtnStyle.GHOST) Modifier.border(BorderStroke(1.5.dp, c.line), CircleShape) else Modifier)
+            .heightIn(min = if (small) 40.dp else 56.dp)
+            .then(bg)
+            .clip(shape)
             .press(onClick, enabled = enabled)
             .padding(horizontal = if (small) 16.dp else 22.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -191,84 +204,84 @@ fun SButton(
             SIcon(icon, size = if (small) 18.dp else 20.dp, tint = fg.copy(alpha = alpha))
             Spacer(Modifier.width(8.dp))
         }
-        Text(text, style = (if (small) Type.label else Type.h3).copy(color = fg.copy(alpha = alpha)), textAlign = TextAlign.Center)
+        Text(text, style = (if (small) Type.label.copy(fontWeight = FontWeight.SemiBold) else Type.h3.copy(fontWeight = FontWeight.Bold)).copy(color = fg.copy(alpha = alpha)), textAlign = TextAlign.Center)
     }
 }
 
 @Composable
 fun SChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = Sanad.colors
-    val bg = if (selected) (if (c.isDark) c.date else c.night) else c.surface
-    val fg = if (selected) (if (c.isDark) Color(0xFF1B1406) else Color.White) else c.ink
+    val bg by animateColorAsState(if (selected) c.ink else c.glassTop, tween(250), label = "chip")
     Box(
         modifier
-            .heightIn(min = 44.dp)
+            .heightIn(min = 42.dp)
             .clip(CircleShape)
             .background(bg)
-            .border(1.5.dp, if (selected) bg else c.line, CircleShape)
+            .border(1.dp, if (selected) Color.Transparent else c.line, CircleShape)
             .press(onClick)
             .semantics { this.selected = selected }
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 15.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, style = Type.label.copy(color = fg)) }
+    ) { Text(text, style = Type.small.copy(color = if (selected) c.bg else c.ink, fontWeight = FontWeight.Medium)) }
 }
 
 @Composable
 fun Badge(text: String, modifier: Modifier = Modifier, gold: Boolean = false) {
     val c = Sanad.colors
+    val col = if (gold) c.saffron else c.oasis
     Box(
         modifier
             .clip(CircleShape)
-            .background(if (gold) c.dateSoft else c.palmSoft)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-    ) { Text(text, style = Type.label.copy(color = if (gold) (if (c.isDark) c.date else Color(0xFF8A5A12)) else c.palm)) }
+            .background(col.copy(alpha = 0.14f))
+            .padding(horizontal = 11.dp, vertical = 4.dp),
+    ) { Text(text, style = Type.label.copy(color = col)) }
 }
 
-/** شريط تقدّم متحرك (سعرات/بروتين). */
+/** شريط تقدّم بتدرّج لوني. */
 @Composable
-fun Meter(progress: Float, modifier: Modifier = Modifier, color: Color = Sanad.colors.night, height: Dp = 12.dp) {
+fun Meter(progress: Float, modifier: Modifier = Modifier, color: Color = Sanad.colors.oasis, height: Dp = 10.dp) {
     val c = Sanad.colors
     val p by animateFloatAsState(progress.coerceIn(0f, 1f), spring(stiffness = 120f), label = "meter")
-    Box(modifier.fillMaxWidth().height(height).clip(CircleShape).background(c.surface2)) {
-        Box(Modifier.fillMaxWidth(p).height(height).clip(CircleShape).background(color))
+    Box(modifier.fillMaxWidth().height(height).clip(CircleShape).background(Color.White.copy(alpha = 0.07f))) {
+        Box(Modifier.fillMaxWidth(p).height(height).clip(CircleShape).background(Brush.horizontalGradient(listOf(color.copy(alpha = 0.7f), color))))
     }
 }
 
-/** بطارية الطاقة: تمتلئ بخلايا ذهبية حسب المستوى. */
+/** بطارية الطاقة (للتسجيل الأول). */
 @Composable
 fun Battery(level: Int, modifier: Modifier = Modifier, color: Color = Sanad.colors.ink) {
     val c = Sanad.colors
-    Column(modifier.clearAndSetSemantics { contentDescription = "مستوى $level من ٣" }, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.width(14.dp).height(5.dp).clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)).background(color))
-        Column(
-            Modifier.width(34.dp).height(54.dp).border(2.5.dp, color, RoundedCornerShape(9.dp)).padding(4.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+    Row(modifier.clearAndSetSemantics { contentDescription = "مستوى $level من ٣" }, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.width(34.dp).height(20.dp).border(1.6.dp, color, RoundedCornerShape(6.dp)).padding(3.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            for (k in 3 downTo 1) {
+            for (k in 1..3) {
                 val on = k <= level
                 val a by animateFloatAsState(if (on) 1f else 0f, tween(300 + k * 80), label = "cell$k")
-                Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(3.dp)).background(if (on) c.date.copy(alpha = 0.35f + 0.65f * a) else c.surface2))
+                Box(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(2.dp)).background(if (on) color.copy(alpha = 0.3f + 0.7f * a) else Color.Transparent))
             }
         }
+        Box(Modifier.width(3.dp).height(8.dp).clip(RoundedCornerShape(topEnd = 2.dp, bottomEnd = 2.dp)).background(color))
     }
 }
 
 @Composable
 fun SectionTitle(text: String, modifier: Modifier = Modifier, trailing: @Composable RowScope.() -> Unit = {}) {
-    Row(modifier.fillMaxWidth().padding(top = 8.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(text, style = Type.h3.copy(color = Sanad.colors.inkSoft), modifier = Modifier.weight(1f))
+    Row(modifier.fillMaxWidth().padding(top = 6.dp, start = 4.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(text, style = Type.h2.copy(color = Sanad.colors.ink), modifier = Modifier.weight(1f))
         trailing()
     }
 }
 
 @Composable
-fun Stat(value: String, label: String, modifier: Modifier = Modifier) {
+fun Stat(value: String, label: String, modifier: Modifier = Modifier, color: Color = Sanad.colors.ink) {
     val c = Sanad.colors
     Column(
-        modifier.clip(RoundedCornerShape(16.dp)).background(c.surface2).padding(vertical = 12.dp, horizontal = 8.dp),
+        modifier.glass(RoundedCornerShape(22.dp)).padding(vertical = 14.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(value, style = Type.number.copy(fontSize = Type.h2.fontSize, color = c.ink))
+        Text(value, style = Type.number.copy(fontSize = 24.sp, color = color))
         Text(label, style = Type.label.copy(color = c.inkSoft), textAlign = TextAlign.Center)
     }
 }
@@ -276,13 +289,21 @@ fun Stat(value: String, label: String, modifier: Modifier = Modifier) {
 @Composable
 fun Note(text: String, modifier: Modifier = Modifier, alert: Boolean = false) {
     val c = Sanad.colors
+    val col = if (alert) c.rose else c.saffron
     Text(
         text,
         style = Type.small.copy(color = c.ink),
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (alert) c.sadu.copy(alpha = 0.14f) else c.dateSoft)
+            .clip(RoundedCornerShape(18.dp))
+            .background(col.copy(alpha = 0.12f))
+            .border(1.dp, col.copy(alpha = 0.2f), RoundedCornerShape(18.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp),
     )
+}
+
+/** عنوان صغير فوق العناوين (eyebrow). */
+@Composable
+fun Eyebrow(text: String, modifier: Modifier = Modifier) {
+    Text(text, style = Type.label.copy(color = Sanad.colors.inkSoft), modifier = modifier)
 }

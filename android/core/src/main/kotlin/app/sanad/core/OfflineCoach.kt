@@ -38,7 +38,7 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
 
     if (Regex("(تعبان|تعبانه|مرهق|ما عندي طاقه|كسلان|ما لي خلق|ماني قادر)").containsMatchIn(q)) {
         return CoachReply(
-            "أفهمك، والتعب مو فشل. اليوم نبي أصغر خطوة تحافظ على الخيط: دقيقتين حركة وأنت جالس، وبعدها أنت حر.",
+            "أفهمك، والتعب مو فشل. اليوم نبي أصغر خطوة تحافظ على السلسلة: دقيقتين حركة وأنت جالس، وبعدها أنت حر.",
             listOf(CoachAction.StartWorkout("reset-2")),
         )
     }

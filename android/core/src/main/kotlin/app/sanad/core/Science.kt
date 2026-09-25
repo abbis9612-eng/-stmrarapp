@@ -115,7 +115,7 @@ fun adaptiveTdee(p: Profile, days: Collection<DayLog>, today: String): AdaptiveR
     return AdaptiveResult(roundTo(clamped, 10), (confidence * 100).roundToInt() / 100.0, intakeDays.size, span)
 }
 
-/* ---------------- الخيط: لا تفوّت مرتين ---------------- */
+/* ---------------- سلسلة الاستمرار: لا تفوّت مرتين ---------------- */
 
 fun isCounted(d: DayLog?): Boolean =
     d != null && (d.done.isNotEmpty() || d.meals.isNotEmpty() || d.workouts.isNotEmpty() || d.weightKg != null)
@@ -177,7 +177,7 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(
             "move", MissionKind.MOVE, "دقيقتين حركة فقط",
-            "٣ تمارين هادئة وأنت بمكانك. الهدف تحافظ على الخيط، مو تتعب.",
+            "٣ تمارين هادئة وأنت بمكانك. الهدف تحافظ على السلسلة، مو تتعب.",
             if (energy == Energy.LOW) "reset-2" else "wake-2",
         )
         time == TimeBudget.TEN -> Mission(
@@ -209,7 +209,7 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
 }
 
 val ENERGY_COPY = mapOf(
-    Energy.LOW to ("طاقتي تحت" to "عادي. اليوم نحافظ على الخيط بأصغر خطوة ممكنة."),
+    Energy.LOW to ("طاقتي تحت" to "عادي. اليوم نحافظ على السلسلة بأصغر خطوة ممكنة."),
     Energy.MID to ("نص نص" to "يوم متوازن: خطوات ثابتة بدون ضغط."),
     Energy.HIGH to ("فل طاقة" to "استغلها! اليوم نبني عضل ونسبق الخطة."),
 )

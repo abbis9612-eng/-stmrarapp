@@ -104,7 +104,7 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
         }
         item {
             NightCard {
-                Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = androidx.compose.ui.graphics.Color.White))
+                Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = c.ink))
                 Text("اختر المزوّد، الصق مفتاح الـ API، واختبر. بدون مفتاح يشتغل المدرب المحلي.", style = Type.small.copy(color = c.onNightSoft))
                 if (current != null) {
                     Spacer(Modifier.height(8.dp))

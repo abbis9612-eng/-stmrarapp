@@ -52,14 +52,14 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.NightCard
+import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Wordmark
+import app.sanad.coach.ui.components.glass
 import app.sanad.coach.ui.components.Note
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
 import app.sanad.coach.ui.components.SChip
 import app.sanad.coach.ui.components.SIcon
-import app.sanad.coach.ui.components.SaduBand
-import app.sanad.coach.ui.components.SaduLogo
-import app.sanad.coach.ui.components.SaduWeave
 import app.sanad.coach.ui.components.Stat
 import app.sanad.coach.ui.components.press
 import app.sanad.coach.ui.theme.Sanad
@@ -71,7 +71,7 @@ import app.sanad.core.Pace
 import app.sanad.core.Profile
 import app.sanad.core.SafetyFlag
 import app.sanad.core.Sex
-import app.sanad.core.WeaveCell
+import androidx.compose.ui.unit.sp
 import app.sanad.core.ar
 import app.sanad.core.assessSafety
 import app.sanad.core.bmi
@@ -161,7 +161,7 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                     0 -> Welcome()
                     1 -> {
                         Text("نتعرف عليك", style = Type.h1.copy(color = c.ink))
-                        SField(name, { name = it }, "وش نناديك؟", Modifier.fillMaxWidth())
+                        SField(name, { name = it }, "شنو نناديك؟", Modifier.fillMaxWidth())
                         Text("الجنس (يأثر على حساب الحرق)", style = Type.small.copy(color = c.inkSoft))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             SChip("ذكر", sex == Sex.M, { sex = Sex.M }); SChip("أنثى", sex == Sex.F, { sex = Sex.F })
@@ -232,7 +232,7 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                             }
                             Text("حرقك التقديري ${ar(targets.tdee)} سعرة. بعد أسبوعين من التسجيل، سند يتعلم حرقك الحقيقي ويعدّل الهدف تلقائياً." + if (targets.floorApplied) " ثبّتنا الهدف عند الحد الأدنى الآمن." else "", style = Type.small.copy(color = c.inkSoft))
                             NightCard {
-                                Text("قاعدة سند الوحيدة", style = Type.h2.copy(color = Color.White))
+                                Text("قاعدة سند الوحيدة", style = Type.h2.copy(color = c.ink))
                                 Text("كل صباح تقول طاقتك ووقتك، والخطة تصغر أو تكبر على قدّك. يوم التعب = دقيقتين. المهم ما يصير عندك يوم صفر مرتين ورا بعض.", style = Type.body.copy(color = c.onNightSoft))
                             }
                             if (profile.ifThens.isNotEmpty()) SCard {
@@ -248,7 +248,7 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
         }
         Box(Modifier.padding(16.dp)) {
             when (step) {
-                0 -> SButton("نبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), icon = Ico.SPARK)
+                0 -> SButton("نبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
                 5 -> SButton("ابدأ يومي الأول", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
                 else -> SButton(if (step == 4) "اعرض خطتي" else "التالي", { step++ }, Modifier.fillMaxWidth(), enabled = canNext)
             }
@@ -269,28 +269,27 @@ private fun NumBox(label: String, value: String, onChange: (String) -> Unit, uni
 @Composable
 private fun Welcome() {
     val c = Sanad.colors
-    val weave = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { weave.animateTo(1f, tween(1400, easing = FastOutSlowInEasing)) }
-    Spacer(Modifier.height(8.dp))
-    NightCard(shape = RoundedCornerShape(topStart = 200.dp, topEnd = 200.dp, bottomStart = 28.dp, bottomEnd = 28.dp), pad = 0.dp) {
-        Column(Modifier.fillMaxWidth().padding(top = 36.dp, start = 18.dp, end = 18.dp, bottom = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            SaduLogo(size = 108.dp, progress = weave.value)
-            Text("سَنَد", style = Type.hero.copy(color = Color.White))
-            Text("مدرب تنحيف يمشي على قد طاقتك.", style = Type.body.copy(color = c.onNightSoft), textAlign = TextAlign.Center)
-            Spacer(Modifier.height(14.dp))
-            val demo = listOf(1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1)
-            SaduWeave(demo.map { if (it == 1) WeaveCell.WOVEN else WeaveCell.HELD })
-        }
-        SaduBand(height = 8.dp)
+    val write = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { write.animateTo(1f, tween(1300, easing = FastOutSlowInEasing)) }
+    Spacer(Modifier.height(12.dp))
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        LivingOrb(120.dp)
+        Spacer(Modifier.height(22.dp))
+        Wordmark(84.sp, reveal = write.value)
+        Spacer(Modifier.height(8.dp))
+        Text("مدرب تنحيف ذكي يمشي على قد طاقتك.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
     }
+    Spacer(Modifier.height(10.dp))
     listOf(
-        "قل طاقتك، نعطيك خطة بحجمها" to "يوم تعبان؟ دقيقتين تكفي. يوم فل؟ نبني عضل.",
-        "قل وش أكلت بجملة" to "\"تغديت كبسة ولبن\" — سند يحسبها لك.",
-        "تمارين تشوفها تتحرك" to "كل تمرين برسم متحرك، بدون أدوات، ولطيف على الركب.",
-        "لا تفوّت مرتين" to "يوم واحد ما يقطع خيطك. نرجع بكرة بدون تأنيب.",
-    ).forEach { (t, s) ->
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.surface).padding(14.dp), verticalAlignment = Alignment.Top) {
-            Box(Modifier.size(30.dp).clip(CircleShape).background(c.palmSoft), contentAlignment = Alignment.Center) { SIcon(Ico.CHECK, size = 18.dp, tint = c.palm) }
+        Triple(Ico.SPARK, "قول طاقتك، ناخذ خطة بحجمها", "يوم تعبان؟ دقيقتين تكفي. يوم نشيط؟ نبني عضل."),
+        Triple(Ico.COACH, "قول شنو أكلت بجملة", "«تغديت كبسة ولبن» وسند يحسبها لك."),
+        Triple(Ico.MOVE, "تمارين تشوفها تتحرك", "كل تمرين برسم متحرك، بدون أدوات، ولطيف على الركب."),
+        Triple(Ico.FLAME, "لا تفوّت يومين", "يوم واحد ما يكسر سلسلتك. نرجع بكرة بدون تأنيب."),
+    ).forEach { (icon, t, s) ->
+        Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(14.dp), verticalAlignment = Alignment.Top) {
+            Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(c.saffron.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
+                SIcon(icon, size = 20.dp, tint = c.saffron)
+            }
             Spacer(Modifier.width(12.dp))
             Column {
                 Text(t, style = Type.bodyStrong.copy(color = c.ink))
@@ -298,5 +297,5 @@ private fun Welcome() {
             }
         }
     }
-    Text("بياناتك تبقى على جهازك. سند مدرب سلوكي، مو بديل عن الطبيب.", style = Type.label.copy(color = c.inkSoft), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Text("بياناتك تبقى على جهازك. سند مدرب سلوكي، مو بديل عن الطبيب.", style = Type.label.copy(color = c.faint), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }
