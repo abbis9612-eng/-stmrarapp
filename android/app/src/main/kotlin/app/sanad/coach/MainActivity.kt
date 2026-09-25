@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import app.sanad.coach.data.AppStore
+import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.data.demoState
 import app.sanad.coach.ui.SanadApp
 import app.sanad.coach.ui.theme.SanadTheme
@@ -14,9 +15,12 @@ import app.sanad.core.TimeBudget
 object Graph {
     lateinit var store: AppStore
         private set
+    lateinit var coach: CoachSettings
+        private set
 
     fun init(activity: ComponentActivity) {
         if (!::store.isInitialized) store = AppStore(activity.applicationContext)
+        if (!::coach.isInitialized) coach = CoachSettings(activity.applicationContext)
     }
 }
 
@@ -41,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SanadTheme {
-                SanadApp(Graph.store, startRoute = startRoute, skipIntro = skipIntro || savedInstanceState != null)
+                SanadApp(Graph.store, Graph.coach, startRoute = startRoute, skipIntro = skipIntro || savedInstanceState != null)
             }
         }
     }

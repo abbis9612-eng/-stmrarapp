@@ -129,6 +129,7 @@ fun SCard(modifier: Modifier = Modifier, color: Color = Sanad.colors.surface, sh
     val c = Sanad.colors
     Column(
         modifier
+            .fillMaxWidth()
             .shadow(if (c.isDark) 0.dp else 10.dp, shape, ambientColor = c.night.copy(alpha = 0.10f), spotColor = c.night.copy(alpha = 0.14f))
             .clip(shape)
             .background(color)
@@ -144,6 +145,7 @@ fun NightCard(modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(2
     val c = Sanad.colors
     Column(
         modifier
+            .fillMaxWidth()
             .shadow(if (c.isDark) 0.dp else 16.dp, shape, spotColor = c.night.copy(alpha = 0.4f))
             .clip(shape)
             .background(Brush.linearGradient(listOf(c.night2, c.night)))

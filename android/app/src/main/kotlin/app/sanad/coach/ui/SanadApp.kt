@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -50,12 +53,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.sanad.coach.data.AppStore
+import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.SaduBand
 import app.sanad.coach.ui.components.SaduLogo
 import app.sanad.coach.ui.components.press
 import app.sanad.coach.ui.screens.CoachScreen
+import app.sanad.coach.ui.screens.CoachSettingsScreen
 import app.sanad.coach.ui.screens.EatScreen
 import app.sanad.coach.ui.screens.ExerciseScreen
 import app.sanad.coach.ui.screens.MoveScreen
@@ -75,6 +80,7 @@ object Routes {
     const val PROGRESS = "progress"
     const val PLAYER = "player/{routineId}"
     const val EXERCISE = "exercise/{id}"
+    const val COACH_SETTINGS = "coach-settings"
     fun player(id: String) = "player/$id"
     fun exercise(id: String) = "exercise/$id"
     fun coach(q: String? = null) = if (q == null) COACH else "$COACH?q=${android.net.Uri.encode(q)}"
@@ -91,7 +97,7 @@ private val TABS = listOf(
 )
 
 @Composable
-fun SanadApp(store: AppStore, startRoute: String? = null, skipIntro: Boolean = false) {
+fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, skipIntro: Boolean = false) {
     val state by store.state.collectAsStateWithLifecycle()
     val c = Sanad.colors
     val nav = rememberNavController()
@@ -124,7 +130,8 @@ fun SanadApp(store: AppStore, startRoute: String? = null, skipIntro: Boolean = f
             composable(
                 "${Routes.COACH}?q={q}",
                 arguments = listOf(navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null }),
-            ) { e -> CoachScreen(store, state, nav, initialQuestion = e.arguments?.getString("q")) }
+            ) { e -> CoachScreen(store, coach, state, nav, initialQuestion = e.arguments?.getString("q")) }
+            composable(Routes.COACH_SETTINGS) { CoachSettingsScreen(coach, nav) }
             composable(Routes.MOVE) { MoveScreen(state, nav) }
             composable(Routes.PROGRESS) { ProgressScreen(store, state, nav) }
             composable(Routes.PLAYER, arguments = listOf(navArgument("routineId") { type = NavType.StringType })) { e ->
@@ -133,6 +140,11 @@ fun SanadApp(store: AppStore, startRoute: String? = null, skipIntro: Boolean = f
             composable(Routes.EXERCISE, arguments = listOf(navArgument("id") { type = NavType.StringType })) { e ->
                 ExerciseScreen(e.arguments?.getString("id").orEmpty(), nav)
             }
+        }
+
+        // خلفية شريط الحالة حتى لا يتداخل المحتوى مع الساعة
+        if (route != null && !route.startsWith("player")) {
+            Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(c.bg.copy(alpha = 0.94f)))
         }
 
         AnimatedVisibility(

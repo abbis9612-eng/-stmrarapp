@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -51,8 +52,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.sanad.coach.data.AppStore
+import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.data.targets
-import app.sanad.coach.ui.BottomBarSpace
 import app.sanad.coach.ui.Routes
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Ico
@@ -70,14 +71,21 @@ import app.sanad.core.CoachAction
 import app.sanad.core.ar
 import app.sanad.core.offlineReply
 import app.sanad.core.routineById
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.sanad.core.ai.Turn
+import app.sanad.core.ai.coachContext
+import app.sanad.core.ai.createCoach
+import java.time.LocalTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 
 private val STARTERS = listOf("تغديت كبسة دجاج ولبن", "اليوم تعبان مرة", "عندي عزيمة الليلة", "ليش وزني ما نزل؟", "يجيني جوع بالليل")
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initialQuestion: String?) {
+fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: NavHostController, initialQuestion: String?) {
     val c = Sanad.colors
     val p = state.profile ?: return
     var text by rememberSaveable { mutableStateOf("") }
@@ -85,6 +93,7 @@ fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initia
     val scope = rememberCoroutineScope()
     val list = rememberLazyListState()
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val smart by settings.state.collectAsStateWithLifecycle()
 
     fun send(raw: String) {
         val msg = raw.trim()
@@ -93,11 +102,24 @@ fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initia
         store.pushChat(ChatRole.USER, msg)
         busy = true
         scope.launch {
-            // المدرب الذكي (Claude أو مزود متوافق) يُربط في الدورة القادمة؛ الآن المدرب المحلي
-            delay(450)
             val s = store.state.value
-            val r = offlineReply(msg, s, s.targets()!!, AppStore.today())
-            store.pushChat(ChatRole.COACH, r.text, r.actions, offline = true)
+            val t = s.targets()!!
+            val cfg = settings.config()
+            if (cfg != null) {
+                val history = s.chat.takeLast(16).map { Turn(it.role, it.text) }
+                val ctx = coachContext(s, t, AppStore.today(), LocalTime.now().toString().take(5))
+                val result = withContext(Dispatchers.IO) { runCatching { createCoach(cfg).reply(history, ctx) } }
+                result.onSuccess { r -> store.pushChat(ChatRole.COACH, r.text, r.actions) }
+                result.onFailure { e ->
+                    // المدرب المحلي يرد، مع توضيح سبب تعذّر الذكي
+                    val local = offlineReply(msg, store.state.value, t, AppStore.today())
+                    store.pushChat(ChatRole.COACH, "${coachErrorText(e)}\n\n${local.text}", local.actions, offline = true)
+                }
+            } else {
+                delay(400)
+                val r = offlineReply(msg, s, t, AppStore.today())
+                store.pushChat(ChatRole.COACH, r.text, r.actions, offline = true)
+            }
             busy = false
         }
     }
@@ -118,9 +140,13 @@ fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initia
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
                         Text("سند", style = Type.h1.copy(color = c.ink))
-                        Text("تغذية، حركة، ونفَس طويل.", style = Type.small.copy(color = c.inkSoft))
+                        Text(if (smart?.hasKey == true) "ذكي، ${smart!!.label}" else "المدرب المحلي", style = Type.label.copy(color = if (smart?.hasKey == true) c.palm else c.inkSoft))
                     }
                     if (state.chat.isNotEmpty()) SButton("جديدة", { store.clearChat() }, style = BtnStyle.GHOST, small = true)
+                    Spacer(Modifier.width(6.dp))
+                    Box(Modifier.size(44.dp).clip(CircleShape).background(c.surface2).press({ nav.navigate(Routes.COACH_SETTINGS) }).semantics { contentDescription = "إعدادات المدرب الذكي" }, contentAlignment = Alignment.Center) {
+                        SIcon(Ico.SETTINGS, size = 22.dp)
+                    }
                 }
             }
             item {
@@ -128,6 +154,17 @@ fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initia
             }
             items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav) }
             if (busy) item { Typing() }
+            if (smart?.hasKey != true && state.chat.isEmpty()) item {
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.dateSoft).press({ nav.navigate(Routes.COACH_SETTINGS) }).padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    SIcon(Ico.SPARK, tint = c.sadu)
+                    Spacer(Modifier.width(10.dp))
+                    Text("فعّل المدرب الذكي بمفتاح API (Claude أو Gemini المجاني…)", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
+                    SIcon(Ico.NEXT, size = 20.dp)
+                }
+            }
             if (state.chat.isEmpty()) item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     STARTERS.forEach { s -> SChip(s, false, { send(s) }) }
@@ -136,7 +173,9 @@ fun CoachScreen(store: AppStore, state: AppState, nav: NavHostController, initia
         }
         Row(
             Modifier
-                .padding(start = 12.dp, end = 12.dp, bottom = BottomBarSpace - 24.dp)
+                // فوق شريط التنقل (ارتفاعه ~٨٨dp + شريط النظام)
+                .navigationBarsPadding()
+                .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
                 .background(c.surface)
