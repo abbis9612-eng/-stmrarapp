@@ -194,6 +194,10 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
 
+        if (day.sleepHours == null) item(key = "sleep-ask") {
+            SleepAsk { h -> store.setSleep(h); kick++ }
+        }
+
         val risk = lapseRisk(state, t, LocalDateTime.now())
         if (risk.level != RiskLevel.LOW) item(key = "radar") {
             RadarCard(risk, onTool = { nav.navigate(Routes.player(risk.toolRoutineId)) }, onLapse = { lapseOpen = true })
@@ -568,6 +572,33 @@ private fun RamadanCard(plan: RamadanPlan) {
 }
 
 /* ------------------------------ الحارس ------------------------------ */
+
+/** سؤال الصبح: نمت كم؟ ضغطة وحدة، ويغذّي الرادار وبنك النوم. */
+@Composable
+private fun SleepAsk(onPick: (Double) -> Unit) {
+    val c = Sanad.colors
+    val opts = listOf(5.0 to "٥ أو أقل", 6.0 to "٦", 7.0 to "٧", 8.0 to "٨", 9.0 to "٩+")
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SIcon(Ico.MOON, size = 20.dp, tint = c.sky)
+            Spacer(Modifier.width(8.dp))
+            Text("نمت كم ساعة البارحة؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            opts.forEach { (h, label) ->
+                Box(
+                    Modifier.weight(1f).height(40.dp).clip(CircleShape).background(c.glassTop)
+                        .border(1.dp, c.line, CircleShape).press({ onPick(h) })
+                        .semantics { contentDescription = "نمت $label ساعات" },
+                    contentAlignment = Alignment.Center,
+                ) { Text(label, style = Type.small.copy(color = c.ink, fontWeight = FontWeight.Medium)) }
+            }
+        }
+    }
+}
 
 @Composable
 private fun WelcomeCard(w: Welcome) {

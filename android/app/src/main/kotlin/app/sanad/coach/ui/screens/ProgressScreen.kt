@@ -1,5 +1,11 @@
 package app.sanad.coach.ui.screens
 
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import app.sanad.core.SLEEP_TARGET_H
+import app.sanad.core.sleepBank
+import app.sanad.core.SleepBank
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -140,6 +146,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
         item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 3)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
+        sleepBank(state.days, day.date)?.let { b -> item(key = "sleep-bank") { SleepBankCard(b) } }
         item {
             SCard(Modifier.rise(rise, 4)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -445,5 +452,46 @@ private fun WeighInCard(w: WeighIn) {
         Text("طقس الميزان", style = Type.label.copy(color = tint))
         Text(w.headline, style = Type.h2.copy(color = c.ink))
         Text(w.body, style = Type.body.copy(color = c.ink))
+    }
+}
+
+/** بنك النوم: ٧ ليالي كأعمدة، والخط = ٧ ساعات. */
+@Composable
+private fun SleepBankCard(b: SleepBank) {
+    val c = Sanad.colors
+    val tint = if (b.debt < 0.5) c.oasis else if (b.debt < 3) c.sky else c.saffron
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp)).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SIcon(Ico.MOON, size = 20.dp, tint = c.sky)
+            Spacer(Modifier.size(8.dp))
+            Text("بنك النوم", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("متوسط ${ar(b.avg)} س", style = Type.small.copy(color = c.inkSoft))
+        }
+        Text(b.headline, style = Type.bodyStrong.copy(color = tint))
+        val ink = c.ink
+        val faint = c.faint
+        Canvas(Modifier.fillMaxWidth().height(90.dp)) {
+            val n = b.nights.size
+            val gap = 10.dp.toPx()
+            val bw = (size.width - gap * (n - 1)) / n
+            val maxH = 10.0
+            val goalY = size.height * (1f - (SLEEP_TARGET_H / maxH).toFloat())
+            b.nights.forEachIndexed { i, h ->
+                // الأحدث على اليمين (قراءة عربية)
+                val x = size.width - (i + 1) * bw - i * gap
+                if (h == null) {
+                    drawRoundRect(faint.copy(alpha = 0.25f), Offset(x, size.height - 6.dp.toPx()), Size(bw, 6.dp.toPx()), CornerRadius(3.dp.toPx()))
+                } else {
+                    val bh = size.height * (h.coerceAtMost(maxH) / maxH).toFloat()
+                    val col = if (h >= SLEEP_TARGET_H) tint else tint.copy(alpha = 0.45f)
+                    drawRoundRect(col, Offset(x, size.height - bh), Size(bw, bh), CornerRadius(8.dp.toPx()))
+                }
+            }
+            drawLine(ink.copy(alpha = 0.35f), Offset(0f, goalY), Offset(size.width, goalY), 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f)))
+        }
+        Text(b.tip, style = Type.small.copy(color = c.inkSoft))
     }
 }

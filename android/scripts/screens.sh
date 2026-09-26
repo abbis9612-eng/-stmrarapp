@@ -41,8 +41,9 @@ scroll_shot 09-move-library
 shot 10-exercise 7 --ez skipIntro true --es route exercise/squat
 shot 11-player 8 --ez skipIntro true --es route player/strength-10
 shot 12-coach 7 --ez skipIntro true --es route coach
-shot 13-progress 7 --ez skipIntro true --es route progress
+shot 13-progress 7 --ez demo true --ez skipIntro true --es route progress
 scroll_shot 14-progress-scrolled
+scroll_shot 18-progress-bottom
 
 adb shell cmd uimode night yes
 shot 20-dark-today 7 --ez demo true --ez skipIntro true --es checkin MID

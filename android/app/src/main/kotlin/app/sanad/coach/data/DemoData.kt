@@ -36,6 +36,7 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
                 MealEntry("e$idx", "صمون", 270, 9, 0, MealSource.DB),
             ),
             water = if (isToday) 3 else 6,
+            sleepHours = if (isToday) null else listOf(7.0, 6.0, 5.5, 7.5, 8.0, 6.5, 5.0)[idx % 7],
             done = if (isToday) emptyList() else listOf("move", "eat"),
             weightKg = if (idx % 2 == 0 || idx > 17) ((96 - idx * 0.09 + sin(idx * 1.7) * 0.6) * 10).roundToInt() / 10.0 else null,
         )
