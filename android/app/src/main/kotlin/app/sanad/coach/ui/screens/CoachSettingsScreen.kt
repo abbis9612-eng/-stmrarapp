@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 fun coachErrorText(e: Throwable): String = when ((e as? CoachException)?.code) {
+    "limit" -> "خلصت رسائل المدرب الذكي لهاليوم. باچر ترجع، وهسه المدرب المحلي وياك."
     "auth" -> "المفتاح غير صحيح أو ما عنده صلاحية."
     "busy" -> "المزوّد مشغول أو تعدّيت حد الاستخدام المجاني. جرّب بعد شوي."
     "network" -> "ما قدرنا نوصل للمزوّد. تأكد من الإنترنت."
@@ -104,8 +105,13 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
         }
         item {
             NightCard {
-                Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = c.ink))
-                Text("اختر المزوّد، الصق مفتاح الـ API، واختبر. بدون مفتاح يشتغل المدرب المحلي.", style = Type.small.copy(color = c.onNightSoft))
+                if (settings.cloudAvailable) {
+                    Text("المدرب الذكي شغّال", style = Type.h2.copy(color = c.ink))
+                    Text("سند السحابي مفعّل للكل بدون مفتاح ولا إعداد. إذا تحب تستعمل مفتاحك الخاص بدله، اختاره تحت (اختياري).", style = Type.small.copy(color = c.onNightSoft))
+                } else {
+                    Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = c.ink))
+                    Text("اختر المزوّد، الصق مفتاح الـ API، واختبر. بدون مفتاح يشتغل المدرب المحلي.", style = Type.small.copy(color = c.onNightSoft))
+                }
                 if (current != null) {
                     Spacer(Modifier.height(8.dp))
                     Text("الحالي: ${current!!.label}، ${current!!.model}" + if (current!!.hasKey) " ✓" else " (بدون مفتاح)", style = Type.label.copy(color = c.date))

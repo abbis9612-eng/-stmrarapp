@@ -17,6 +17,9 @@ android {
         // رقم البناء من GitHub Actions حتى يتثبت كل إصدار فوق اللي قبله
         versionCode = runNumber
         versionName = "2.0.$runNumber"
+        // المدرب السحابي: عنوان السيرفر ومفتاح التطبيق من أسرار CI (فارغ = المدرب المحلي أو مفتاح المستخدم)
+        buildConfigField("String", "SANAD_API_URL", "\"${System.getenv("SANAD_API_URL").orEmpty()}\"")
+        buildConfigField("String", "SANAD_APP_KEY", "\"${System.getenv("SANAD_APP_KEY").orEmpty()}\"")
     }
 
     signingConfigs {

@@ -51,6 +51,9 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          # المدرب السحابي: متغيّر المستودع SANAD_API_URL وسرّ SANAD_APP_KEY (فارغين = بدون سحابة)
+          SANAD_API_URL: ${{ vars.SANAD_API_URL }}
+          SANAD_APP_KEY: ${{ secrets.SANAD_APP_KEY }}
         run: |
           ./gradlew --no-daemon :app:assembleRelease :app:assembleDebug
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/sanad.apk"

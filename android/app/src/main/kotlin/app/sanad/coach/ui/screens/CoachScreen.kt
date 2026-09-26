@@ -105,7 +105,6 @@ import app.sanad.core.offlineReply
 import app.sanad.core.routineById
 import app.sanad.core.ai.Turn
 import app.sanad.core.ai.coachContext
-import app.sanad.core.ai.createCoach
 import java.time.LocalTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -136,15 +135,15 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
         scope.launch {
             val s = store.state.value
             val t = s.targets()!!
-            val cfg = settings.config()
-            if (photo != null && cfg == null) {
+            val ai = settings.coach()
+            if (photo != null && ai == null) {
                 delay(900)
                 store.pushChat(ChatRole.COACH, "حلو الصحن! عشان أتعرف على الأكل من الصورة وأحسب سعراته، فعّل المدرب الذكي من الإعدادات (Gemini مجاني). وإلى ذاك الوقت قول لي شنو بالصحن وأحسبه لك.", offline = true)
-            } else if (cfg != null) {
+            } else if (ai != null) {
                 val history = s.chat.takeLast(16).map { Turn(it.role, it.text) }
                 val ctx = coachContext(s, t, AppStore.today(), LocalTime.now().toString().take(5))
                 val image = photo?.let { MealImage(it.second) }
-                val result = withContext(Dispatchers.IO) { runCatching { createCoach(cfg).reply(history, ctx, image) } }
+                val result = withContext(Dispatchers.IO) { runCatching { ai.reply(history, ctx, image) } }
                 result.onSuccess { r -> store.pushChat(ChatRole.COACH, r.text, r.actions) }
                 result.onFailure { e ->
                     // المدرب المحلي يرد، مع توضيح سبب تعذّر الذكي
@@ -224,7 +223,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             }
             items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav, scanning = busy && m.image != null && m.id == state.chat.lastOrNull()?.id) }
             if (busy) item { Thinking() }
-            if (smart?.hasKey != true && state.chat.isEmpty()) item {
+            if (!settings.cloudAvailable && smart?.hasKey != true && state.chat.isEmpty()) item {
                 Row(
                     Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.saffron).press({ nav.navigate(Routes.COACH_SETTINGS) }).padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,

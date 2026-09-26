@@ -4,13 +4,18 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import app.sanad.coach.BuildConfig
+import app.sanad.core.ai.CloudCoach
+import app.sanad.core.ai.CoachAI
 import app.sanad.core.ai.PRESETS
+import app.sanad.core.ai.createCoach
 import app.sanad.core.ai.ProviderConfig
 import app.sanad.core.ai.ProviderPreset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.security.KeyStore
+import java.util.UUID
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -68,6 +73,18 @@ class CoachSettings(context: Context) {
         val key = prefs.getString("key", null)?.let(Vault::decrypt)?.takeIf { it.isNotBlank() } ?: return null
         return ProviderConfig(s.preset.kind, key, s.model, s.baseUrl)
     }
+
+    /** معرّف تثبيت عشوائي (بدون أي بيانات شخصية) يحسب حد المدرب السحابي اليومي لهذا الجهاز. */
+    val installId: String
+        get() = prefs.getString("install", null) ?: UUID.randomUUID().toString().also { prefs.edit().putString("install", it).apply() }
+
+    /** مدرب سند السحابي متوفر بهذه النسخة (السيرفر مضبوط وقت البناء). */
+    val cloudAvailable: Boolean get() = BuildConfig.SANAD_API_URL.isNotBlank()
+
+    /** المدرب الذكي: مفتاح المستخدم الخاص أولاً إن وجد، وإلا سند السحابي، وإلا null (المدرب المحلي). */
+    fun coach(): CoachAI? =
+        config()?.let(::createCoach)
+            ?: if (cloudAvailable) CloudCoach(BuildConfig.SANAD_API_URL, BuildConfig.SANAD_APP_KEY, installId) else null
 
     fun save(preset: ProviderPreset, model: String, baseUrl: String, apiKey: String?) {
         prefs.edit().apply {
