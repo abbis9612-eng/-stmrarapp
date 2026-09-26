@@ -2,6 +2,10 @@ package app.sanad.coach.ui.screens
 
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
+import app.sanad.core.reachedGoal
+import app.sanad.core.maintenanceStatus
+import app.sanad.core.Zone
+import app.sanad.core.MaintenanceStatus
 import app.sanad.core.partnerReport
 import androidx.compose.foundation.layout.fillMaxHeight
 import app.sanad.core.GLP1_TIPS
@@ -152,6 +156,17 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Stat(ar(workouts), "تمرين", Modifier.weight(1f))
             }
         }
+        if (reachedGoal(p, state.days)) item(key = "goal-reached") {
+            Column(
+                Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.oasis).padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("وصلت هدفك 🎉", style = Type.h1.copy(color = c.ink))
+                Text("اتجاه وزنك وصل ${ar(p.goalWeightKg)} كغ. الحين تبدأ المهارة الثانية: الحفاظ. هدفك يصير بقد حرقك، وخطواتك تزيد ألف.", style = Type.body.copy(color = c.ink))
+                SButton("ابدأ وضع الحفاظ", { store.setMaintain(true) }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
+            }
+        }
+        maintenanceStatus(p, state.days)?.let { m -> item(key = "maintain") { MaintenanceCard(m) { store.setMaintain(false) } } }
         item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 3)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
         item(key = "partner") {
             val review = weeklyReview(p, state.days, t, day.date)
@@ -597,5 +612,46 @@ private fun PartnerCard(partner: String, seesWeight: Boolean, onSave: (String, B
                 modifier = Modifier.padding(top = 8.dp).clip(CircleShape).press({ onSave("", false) }, haptic = false).padding(6.dp),
             )
         }
+    }
+}
+
+/** وضع الحفاظ: مقياس من الهدف لحد الأمان، والاتجاه نقطة عليه. */
+@Composable
+private fun MaintenanceCard(m: MaintenanceStatus, onBackToLoss: () -> Unit) {
+    val c = Sanad.colors
+    val tint = when (m.zone) { Zone.GREEN -> c.oasis; Zone.AMBER -> c.saffron; Zone.RED -> c.rose }
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text("وضع الحفاظ", style = Type.label.copy(color = tint))
+        Text(m.headline, style = Type.h2.copy(color = c.ink))
+        // المقياس: من (الهدف - ١) إلى (حد الأمان + ١)
+        val lo = m.goalKg - 1
+        val hi = m.guardrailKg + 1
+        val pos = ((m.trendKg - lo) / (hi - lo)).toFloat().coerceIn(0f, 1f)
+        val railPos = ((m.guardrailKg - lo) / (hi - lo)).toFloat()
+        val goalPos = ((m.goalKg - lo) / (hi - lo)).toFloat()
+        val green = c.oasis
+        val amber = c.saffron
+        val rose = c.rose
+        val ink = c.ink
+        Canvas(Modifier.fillMaxWidth().height(34.dp)) {
+            val y = size.height / 2
+            val h = 8.dp.toPx()
+            fun x(f: Float) = size.width * (1f - f) // يمين = أخف (قراءة عربية)
+            drawRoundRect(green.copy(alpha = 0.5f), Offset(x(goalPos + (railPos - goalPos) / 2), y - h / 2), Size(x(0f) - x(goalPos + (railPos - goalPos) / 2), h), CornerRadius(h / 2))
+            drawRoundRect(amber.copy(alpha = 0.5f), Offset(x(railPos), y - h / 2), Size(x(goalPos + (railPos - goalPos) / 2) - x(railPos), h), CornerRadius(h / 2))
+            drawRoundRect(rose.copy(alpha = 0.5f), Offset(0f, y - h / 2), Size(x(railPos), h), CornerRadius(h / 2))
+            drawLine(ink.copy(alpha = 0.6f), Offset(x(railPos), 0f), Offset(x(railPos), size.height), 2.dp.toPx())
+            drawCircle(ink, 9.dp.toPx(), Offset(x(pos), y))
+            drawCircle(ink.copy(alpha = 0.25f), 14.dp.toPx(), Offset(x(pos), y))
+        }
+        Row {
+            Text("الاتجاه ${ar(Math.round(m.trendKg * 10) / 10.0)} كغ", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("حد الأمان ${ar(m.guardrailKg)} كغ", style = Type.small.copy(color = c.inkSoft))
+        }
+        Text(m.advice, style = Type.body.copy(color = c.ink))
+        SButton(if (m.zone == Zone.RED) "رجّعني لوضع النزول" else "رجوع لوضع النزول", onBackToLoss, Modifier.fillMaxWidth(), style = if (m.zone == Zone.RED) BtnStyle.GOLD else BtnStyle.GHOST, small = true)
     }
 }

@@ -54,7 +54,8 @@ data class Targets(
 
 fun computeTargets(p: Profile, weightKg: Double, adaptive: AdaptiveResult? = null): Targets {
     val tdee = adaptive?.tdee?.toDouble() ?: formulaTdee(p, weightKg)
-    val loss = p.pace.weeklyRate * weightKg
+    // وضع الحفاظ: بلا عجز، والهدف يساوي الحرق
+    val loss = if (p.maintainSince != null) 0.0 else p.pace.weeklyRate * weightKg
     val raw = tdee - loss * KCAL_PER_KG / 7
     val floor = calorieFloor(p.sex)
     return Targets(
@@ -62,7 +63,7 @@ fun computeTargets(p: Profile, weightKg: Double, adaptive: AdaptiveResult? = nul
         kcal = roundTo(max(raw, floor.toDouble()), 10),
         protein = proteinTarget(weightKg, p.heightCm, p.glp1),
         weeklyLossKg = (loss * 100).roundToInt() / 100.0,
-        steps = p.activity.baseSteps,
+        steps = p.activity.baseSteps + if (p.maintainSince != null) 1000 else 0,
         water = if (p.glp1) 10 else 8,
         floorApplied = raw < floor,
         adaptive = adaptive,

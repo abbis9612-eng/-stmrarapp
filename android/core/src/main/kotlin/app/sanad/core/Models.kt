@@ -57,6 +57,8 @@ data class Profile(
     /** شريك المتابعة (اسم فقط) وهل يشوف اتجاه الوزن */
     val partner: String = "",
     val partnerSeesWeight: Boolean = false,
+    /** تاريخ دخول وضع الحفاظ بعد الوصول للهدف (null = وضع النزول) */
+    val maintainSince: String? = null,
     val flags: List<SafetyFlag> = emptyList(),
     /** yyyy-MM-dd */
     val createdAt: String,
