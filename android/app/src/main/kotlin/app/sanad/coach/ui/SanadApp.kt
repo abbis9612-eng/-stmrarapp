@@ -97,6 +97,7 @@ import app.sanad.coach.ui.screens.ExerciseScreen
 import app.sanad.coach.ui.screens.MoveScreen
 import app.sanad.coach.ui.screens.OnboardingScreen
 import app.sanad.coach.ui.screens.PacerScreen
+import app.sanad.coach.ui.screens.PlateScreen
 import app.sanad.coach.ui.screens.PlayerScreen
 import app.sanad.coach.ui.screens.ProgressScreen
 import app.sanad.coach.ui.screens.TodayScreen
@@ -118,6 +119,7 @@ object Routes {
     const val EXERCISE = "exercise/{id}"
     const val COACH_SETTINGS = "coach-settings"
     const val PACER = "pacer"
+    const val PLATE = "plate"
     fun player(id: String) = "player/$id"
     fun exercise(id: String) = "exercise/$id"
     fun coach(q: String? = null) = if (q == null) COACH else "$COACH?q=${android.net.Uri.encode(q)}"
@@ -180,6 +182,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
                     ) { e -> CoachScreen(store, coach, state, nav, initialQuestion = e.arguments?.getString("q")) }
                     composable(Routes.COACH_SETTINGS) { CoachSettingsScreen(coach, nav) }
                     composable(Routes.PACER) { PacerScreen(store, nav) }
+                    composable(Routes.PLATE) { PlateScreen(store, nav) }
                     composable(Routes.MOVE) { MoveScreen(state, nav) }
                     composable(Routes.PROGRESS) { ProgressScreen(store, state, nav) }
                     composable(Routes.PLAYER, arguments = listOf(navArgument("routineId") { type = NavType.StringType })) { e ->

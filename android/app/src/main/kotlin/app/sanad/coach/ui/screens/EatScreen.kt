@@ -142,6 +142,20 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 SIcon(Ico.NEXT, tint = c.inkSoft)
             }
         }
+        item {
+            Row(
+                Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.saffron).press({ nav.navigate(Routes.PLATE) }).padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SIcon(Ico.EAT, size = 18.dp, tint = c.saffron)
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("صحن سند", style = Type.h3.copy(color = c.ink))
+                    Text("قيّم صحنك بالأرباع بدون وزن ولا حساب", style = Type.small.copy(color = c.inkSoft))
+                }
+                SIcon(Ico.NEXT, tint = c.inkSoft)
+            }
+        }
         val usual = usualMeals(state)
         if (usual.isNotEmpty() && q.isBlank()) item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -98,6 +98,8 @@ class AppStore(context: Context) {
 
     fun setSteps(n: Int) = updateDay { it.copy(steps = n) }
 
+    fun logPlate(score: Int) = updateDay { it.copy(plates = it.plates + score) }
+
     fun readLesson(id: String) = set { s ->
         val date = today()
         val d = s.days[date] ?: DayLog(date)
