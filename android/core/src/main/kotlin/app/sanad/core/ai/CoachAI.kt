@@ -118,7 +118,7 @@ fun coachContext(s: AppState, t: Targets, today: String, localTime: String): Str
         "name: ${p.name}; sex: ${p.sex}; age: ${p.age}; height_cm: ${p.heightCm}",
         "start_kg: ${p.startWeightKg}; trend_kg: ${tr.lastOrNull()?.trend ?: p.startWeightKg}; goal_kg: ${p.goalWeightKg}",
         "targets: ${t.kcal} kcal, ${t.protein} g protein, ${t.steps} steps, ${t.water} cups water",
-        "today: eaten ${d?.intake ?: 0} kcal, protein ${d?.protein ?: 0} g, water ${d?.water ?: 0} cups, energy ${d?.energy?.level ?: "not checked in"} (1 low–3 high), free minutes ${d?.time?.minutes ?: "?"}, slept ${d?.sleepHours?.let { "$it h" } ?: "not logged"}",
+        "today: eaten ${d?.intake ?: 0} kcal, protein ${d?.protein ?: 0} g, water ${d?.water ?: 0} cups, energy ${d?.energy?.level ?: "not checked in"} (1 low–3 high), free minutes ${d?.time?.minutes ?: "?"}, slept ${d?.sleepHours?.let { "$it h" } ?: "not logged"}, steps ${d?.steps ?: 0}",
         "today_meals: ${d?.meals?.joinToString(", ") { "${it.name} ${it.kcal}kcal" }?.ifEmpty { null } ?: "none"}",
         "why: ${p.why.ifBlank { "-" }}; barriers: ${p.barriers.joinToString(",").ifEmpty { "-" }}; ramadan_mode: ${p.ramadan}",
         "health_flags: ${p.flags.joinToString(",").ifEmpty { "none" }}",

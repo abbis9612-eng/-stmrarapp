@@ -1,6 +1,7 @@
 package app.sanad.coach.ui.screens
 
 import java.time.LocalDateTime
+import app.sanad.core.stepsNote
 import app.sanad.core.gatheringPlan
 import app.sanad.core.GatheringPlan
 import app.sanad.core.welcomeBack
@@ -215,6 +216,17 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 onWater = { store.addWater(1) }, onOpen = { nav.navigate(Routes.EAT) },
                 modifier = Modifier.rise(rise, 2),
             )
+        }
+
+        val tracker = app.sanad.coach.Graph.steps
+        if (tracker.available || day.steps > 0) item(key = "steps") {
+            var granted by remember { mutableStateOf(tracker.hasPermission()) }
+            val askSteps = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+                granted = ok; if (ok) tracker.start()
+            }
+            StepsCard(day.steps, t.steps, needsPermission = tracker.available && !granted) {
+                if (Build.VERSION.SDK_INT >= 29) askSteps.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
         }
 
         item { StreakCard(thread.length, thread.best, weaveCells(state.days, todayKey, 7, p.createdAt), todayKey, Modifier.rise(rise, 3)) }
@@ -606,6 +618,33 @@ private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit, onPacer: () ->
             }
         }
         SButton("مؤقت الأكل على مهل", onPacer, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true, icon = Ico.PLAY)
+    }
+}
+
+/** الخطوات: شريط نحو هدف اليوم، أو زر تفعيل العدّاد إذا ما عنده إذن. */
+@Composable
+private fun StepsCard(steps: Int, target: Int, needsPermission: Boolean, onEnable: () -> Unit) {
+    val c = Sanad.colors
+    val f by animateFloatAsState((steps / target.toFloat()).coerceIn(0f, 1f), tween(1400), label = "steps")
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SIcon(Ico.MOVE, size = 20.dp, tint = c.oasis)
+            Spacer(Modifier.width(8.dp))
+            Text("خطواتك", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+            if (!needsPermission) Text("${ar(steps)} / ${ar(target)}", style = Type.bodyStrong.copy(color = c.oasis))
+        }
+        if (needsPermission) {
+            Text("فعّل العدّاد ويحسب خطواتك لحاله، بدون إنترنت.", style = Type.small.copy(color = c.inkSoft))
+            SButton("فعّل عدّاد الخطوات", onEnable, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
+        } else {
+            Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.08f))) {
+                Box(Modifier.fillMaxWidth(f).fillMaxHeight().clip(CircleShape).background(Brush.horizontalGradient(listOf(c.oasis, c.sky))))
+            }
+            Text(stepsNote(steps, target), style = Type.small.copy(color = c.inkSoft))
+        }
     }
 }
 

@@ -18,14 +18,27 @@ object Graph {
         private set
     lateinit var coach: CoachSettings
         private set
+    lateinit var steps: app.sanad.coach.data.StepTracker
+        private set
 
     fun init(context: android.content.Context) {
         if (!::store.isInitialized) store = AppStore(context.applicationContext)
         if (!::coach.isInitialized) coach = CoachSettings(context.applicationContext)
+        if (!::steps.isInitialized) steps = app.sanad.coach.data.StepTracker(context.applicationContext, store)
     }
 }
 
 class MainActivity : ComponentActivity() {
+    override fun onResume() {
+        super.onResume()
+        Graph.steps.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Graph.steps.stop()
+    }
+
     override fun onStop() {
         super.onStop()
         app.sanad.coach.notify.Reminders.schedule(this)
