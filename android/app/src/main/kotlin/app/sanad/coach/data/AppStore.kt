@@ -70,6 +70,8 @@ class AppStore(context: Context) {
 
     fun setRamadan(on: Boolean) = set { s -> s.profile?.let { s.copy(profile = it.copy(ramadan = on)) } ?: s }
 
+    fun setGlp1(on: Boolean) = set { s -> s.profile?.let { s.copy(profile = it.copy(glp1 = on)) } ?: s }
+
     fun checkIn(energy: Energy, time: TimeBudget) = updateDay { it.copy(energy = energy, time = time) }
 
     fun clearCheckIn() = updateDay { it.copy(energy = null, time = null) }

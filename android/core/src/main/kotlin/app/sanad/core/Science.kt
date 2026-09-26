@@ -12,7 +12,7 @@ const val KCAL_PER_KG = 7700.0
 
 fun calorieFloor(sex: Sex): Int = if (sex == Sex.F) 1200 else 1500
 
-private fun roundTo(x: Double, step: Int): Int = ((x / step).roundToInt()) * step
+internal fun roundTo(x: Double, step: Int): Int = ((x / step).roundToInt()) * step
 
 fun bmi(weightKg: Double, heightCm: Double): Double {
     val h = heightCm / 100
@@ -34,8 +34,12 @@ fun referenceWeight(weightKg: Double, heightCm: Double): Double {
     return if (weightKg <= at25) weightKg else at25 + 0.25 * (weightKg - at25)
 }
 
-/** ١٫٢–١٫٦ غ/كغ أثناء النزول للحفاظ على العضل؛ نستهدف ١٫٥ من الوزن المرجعي. */
-fun proteinTarget(weightKg: Double, heightCm: Double): Int = roundTo(1.5 * referenceWeight(weightKg, heightCm), 5)
+/**
+ * ١٫٢–١٫٦ غ/كغ أثناء النزول للحفاظ على العضل؛ نستهدف ١٫٥ من الوزن المرجعي،
+ * و١٫٦ مع أدوية GLP-1 لأن جزء أكبر من النزول ممكن يكون عضل والشهية قليلة.
+ */
+fun proteinTarget(weightKg: Double, heightCm: Double, glp1: Boolean = false): Int =
+    roundTo((if (glp1) 1.6 else 1.5) * referenceWeight(weightKg, heightCm), 5)
 
 data class Targets(
     val tdee: Int,
@@ -56,10 +60,10 @@ fun computeTargets(p: Profile, weightKg: Double, adaptive: AdaptiveResult? = nul
     return Targets(
         tdee = roundTo(tdee, 10),
         kcal = roundTo(max(raw, floor.toDouble()), 10),
-        protein = proteinTarget(weightKg, p.heightCm),
+        protein = proteinTarget(weightKg, p.heightCm, p.glp1),
         weeklyLossKg = (loss * 100).roundToInt() / 100.0,
         steps = p.activity.baseSteps,
-        water = 8,
+        water = if (p.glp1) 10 else 8,
         floorApplied = raw < floor,
         adaptive = adaptive,
     )
@@ -193,6 +197,7 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
             if (energy == Energy.HIGH) "strength-20" else "walk-20",
         )
     }
+    if (p.glp1) return glp1Missions(energy, time, t)
     val eat = if (energy == Energy.LOW) Mission(
         "eat", MissionKind.EAT, "ابدأ وجبتك الجاية بالبروتين",
         "حوالي ${ar(proteinMeal)} غ (بيض، زبادي، دجاج، تونة). التعب يرفع الجوع — البروتين يهدّيه.",

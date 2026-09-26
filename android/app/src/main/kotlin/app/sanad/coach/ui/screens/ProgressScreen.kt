@@ -1,6 +1,7 @@
 package app.sanad.coach.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxHeight
+import app.sanad.core.GLP1_TIPS
 import app.sanad.core.WEEK_THEMES
 import app.sanad.core.LESSONS
 import androidx.compose.ui.graphics.PathEffect
@@ -221,6 +222,26 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                         colors = SwitchDefaults.colors(checkedTrackColor = c.oasis, checkedThumbColor = c.bg, uncheckedTrackColor = c.glass2, uncheckedBorderColor = c.line),
                         modifier = Modifier.semantics { contentDescription = "وضع رمضان" },
                     )
+                }
+            }
+        }
+        item {
+            SCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("آخذ إبر أو حبوب التنحيف", style = Type.h2.copy(color = c.ink))
+                        Text("مثل أوزمبك ومونجارو (GLP-1): يرفع البروتين والماي ويقدّم تمارين القوة لحماية عضلك.", style = Type.small.copy(color = c.inkSoft))
+                    }
+                    Switch(
+                        checked = p.glp1,
+                        onCheckedChange = store::setGlp1,
+                        colors = SwitchDefaults.colors(checkedTrackColor = c.oasis, checkedThumbColor = c.bg, uncheckedTrackColor = c.glass2, uncheckedBorderColor = c.line),
+                        modifier = Modifier.semantics { contentDescription = "وضع أدوية التنحيف" },
+                    )
+                }
+                if (p.glp1) {
+                    Spacer(Modifier.height(10.dp))
+                    GLP1_TIPS.forEach { Text("• $it", style = Type.small.copy(color = c.ink), modifier = Modifier.padding(top = 3.dp)) }
                 }
             }
         }

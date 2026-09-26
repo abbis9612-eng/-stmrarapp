@@ -52,6 +52,8 @@ data class Profile(
     val barriers: List<Barrier> = emptyList(),
     val ifThens: List<IfThen> = emptyList(),
     val ramadan: Boolean = false,
+    /** يأخذ دواء GLP-1 (سيماغلوتايد، تيرزيباتايد، أورفوغليبرون…) */
+    val glp1: Boolean = false,
     val flags: List<SafetyFlag> = emptyList(),
     /** yyyy-MM-dd */
     val createdAt: String,

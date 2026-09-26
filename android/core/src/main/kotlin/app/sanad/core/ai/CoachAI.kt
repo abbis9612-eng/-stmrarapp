@@ -120,7 +120,7 @@ fun coachContext(s: AppState, t: Targets, today: String, localTime: String): Str
         "targets: ${t.kcal} kcal, ${t.protein} g protein, ${t.steps} steps, ${t.water} cups water",
         "today: eaten ${d?.intake ?: 0} kcal, protein ${d?.protein ?: 0} g, water ${d?.water ?: 0} cups, energy ${d?.energy?.level ?: "not checked in"} (1 low–3 high), free minutes ${d?.time?.minutes ?: "?"}, slept ${d?.sleepHours?.let { "$it h" } ?: "not logged"}, steps ${d?.steps ?: 0}",
         "today_meals: ${d?.meals?.joinToString(", ") { "${it.name} ${it.kcal}kcal" }?.ifEmpty { null } ?: "none"}",
-        "why: ${p.why.ifBlank { "-" }}; barriers: ${p.barriers.joinToString(",").ifEmpty { "-" }}; ramadan_mode: ${p.ramadan}",
+        "why: ${p.why.ifBlank { "-" }}; barriers: ${p.barriers.joinToString(",").ifEmpty { "-" }}; ramadan_mode: ${p.ramadan}; glp1_medication: ${p.glp1}",
         "health_flags: ${p.flags.joinToString(",").ifEmpty { "none" }}",
         "if_then_plans: ${p.ifThens.joinToString(" | ") { "${it.whenText} → ${it.thenText}" }.ifEmpty { "none" }}",
         weeklyReview(p, s.days, t, today).let { r ->
