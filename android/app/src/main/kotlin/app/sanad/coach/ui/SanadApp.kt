@@ -96,6 +96,7 @@ import app.sanad.coach.ui.screens.EatScreen
 import app.sanad.coach.ui.screens.ExerciseScreen
 import app.sanad.coach.ui.screens.MoveScreen
 import app.sanad.coach.ui.screens.OnboardingScreen
+import app.sanad.coach.ui.screens.PacerScreen
 import app.sanad.coach.ui.screens.PlayerScreen
 import app.sanad.coach.ui.screens.ProgressScreen
 import app.sanad.coach.ui.screens.TodayScreen
@@ -116,6 +117,7 @@ object Routes {
     const val PLAYER = "player/{routineId}"
     const val EXERCISE = "exercise/{id}"
     const val COACH_SETTINGS = "coach-settings"
+    const val PACER = "pacer"
     fun player(id: String) = "player/$id"
     fun exercise(id: String) = "exercise/$id"
     fun coach(q: String? = null) = if (q == null) COACH else "$COACH?q=${android.net.Uri.encode(q)}"
@@ -177,6 +179,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
                         arguments = listOf(navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null }),
                     ) { e -> CoachScreen(store, coach, state, nav, initialQuestion = e.arguments?.getString("q")) }
                     composable(Routes.COACH_SETTINGS) { CoachSettingsScreen(coach, nav) }
+                    composable(Routes.PACER) { PacerScreen(store, nav) }
                     composable(Routes.MOVE) { MoveScreen(state, nav) }
                     composable(Routes.PROGRESS) { ProgressScreen(store, state, nav) }
                     composable(Routes.PLAYER, arguments = listOf(navArgument("routineId") { type = NavType.StringType })) { e ->
@@ -188,7 +191,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
                 }
 
                 // ظل ناعم تحت شريط الحالة حتى لا يتداخل المحتوى مع الساعة
-                if (route != null && !route.startsWith("player")) {
+                if (route != null && !route.startsWith("player") && route != Routes.PACER) {
                     Box(
                         Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars)
                             .background(Brush.verticalGradient(listOf(c.bg, c.bg.copy(alpha = 0.85f)))),

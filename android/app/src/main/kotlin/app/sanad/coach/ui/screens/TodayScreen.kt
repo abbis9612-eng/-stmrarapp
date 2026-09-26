@@ -206,7 +206,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
 
         if (day.gathering) item(key = "gathering") {
-            GatheringCard(gatheringPlan(t, day), onCancel = { store.setGathering(false) })
+            GatheringCard(gatheringPlan(t, day), onCancel = { store.setGathering(false) }, onPacer = { nav.navigate(Routes.PACER) })
         }
 
         item {
@@ -582,7 +582,7 @@ private fun RamadanCard(plan: RamadanPlan) {
 
 /** خطة العزيمة: قبل، الصحن، بعد — بلا حرمان وبلا تعويض. */
 @Composable
-private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit) {
+private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit, onPacer: () -> Unit) {
     val c = Sanad.colors
     Column(
         Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.saffron).padding(18.dp),
@@ -605,6 +605,7 @@ private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit) {
                 steps.forEach { Text("• $it", style = Type.small.copy(color = c.ink)) }
             }
         }
+        SButton("مؤقت الأكل على مهل", onPacer, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true, icon = Ico.PLAY)
     }
 }
 

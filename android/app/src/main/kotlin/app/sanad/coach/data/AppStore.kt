@@ -94,6 +94,8 @@ class AppStore(context: Context) {
 
     fun setGathering(on: Boolean) = updateDay { it.copy(gathering = on) }
 
+    fun logSlowMeal() = updateDay { it.copy(slowMeals = it.slowMeals + 1) }
+
     fun addWater(delta: Int) = updateDay { d -> d.copy(water = (d.water + delta).coerceIn(0, 20)) }
 
     fun logWorkout(routineId: String) {

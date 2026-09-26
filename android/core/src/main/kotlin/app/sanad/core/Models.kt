@@ -91,6 +91,8 @@ data class DayLog(
     val lapses: List<String> = emptyList(),
     /** عنده عزيمة/مناسبة اليوم (يفعّل خطة العزايم والرادار) */
     val gathering: Boolean = false,
+    /** وجبات انأكلت بمؤقت الأكل على مهل */
+    val slowMeals: Int = 0,
 ) {
     val intake: Int get() = meals.sumOf { it.kcal }
     val protein: Int get() = meals.sumOf { it.protein }

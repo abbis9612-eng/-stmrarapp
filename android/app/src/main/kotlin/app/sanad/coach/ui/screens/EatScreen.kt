@@ -50,6 +50,7 @@ import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
 import app.sanad.coach.ui.components.SChip
 import app.sanad.coach.ui.components.SIcon
+import app.sanad.coach.ui.components.glass
 import app.sanad.coach.ui.components.SectionTitle
 import app.sanad.coach.ui.components.press
 import app.sanad.coach.ui.theme.Sanad
@@ -125,6 +126,20 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     }
                     SIcon(Ico.NEXT, tint = c.ink)
                 }
+            }
+        }
+        item {
+            Row(
+                Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.oasis).press({ nav.navigate(Routes.PACER) }).padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SIcon(Ico.PLAY, size = 18.dp, tint = c.oasis)
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("كل على مهلك", style = Type.h3.copy(color = c.ink))
+                    Text("مؤقت ٢٠ دقيقة يخلّي الشبع يوصل قبل ما تتروس", style = Type.small.copy(color = c.inkSoft))
+                }
+                SIcon(Ico.NEXT, tint = c.inkSoft)
             }
         }
         val usual = usualMeals(state)
