@@ -124,11 +124,10 @@ object Routes {
 private data class Tab(val route: String, val label: String, val icon: Ico?)
 
 private val TABS = listOf(
-    Tab(Routes.TODAY, "اليوم", Ico.TODAY),
-    Tab(Routes.EAT, "الأكل", Ico.EAT),
+    Tab(Routes.TODAY, "اليوم", Ico.SUN),
     Tab(Routes.COACH, "المدرب", null),
-    Tab(Routes.MOVE, "تمارين", Ico.MOVE),
-    Tab(Routes.PROGRESS, "التقدّم", Ico.PROGRESS),
+    Tab(Routes.MOVE, "تمارين", Ico.DUMBBELL),
+    Tab(Routes.PROGRESS, "التقدّم", Ico.TREND),
 )
 
 /** احتفال "يومك اكتمل" فوق كل شي، يُطلب من أي شاشة. */
@@ -156,7 +155,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
                 AmbientLight()
                 val entry by nav.currentBackStackEntryAsState()
                 val route = entry?.destination?.route?.substringBefore("?")
-                val showBar = route in setOf(Routes.TODAY, Routes.EAT, Routes.COACH, Routes.MOVE, Routes.PROGRESS)
+                val showBar = route in setOf(Routes.TODAY, Routes.COACH, Routes.MOVE, Routes.PROGRESS)
                 val out = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 
                 NavHost(

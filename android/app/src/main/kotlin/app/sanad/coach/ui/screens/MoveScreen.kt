@@ -114,10 +114,8 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
     val c = Sanad.colors
     val day = state.today()
     val rise = rememberRise()
-    var filter by rememberSaveable { mutableIntStateOf(0) }
-    val list = ROUTINES.filter { filter == 0 || (if (filter == 2) it.minutes <= 5 else it.minutes == filter) }
     val level = day.energy?.level ?: 2
-    val featured = ROUTINES.firstOrNull { it.energy == level && it.minutes == (day.time?.minutes ?: 10) }
+    val featured = ROUTINES.firstOrNull { it.energy == level && it.minutes == when (level) { 1 -> 2; 3 -> 20; else -> 10 } }
         ?: ROUTINES.first { it.id == "low-impact-10" }
 
     Page {
@@ -145,22 +143,29 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
                     Badge("مقترح لك اليوم", gold = true)
                     Text(featured.title, style = Type.h2.copy(color = c.ink))
                     Text(featured.why, style = Type.small.copy(color = c.inkSoft))
-                    Text("${ar(featured.minutes)} دقائق — ${featured.tag}", style = Type.label.copy(color = c.saffron))
                 }
             }
         }
+        // شبكة عمودين مثل التصميم: كل جلسة بطاقة فيها رسمها المتحرك
         item {
-            Row(Modifier.rise(rise, 2), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(0 to "الكل", 2 to "٥ دقائق وأقل", 10 to "١٠ دقائق", 20 to "٢٠ دقيقة").forEach { (v, l) -> SChip(l, filter == v, { filter = v }) }
+            FlowRow(
+                Modifier.rise(rise, 2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp), maxItemsInEachRow = 2,
+            ) {
+                ROUTINES.filter { it.id != featured.id }.forEachIndexed { i, r ->
+                    Column(
+                        Modifier.weight(1f).glass(RoundedCornerShape(26.dp)).press({ nav.navigate(Routes.player(r.id)) }).padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        r.exercises.firstOrNull()?.let { ExerciseFigure(it, Modifier.fillMaxWidth().height(128.dp).stage(TINTS[i % TINTS.size])) }
+                        Spacer(Modifier.height(4.dp))
+                        Text(r.title, style = Type.bodyStrong.copy(color = c.ink))
+                        Text("${ar(r.minutes)} د — ${r.tag}", style = Type.label.copy(color = c.inkSoft))
+                    }
+                }
             }
         }
-        list.forEachIndexed { i, r ->
-            item(key = r.id) {
-                val fits = day.energy != null && r.energy <= day.energy!!.level && (day.time == null || r.minutes <= day.time!!.minutes)
-                RoutineCard(r, fits, TINTS[i % TINTS.size]) { nav.navigate(Routes.player(r.id)) }
-            }
-        }
-        item { SectionTitle("مكتبة التمارين — ${ar(EXERCISES.size)}") }
+        item { SectionTitle("كل التمارين — ${ar(EXERCISES.size)}") }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp), maxItemsInEachRow = 2) {
                 EXERCISES.forEachIndexed { i, e ->

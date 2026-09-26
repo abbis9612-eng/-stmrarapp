@@ -102,6 +102,11 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
     Page {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape).background(c.glass2).press({ nav.popBackStack() }),
+                    contentAlignment = Alignment.Center,
+                ) { SIcon(Ico.BACK, size = 20.dp, description = "رجوع") }
+                Spacer(Modifier.width(12.dp))
                 Text("الأكل", style = Type.h1.copy(color = c.ink), modifier = Modifier.weight(1f))
                 Badge("${ar(day.intake)} / ${ar(t.kcal)} سعرة")
             }

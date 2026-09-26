@@ -44,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -145,7 +147,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             Row(Modifier.rise(rise, 0), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Eyebrow(arabicDate(LocalDate.parse(todayKey)))
-                    Text(if (p.name.length <= 9) "${greeting()}، ${p.name}" else greeting(), style = Type.h1.copy(color = c.ink))
+                    Text(greeting(), style = Type.h1.copy(color = c.ink))
                 }
                 Box(
                     Modifier.size(52.dp).press({ nav.navigate(Routes.COACH) }).semantics { contentDescription = "افتح المدرب" },
@@ -155,15 +157,15 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
 
         item {
-            EnergyCard(day.energy, day.time, Modifier.rise(rise, 1)) { e, tm ->
-                store.checkIn(e, tm); kick++
+            EnergyCard(day.energy ?: Energy.MID, Modifier.rise(rise, 1)) { e ->
+                store.checkIn(e, timeFor(e)); kick++
             }
         }
 
         item {
             RingsCard(
                 day.intake, day.protein, day.water, t.kcal, t.protein, t.water,
-                onWater = { store.addWater(1) }, onLog = { nav.navigate(Routes.EAT) },
+                onWater = { store.addWater(1) }, onOpen = { nav.navigate(Routes.EAT) },
                 modifier = Modifier.rise(rise, 2),
             )
         }
@@ -176,9 +178,10 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
 
         if (p.ramadan) item { RamadanCard(ramadanPlan(p, t)) }
 
-        val e = day.energy
-        if (e != null) {
-            val missions = dayMissions(e, day.time ?: TimeBudget.TEN, t, p)
+        // مثل التصميم: الخطة تظهر دائماً؛ بدون تسجيل طاقة نعتبر اليوم "عادي"
+        run {
+            val e = day.energy ?: Energy.MID
+            val missions = dayMissions(e, timeFor(e), t, p)
             val doneCount = day.done.count { it in setOf("move", "eat", "restore") }
             item {
                 Row(Modifier.padding(horizontal = 4.dp).rise(rise, 4), verticalAlignment = Alignment.CenterVertically) {
@@ -222,6 +225,13 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     }
 }
 
+/** الوقت المتاح للحركة يتبع الطاقة: تعبان دقيقتين، عادي ١٠، نشيط ٢٠. */
+private fun timeFor(e: Energy) = when (e) {
+    Energy.LOW -> TimeBudget.TWO
+    Energy.MID -> TimeBudget.TEN
+    Energy.HIGH -> TimeBudget.TWENTY
+}
+
 private fun planTitle(e: Energy) = when (e) {
     Energy.LOW -> "خطة الطاقة القليلة"
     Energy.MID -> "خطتك اليوم"
@@ -231,49 +241,34 @@ private fun planTitle(e: Energy) = when (e) {
 /* ------------------------------ الطاقة ------------------------------ */
 
 @Composable
-private fun EnergyCard(energy: Energy?, time: TimeBudget?, modifier: Modifier, onPick: (Energy, TimeBudget) -> Unit) {
+private fun EnergyCard(energy: Energy, modifier: Modifier, onPick: (Energy) -> Unit) {
     val c = Sanad.colors
+    val m = Sanad.mood
     val labels = listOf(Energy.LOW to "تعبان", Energy.MID to "عادي", Energy.HIGH to "نشيط")
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (energy == null) Text("كيف طاقتك اليوم؟ اختار وتتفصّل خطتك على قدّك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(horizontal = 4.dp))
-        BoxWithConstraints(Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(5.dp)) {
-            val slot = (maxWidth - 12.dp) / 3
-            val idx = labels.indexOfFirst { it.first == energy }
-            val x by animateDpAsState((slot + 6.dp) * max(idx, 0), spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMediumLow), label = "pill")
-            val pillAlpha by animateFloatAsState(if (idx >= 0) 1f else 0f, label = "pill-a")
-            val m = Sanad.mood
-            Box(
-                Modifier.offset(x = x).width(slot).height(64.dp).graphicsLayer { alpha = pillAlpha }
-                    .background(Color.White.copy(alpha = 0.09f), RoundedCornerShape(17.dp))
-                    .border(1.dp, m.a.copy(alpha = 0.45f), RoundedCornerShape(17.dp)),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                labels.forEach { (e, label) ->
-                    val sel = energy == e
-                    val col by animateColorAsState(if (sel) c.ink else c.inkSoft, label = "e-col")
-                    Column(
-                        Modifier.width(slot).height(64.dp).clip(RoundedCornerShape(17.dp))
-                            .press({ onPick(e, time ?: TimeBudget.TEN) }, role = Role.RadioButton)
-                            .semantics { selected = sel; stateDescription = if (sel) "مختار" else "" },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        app.sanad.coach.ui.components.Battery(e.level, color = col)
-                        Spacer(Modifier.height(6.dp))
-                        Text(label, style = Type.small.copy(color = col, fontWeight = FontWeight.Medium))
-                    }
-                }
-            }
-        }
-        AnimatedVisibility(energy != null, enter = fadeIn() + expandVertically()) {
-            Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("وقتك للحركة", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.weight(1f))
-                listOf(TimeBudget.TWO to "٢ د", TimeBudget.TEN to "١٠ د", TimeBudget.TWENTY to "٢٠ د").forEach { (tm, l) ->
-                    val sel = (time ?: TimeBudget.TEN) == tm
-                    Box(
-                        Modifier.clip(CircleShape).background(if (sel) c.ink else c.glassTop).border(1.dp, if (sel) Color.Transparent else c.line, CircleShape)
-                            .press({ energy?.let { onPick(it, tm) } }).padding(horizontal = 14.dp, vertical = 7.dp),
-                    ) { Text(l, style = Type.label.copy(color = if (sel) c.bg else c.ink)) }
+    BoxWithConstraints(modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(5.dp).semantics { contentDescription = "طاقتي اليوم" }) {
+        val slot = (maxWidth - 12.dp) / 3
+        val idx = labels.indexOfFirst { it.first == energy }
+        val x by animateDpAsState((slot + 6.dp) * idx, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMediumLow), label = "pill")
+        Box(
+            Modifier.offset(x = x).width(slot).height(58.dp)
+                .shadow(16.dp, RoundedCornerShape(17.dp), ambientColor = m.a, spotColor = m.a)
+                .background(Color(0xFF232833), RoundedCornerShape(17.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(17.dp)),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            labels.forEach { (e, label) ->
+                val sel = energy == e
+                val col by animateColorAsState(if (sel) c.ink else c.inkSoft, label = "e-col")
+                Column(
+                    Modifier.width(slot).height(58.dp).clip(RoundedCornerShape(17.dp))
+                        .press({ if (!sel) onPick(e) }, role = Role.RadioButton)
+                        .semantics { selected = sel; stateDescription = if (sel) "مختار" else "" },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    app.sanad.coach.ui.components.Battery(e.level, Modifier.scale(0.78f), color = col)
+                    Spacer(Modifier.height(4.dp))
+                    Text(label, style = Type.small.copy(color = col, fontWeight = FontWeight.Medium))
                 }
             }
         }
@@ -285,7 +280,7 @@ private fun EnergyCard(energy: Energy?, time: TimeBudget?, modifier: Modifier, o
 @Composable
 private fun RingsCard(
     kcal: Int, protein: Int, water: Int, kcalGoal: Int, proteinGoal: Int, waterGoal: Int,
-    onWater: () -> Unit, onLog: () -> Unit, modifier: Modifier,
+    onWater: () -> Unit, onOpen: () -> Unit, modifier: Modifier,
 ) {
     val c = Sanad.colors
     val fk by animateFloatAsState((kcal / kcalGoal.toFloat()).coerceIn(0f, 1f), tween(1600), label = "rk")
@@ -296,6 +291,7 @@ private fun RingsCard(
         modifier
             .fillMaxWidth()
             .glass()
+            .press(onOpen, haptic = false)
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -323,17 +319,11 @@ private fun RingsCard(
             }
         }
         Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Legend(c.saffron, "أكلت", ar(kcal), "من ${ar(kcalGoal)}")
             Legend(c.oasis, "بروتين", "${ar(protein)} غ", "من ${ar(proteinGoal)}")
-            Row(verticalAlignment = Alignment.Bottom) {
-                Legend(c.sky, "ماء", ar(water), "من ${ar(waterGoal)} أكواب", Modifier.weight(1f))
-                Box(
-                    Modifier.size(34.dp).clip(CircleShape).background(c.sky.copy(alpha = 0.18f)).press(onWater).semantics { contentDescription = "أضف كوب ماء" },
-                    contentAlignment = Alignment.Center,
-                ) { SIcon(Ico.PLUS, size = 18.dp, tint = c.sky) }
-            }
-            SButton("سجّل أكل", onLog, style = BtnStyle.SOFT, small = true, icon = Ico.PLUS)
+            // لمسة على سطر الماء تضيف كوب
+            Legend(c.sky, "ماء", ar(water), "من ${ar(waterGoal)} أكواب", Modifier.press(onWater).semantics { contentDescription = "ماء ${ar(water)} من ${ar(waterGoal)}، المس لإضافة كوب" })
         }
     }
 }
@@ -383,7 +373,7 @@ private fun StreakCard(length: Int, best: Int, week: List<WeaveCell>, today: Str
                     Spacer(Modifier.width(6.dp))
                     Text("يوم", style = Type.h3.copy(color = c.ink), modifier = Modifier.padding(bottom = 3.dp))
                 }
-                Text(if (best > length) "سلسلة الاستمرار — أطول ${ar(best)}" else "سلسلة الاستمرار", style = Type.label.copy(color = c.inkSoft))
+                Text("سلسلة الاستمرار", style = Type.label.copy(color = c.inkSoft))
             }
             Spacer(Modifier.weight(1f))
             Text("فاتك يوم؟ عادي، بس لا تفوّت يومين ورا بعض.", style = Type.label.copy(color = c.inkSoft), textAlign = TextAlign.End, modifier = Modifier.width(140.dp))

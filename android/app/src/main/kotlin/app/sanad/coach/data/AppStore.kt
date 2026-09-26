@@ -115,8 +115,25 @@ class AppStore(context: Context) {
         s.copy(profile = p.copy(ifThens = p.ifThens.filterNot { it.id == id }))
     }
 
-    fun pushChat(role: ChatRole, text: String, actions: List<CoachAction> = emptyList(), offline: Boolean = false) = set { s ->
-        s.copy(chat = (s.chat + ChatMessage(uid(), role, text, System.currentTimeMillis(), actions, offline = offline)).takeLast(80))
+    fun pushChat(role: ChatRole, text: String, actions: List<CoachAction> = emptyList(), offline: Boolean = false, image: String? = null) = set { s ->
+        s.copy(chat = (s.chat + ChatMessage(uid(), role, text, System.currentTimeMillis(), actions, offline = offline, image = image)).takeLast(80))
+    }
+
+    /** يحفظ صورة الوجبة مضغوطة (أطول ضلع ١٢٨٠) داخل ملفات التطبيق ويرجع مسارها وبياناتها. */
+    fun saveMealPhoto(bytes: ByteArray): Pair<String, ByteArray>? {
+        val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+        if (opts.outWidth <= 0) return null
+        var sample = 1
+        while (maxOf(opts.outWidth, opts.outHeight) / (sample * 2) >= 1280) sample *= 2
+        val bmp = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
+        val out = java.io.ByteArrayOutputStream()
+        bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
+        val data = out.toByteArray()
+        val dir = File(file.parentFile, "meals").apply { mkdirs() }
+        val f = File(dir, "${uid()}.jpg")
+        f.writeBytes(data)
+        return f.absolutePath to data
     }
 
     fun markApplied(msgId: String, index: Int) = set { s ->

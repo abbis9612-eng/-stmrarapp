@@ -42,11 +42,17 @@ val PRESETS = listOf(
 
 data class Turn(val role: ChatRole, val text: String)
 
+/** صورة وجبة مرفقة بآخر رسالة (JPEG/PNG/WEBP). */
+class MealImage(val bytes: ByteArray, val mime: String = "image/jpeg") {
+    init { require(mime in setOf("image/jpeg", "image/png", "image/webp")) { "unsupported image type" } }
+    val base64: String get() = java.util.Base64.getEncoder().encodeToString(bytes)
+}
+
 class CoachException(val code: String, message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /** المدرب الذكي: يستقبل آخر الرسائل + سياق التطبيق، ويرجع رداً وإجراءات مقترحة. تُستدعى من خيط خلفي. */
 interface CoachAI {
-    fun reply(history: List<Turn>, context: String): CoachReply
+    fun reply(history: List<Turn>, context: String, image: MealImage? = null): CoachReply
     fun listModels(): List<String> = emptyList()
 }
 

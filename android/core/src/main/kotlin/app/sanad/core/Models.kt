@@ -117,6 +117,8 @@ data class ChatMessage(
     val actions: List<CoachAction> = emptyList(),
     val applied: List<Int> = emptyList(),
     val offline: Boolean = false,
+    /** مسار صورة الوجبة داخل ملفات التطبيق (لو المستخدم صوّر صحنه) */
+    val image: String? = null,
 )
 
 @Serializable

@@ -4,6 +4,20 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
+import app.sanad.core.ai.MealImage
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -111,21 +125,26 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
     val list = rememberLazyListState()
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val smart by settings.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    fun send(raw: String) {
+    fun send(raw: String, photo: Pair<String, ByteArray>? = null) {
         val msg = raw.trim()
         if (msg.isEmpty() || busy) return
         text = ""; hint = null
-        store.pushChat(ChatRole.USER, msg)
+        store.pushChat(ChatRole.USER, msg, image = photo?.first)
         busy = true
         scope.launch {
             val s = store.state.value
             val t = s.targets()!!
             val cfg = settings.config()
-            if (cfg != null) {
+            if (photo != null && cfg == null) {
+                delay(900)
+                store.pushChat(ChatRole.COACH, "حلو الصحن! عشان أتعرف على الأكل من الصورة وأحسب سعراته، فعّل المدرب الذكي من الإعدادات (Gemini مجاني). وإلى ذاك الوقت قول لي شنو بالصحن وأحسبه لك.", offline = true)
+            } else if (cfg != null) {
                 val history = s.chat.takeLast(16).map { Turn(it.role, it.text) }
                 val ctx = coachContext(s, t, AppStore.today(), LocalTime.now().toString().take(5))
-                val result = withContext(Dispatchers.IO) { runCatching { createCoach(cfg).reply(history, ctx) } }
+                val image = photo?.let { MealImage(it.second) }
+                val result = withContext(Dispatchers.IO) { runCatching { createCoach(cfg).reply(history, ctx, image) } }
                 result.onSuccess { r -> store.pushChat(ChatRole.COACH, r.text, r.actions) }
                 result.onFailure { e ->
                     // المدرب المحلي يرد، مع توضيح سبب تعذّر الذكي
@@ -156,6 +175,16 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
         }
     }
 
+    // الكاميرا: نختار صورة الوجبة من المعرض/الكاميرا، نضغطها، ونرسلها لسند
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) scope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() }?.let(store::saveMealPhoto) }.getOrNull()
+            }
+            if (saved != null) send("صوّرت وجبتي", saved) else hint = "ما قدرت أفتح الصورة. جرّب صورة ثانية."
+        }
+    }
+
     LaunchedEffect(initialQuestion) { initialQuestion?.let { if (it.isNotBlank()) send(it) } }
     LaunchedEffect(state.chat.size, busy) { if (state.chat.isNotEmpty()) list.animateScrollToItem(state.chat.size + 1) }
 
@@ -170,19 +199,13 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             Column(Modifier.weight(1f)) {
                 Text("سند", style = Type.h2.copy(color = c.ink))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(7.dp).clip(CircleShape).background(if (smart?.hasKey == true) c.oasis else c.saffron))
+                    Box(Modifier.size(7.dp).clip(CircleShape).background(c.oasis))
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        if (busy) "يكتب لك…" else if (smart?.hasKey == true) "ذكي، ${smart!!.label}" else "المدرب المحلي",
-                        style = Type.label.copy(color = if (smart?.hasKey == true) c.oasis else c.saffron),
+                        if (busy) "يكتب لك…" else "يعرف يومك وأكلك وطاقتك",
+                        style = Type.label.copy(color = c.oasis),
                     )
                 }
-            }
-            if (state.chat.isNotEmpty()) {
-                Box(Modifier.clip(CircleShape).border(1.dp, c.line, CircleShape).press({ store.clearChat() }).padding(horizontal = 14.dp, vertical = 8.dp)) {
-                    Text("محادثة جديدة", style = Type.label.copy(color = c.ink))
-                }
-                Spacer(Modifier.width(8.dp))
             }
             Box(
                 Modifier.size(44.dp).clip(CircleShape).background(c.glass2).press({ nav.navigate(Routes.COACH_SETTINGS) }).semantics { contentDescription = "إعدادات المدرب الذكي" },
@@ -199,7 +222,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             item {
                 Bubble(ChatMessage("hello", ChatRole.COACH, "هلا ${p.name}! أنا سند. قول لي شنو أكلت وأحسبه لك، أو قول شلون طاقتك وأفصّل لك خطوة تناسبك.", 0), store, nav)
             }
-            items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav) }
+            items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav, scanning = busy && m.image != null && m.id == state.chat.lastOrNull()?.id) }
             if (busy) item { Thinking() }
             if (smart?.hasKey != true && state.chat.isEmpty()) item {
                 Row(
@@ -239,9 +262,11 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(44.dp).clip(CircleShape).background(c.glass2).press({ nav.navigate(Routes.EAT) }).semantics { contentDescription = "سجّل أكل" },
+                Modifier.size(44.dp).clip(CircleShape).background(c.glass2)
+                    .press({ picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) })
+                    .semantics { contentDescription = "صوّر وجبتك" },
                 contentAlignment = Alignment.Center,
-            ) { SIcon(Ico.PLUS, size = 21.dp) }
+            ) { SIcon(Ico.CAMERA, size = 21.dp) }
             Box(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                 if (text.isEmpty()) Text("قول لسند شنو أكلت أو شلونك…", style = Type.body.copy(color = c.faint))
                 BasicTextField(
@@ -276,7 +301,7 @@ private fun label(a: CoachAction): String = when (a) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController) {
+private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scanning: Boolean = false) {
     val c = Sanad.colors
     val mine = m.role == ChatRole.USER
     val confetti = LocalConfetti.current
@@ -304,7 +329,16 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController) {
                 )
                 .padding(horizontal = 15.dp, vertical = 12.dp),
         ) {
+            m.image?.let { path ->
+                MealPhoto(path, scanning)
+                Spacer(Modifier.height(8.dp))
+            }
             Text(m.text, style = Type.body.copy(color = c.ink))
+            val meals = m.actions.filterIsInstance<CoachAction.LogMeal>()
+            if (meals.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                MealEstimate(meals)
+            }
             if (m.actions.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -345,5 +379,46 @@ private fun Thinking() {
         LivingOrb(26.dp, speaking = true, glow = false)
         Spacer(Modifier.width(10.dp))
         Text("سند يفكر…", style = Type.small.copy(color = c.inkSoft))
+    }
+}
+
+/** صورة الصحن داخل الرسالة، مع خط مسح متحرك وسند يحلّلها. */
+@Composable
+private fun MealPhoto(path: String, scanning: Boolean) {
+    val c = Sanad.colors
+    val bmp = remember(path) { runCatching { android.graphics.BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull() }
+    val t = rememberInfiniteTransition(label = "scan")
+    val y by t.animateFloat(-0.3f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Reverse), label = "scan-y")
+    Box(Modifier.size(width = 230.dp, height = 190.dp).clip(RoundedCornerShape(18.dp)).background(Color(0xFF2A241E))) {
+        if (bmp != null) Image(bmp, "صورة الوجبة", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        if (scanning) Canvas(Modifier.fillMaxSize()) {
+            val top = size.height * y
+            drawRect(
+                Brush.verticalGradient(listOf(Color.Transparent, c.oasis.copy(alpha = 0.35f)), startY = top - 60.dp.toPx(), endY = top),
+                topLeft = Offset(0f, top - 60.dp.toPx()), size = Size(size.width, 60.dp.toPx()),
+            )
+            drawLine(c.oasis, Offset(0f, top), Offset(size.width, top), 2.dp.toPx())
+        }
+    }
+}
+
+/** بطاقة التقدير: مجموع السعرات والبروتين وعدد الأصناف. */
+@Composable
+private fun MealEstimate(meals: List<CoachAction.LogMeal>) {
+    val c = Sanad.colors
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            ar(meals.sumOf { it.kcal }) to "سعرة",
+            ar(meals.sumOf { it.protein }) to "غ بروتين",
+            ar(meals.size) to if (meals.size == 1) "صنف" else "أصناف",
+        ).forEach { (v, l) ->
+            Column(
+                Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(vertical = 10.dp, horizontal = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(v, style = Type.number.copy(fontSize = 22.sp, color = c.ink))
+                Text(l, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp))
+            }
+        }
     }
 }

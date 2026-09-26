@@ -110,4 +110,39 @@ class CoachAITest {
             assertContains(body, "\"effort\":\"low\"")
         }
     }
+
+    private val photo = MealImage(byteArrayOf(-1, -40, -1, -32, 1, 2, 3), "image/jpeg")
+
+    @Test fun openAICompatibleSendsMealPhotoAsDataUri() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""{"choices":[{"message":{"content":"{\"reply\":\"كبسة\",\"actions\":[]}"}}]}"""))
+            OpenAICompatCoach(server.url("/").toString(), "k", "m").reply(history, "ctx", photo)
+            val body = server.takeRequest().body.readUtf8()
+            assertContains(body, "\"type\":\"image_url\"")
+            assertContains(body, "data:image/jpeg;base64,${photo.base64}")
+            assertContains(body, "\"type\":\"text\"")
+        }
+    }
+
+    @Test fun claudeSendsMealPhotoAsImageBlock() {
+        MockWebServer().use { server ->
+            server.enqueue(
+                MockResponse().setHeader("content-type", "application/json").setBody(
+                    """{"id":"msg_2","type":"message","role":"assistant","model":"claude-opus-5","stop_reason":"end_turn","stop_sequence":null,
+                    "usage":{"input_tokens":10,"output_tokens":10},
+                    "content":[{"type":"text","text":"{\"reply\":\"كبسة\",\"actions\":[]}"}]}""",
+                ),
+            )
+            val client = AnthropicOkHttpClient.builder().apiKey("sk-test").baseUrl(server.url("/").toString()).build()
+            assertEquals("كبسة", ClaudeCoach(client, "claude-opus-5").reply(history, "ctx", photo).text)
+            val body = server.takeRequest().body.readUtf8()
+            assertContains(body, "\"type\":\"image\"")
+            assertContains(body, "\"media_type\":\"image/jpeg\"")
+            assertContains(body, photo.base64)
+        }
+    }
+
+    @Test fun rejectsUnsupportedImageType() {
+        assertFailsWith<IllegalArgumentException> { MealImage(byteArrayOf(1), "image/gif") }
+    }
 }

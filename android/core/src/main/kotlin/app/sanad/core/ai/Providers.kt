@@ -8,6 +8,9 @@ import com.anthropic.core.JsonValue
 import com.anthropic.errors.AnthropicServiceException
 import com.anthropic.errors.RateLimitException
 import com.anthropic.errors.UnauthorizedException
+import com.anthropic.models.messages.Base64ImageSource
+import com.anthropic.models.messages.ContentBlockParam
+import com.anthropic.models.messages.ImageBlockParam
 import com.anthropic.models.messages.JsonOutputFormat
 import com.anthropic.models.messages.MessageCreateParams
 import com.anthropic.models.messages.OutputConfig
@@ -39,7 +42,7 @@ class ClaudeCoach(private val client: AnthropicClient, private val model: String
         JsonOutputFormat.Schema.builder().putAllAdditionalProperties(map.mapValues { JsonValue.from(it.value) }).build()
     }
 
-    override fun reply(history: List<Turn>, context: String): CoachReply {
+    override fun reply(history: List<Turn>, context: String, image: MealImage?): CoachReply {
         val b = MessageCreateParams.builder()
             .model(model.ifBlank { "claude-opus-5" })
             .maxTokens(4000L)
@@ -50,8 +53,28 @@ class ClaudeCoach(private val client: AnthropicClient, private val model: String
                     .format(JsonOutputFormat.builder().schema(schema).build())
                     .build(),
             )
-        for (t in prepareTurns(history, context)) {
-            if (t.role == ChatRole.USER) b.addUserMessage(t.text) else b.addAssistantMessage(t.text)
+        val turns = prepareTurns(history, context)
+        turns.forEachIndexed { i, t ->
+            when {
+                t.role != ChatRole.USER -> b.addAssistantMessage(t.text)
+                image != null && i == turns.lastIndex -> b.addUserMessageOfBlockParams(
+                    listOf(
+                        ContentBlockParam.ofImage(
+                            ImageBlockParam.builder().source(
+                                Base64ImageSource.builder().data(image.base64).mediaType(
+                                    when (image.mime) {
+                                        "image/png" -> Base64ImageSource.MediaType.IMAGE_PNG
+                                        "image/webp" -> Base64ImageSource.MediaType.IMAGE_WEBP
+                                        else -> Base64ImageSource.MediaType.IMAGE_JPEG
+                                    },
+                                ).build(),
+                            ).build(),
+                        ),
+                        ContentBlockParam.ofText(t.text),
+                    ),
+                )
+                else -> b.addUserMessage(t.text)
+            }
         }
         val res = try {
             client.messages().create(b.build())
@@ -80,12 +103,26 @@ class OpenAICompatCoach(baseUrl: String, private val apiKey: String, private val
     private val json = Json { ignoreUnknownKeys = true }
     private val mediaJson = "application/json".toMediaType()
 
-    private fun body(turns: List<Turn>, jsonMode: Boolean) = buildJsonObject {
+    private fun body(turns: List<Turn>, jsonMode: Boolean, image: MealImage? = null) = buildJsonObject {
         put("model", model)
         put("temperature", 0.6)
         put("messages", buildJsonArray {
             add(buildJsonObject { put("role", "system"); put("content", COACH_SYSTEM + "\n" + JSON_INSTRUCTIONS) })
-            turns.forEach { t -> add(buildJsonObject { put("role", if (t.role == ChatRole.USER) "user" else "assistant"); put("content", t.text) }) }
+            turns.forEachIndexed { i, t ->
+                add(buildJsonObject {
+                    put("role", if (t.role == ChatRole.USER) "user" else "assistant")
+                    if (image != null && i == turns.lastIndex && t.role == ChatRole.USER) {
+                        // صيغة الصور في واجهة OpenAI: نص + image_url بصيغة data URI
+                        put("content", buildJsonArray {
+                            add(buildJsonObject { put("type", "text"); put("text", t.text) })
+                            add(buildJsonObject {
+                                put("type", "image_url")
+                                put("image_url", buildJsonObject { put("url", "data:${image.mime};base64,${image.base64}") })
+                            })
+                        })
+                    } else put("content", t.text)
+                })
+            }
         })
         if (jsonMode) put("response_format", buildJsonObject { put("type", "json_object") })
     }.toString()
@@ -102,12 +139,12 @@ class OpenAICompatCoach(baseUrl: String, private val apiKey: String, private val
         }
     }
 
-    override fun reply(history: List<Turn>, context: String): CoachReply {
+    override fun reply(history: List<Turn>, context: String, image: MealImage?): CoachReply {
         require(base.startsWith("https://") || base.startsWith("http://localhost") || base.startsWith("http://127.")) { "base url must be https" }
         val turns = prepareTurns(history, context)
-        var (code, text) = post(body(turns, jsonMode = true))
+        var (code, text) = post(body(turns, jsonMode = true, image))
         if (code == 400 && text.contains("response_format", ignoreCase = true)) {
-            val retry = post(body(turns, jsonMode = false)); code = retry.first; text = retry.second
+            val retry = post(body(turns, jsonMode = false, image)); code = retry.first; text = retry.second
         }
         when (code) {
             in 200..299 -> Unit
