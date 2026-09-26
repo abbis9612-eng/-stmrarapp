@@ -54,6 +54,9 @@ data class Profile(
     val ramadan: Boolean = false,
     /** يأخذ دواء GLP-1 (سيماغلوتايد، تيرزيباتايد، أورفوغليبرون…) */
     val glp1: Boolean = false,
+    /** شريك المتابعة (اسم فقط) وهل يشوف اتجاه الوزن */
+    val partner: String = "",
+    val partnerSeesWeight: Boolean = false,
     val flags: List<SafetyFlag> = emptyList(),
     /** yyyy-MM-dd */
     val createdAt: String,

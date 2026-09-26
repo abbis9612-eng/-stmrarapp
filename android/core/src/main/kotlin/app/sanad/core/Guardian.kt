@@ -267,6 +267,9 @@ fun nextReminder(state: AppState, t: Targets, now: LocalDateTime): Reminder? {
         }
         if (d?.energy == null) candidates += Reminder(at(date, 9, 0), "morning", "صباح الخير ${p.name}", "شلون طاقتك اليوم؟ لمسة وحدة وخطتك تتفصّل على قدّك.")
         if (d == null || d.meals.none { it.at > 0 }) candidates += Reminder(at(date, 14, 30), "lunch", "شنو تغديت؟", "قول لسند بجملة أو صوّر صحنك — ثواني بس.")
+        if (p.partner.isNotBlank() && date.dayOfWeek == java.time.DayOfWeek.FRIDAY) {
+            candidates += Reminder(at(date, 18, 0), "partner", "تقرير الأسبوع جاهز", "ارسله لـ${p.partner} بضغطة من شاشة التقدم. التشجيع يفرق.")
+        }
         if (d?.gathering == true) {
             candidates += Reminder(at(date, 17, 30), "gathering", "قبل العزيمة بشوي", "بروتين خفيف هسه وكوبين ماي. هناك: صحن واحد، وتمن بقدّ قبضتك.")
         }

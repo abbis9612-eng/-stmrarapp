@@ -72,6 +72,9 @@ class AppStore(context: Context) {
 
     fun setGlp1(on: Boolean) = set { s -> s.profile?.let { s.copy(profile = it.copy(glp1 = on)) } ?: s }
 
+    fun setPartner(name: String, seesWeight: Boolean) =
+        set { s -> s.profile?.let { s.copy(profile = it.copy(partner = name.trim().take(40), partnerSeesWeight = seesWeight)) } ?: s }
+
     fun checkIn(energy: Energy, time: TimeBudget) = updateDay { it.copy(energy = energy, time = time) }
 
     fun clearCheckIn() = updateDay { it.copy(energy = null, time = null) }

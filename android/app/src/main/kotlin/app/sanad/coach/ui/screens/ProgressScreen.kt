@@ -1,5 +1,8 @@
 package app.sanad.coach.ui.screens
 
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import app.sanad.core.partnerReport
 import androidx.compose.foundation.layout.fillMaxHeight
 import app.sanad.core.GLP1_TIPS
 import app.sanad.core.WEEK_THEMES
@@ -150,6 +153,12 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
         item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 3)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
+        item(key = "partner") {
+            val review = weeklyReview(p, state.days, t, day.date)
+            PartnerCard(p.partner, p.partnerSeesWeight, onSave = store::setPartner) {
+                partnerReport(p, review, thread.length, p.partnerSeesWeight)
+            }
+        }
         sleepBank(state.days, day.date)?.let { b -> item(key = "sleep-bank") { SleepBankCard(b) } }
         item(key = "journey") { JourneyCard(state.lessonsRead.size) }
         item {
@@ -548,5 +557,45 @@ private fun JourneyCard(read: Int) {
             else "الأسبوع ${ar(week)}: ${WEEK_THEMES[week - 1]}",
             style = Type.small.copy(color = c.sky),
         )
+    }
+}
+
+/** شريك المتابعة: اسم شخص تثق بيه، وتقرير أسبوعي ترسله بضغطة (أنت تقرر شنو يشوف). */
+@Composable
+private fun PartnerCard(partner: String, seesWeight: Boolean, onSave: (String, Boolean) -> Unit, report: () -> String) {
+    val c = Sanad.colors
+    val context = LocalContext.current
+    var name by rememberSaveable { mutableStateOf("") }
+    var weight by rememberSaveable { mutableStateOf(false) }
+    SCard {
+        Text("شريك المتابعة", style = Type.h2.copy(color = c.ink))
+        if (partner.isBlank()) {
+            Text("اللي عندهم شخص يتابع وياهم يستمرون أكثر. اختار صديق أو واحد من أهلك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(top = 4.dp))
+            Spacer(Modifier.height(10.dp))
+            SField(name, { name = it }, "اسمه (مثلاً: أخوي حسن)", Modifier.fillMaxWidth())
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("يشوف اتجاه وزني", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
+                Switch(
+                    checked = weight, onCheckedChange = { weight = it },
+                    colors = SwitchDefaults.colors(checkedTrackColor = c.oasis, checkedThumbColor = c.bg, uncheckedTrackColor = c.glass2, uncheckedBorderColor = c.line),
+                    modifier = Modifier.semantics { contentDescription = "الشريك يشوف اتجاه الوزن" },
+                )
+            }
+            SButton("احفظ الشريك", { onSave(name, weight) }, Modifier.fillMaxWidth().padding(top = 6.dp), style = BtnStyle.SOFT, enabled = name.isNotBlank())
+        } else {
+            Text(
+                "$partner يستلم تقريرك الأسبوعي" + if (seesWeight) " (مع اتجاه الوزن)." else " (بدون وزن).",
+                style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(top = 4.dp),
+            )
+            Spacer(Modifier.height(10.dp))
+            SButton("ارسل تقرير الأسبوع لـ$partner", {
+                val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, report()) }
+                context.startActivity(Intent.createChooser(send, "ارسل التقرير"))
+            }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.NEXT)
+            Text(
+                "غيّر الشريك", style = Type.small.copy(color = c.inkSoft),
+                modifier = Modifier.padding(top = 8.dp).clip(CircleShape).press({ onSave("", false) }, haptic = false).padding(6.dp),
+            )
+        }
     }
 }
