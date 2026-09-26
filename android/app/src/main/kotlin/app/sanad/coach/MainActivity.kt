@@ -19,13 +19,18 @@ object Graph {
     lateinit var coach: CoachSettings
         private set
 
-    fun init(activity: ComponentActivity) {
-        if (!::store.isInitialized) store = AppStore(activity.applicationContext)
-        if (!::coach.isInitialized) coach = CoachSettings(activity.applicationContext)
+    fun init(context: android.content.Context) {
+        if (!::store.isInitialized) store = AppStore(context.applicationContext)
+        if (!::coach.isInitialized) coach = CoachSettings(context.applicationContext)
     }
 }
 
 class MainActivity : ComponentActivity() {
+    override fun onStop() {
+        super.onStop()
+        app.sanad.coach.notify.Reminders.schedule(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // الهوية داكنة دائماً: أيقونات شريط الحالة فاتحة

@@ -37,5 +37,6 @@ fun normalizeArabic(s: String): String = s
     .replace(Regex("[أإآ]"), "ا")
     .replace('ة', 'ه')
     .replace('ى', 'ي')
+    .replace('گ', 'ك').replace('چ', 'ج').replace('پ', 'ب').replace('ڤ', 'ف')
     .trim()
     .lowercase()

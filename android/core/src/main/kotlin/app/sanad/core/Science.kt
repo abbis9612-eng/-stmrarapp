@@ -118,7 +118,7 @@ fun adaptiveTdee(p: Profile, days: Collection<DayLog>, today: String): AdaptiveR
 /* ---------------- سلسلة الاستمرار: لا تفوّت مرتين ---------------- */
 
 fun isCounted(d: DayLog?): Boolean =
-    d != null && (d.done.isNotEmpty() || d.meals.isNotEmpty() || d.workouts.isNotEmpty() || d.weightKg != null)
+    d != null && (d.done.isNotEmpty() || d.meals.isNotEmpty() || d.workouts.isNotEmpty() || d.weightKg != null || d.lapses.isNotEmpty())
 
 data class ThreadState(val length: Int, val rescueToday: Boolean, val best: Int)
 

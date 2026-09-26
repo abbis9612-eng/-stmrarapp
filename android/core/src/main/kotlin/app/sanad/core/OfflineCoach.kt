@@ -14,6 +14,19 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
     val proteinIn = day?.protein ?: 0
     val left = t.kcal - (day?.intake ?: 0)
 
+    // زلّة: نرد قبل تحليل الأكل حتى ما يصير الرد حساب سعرات بارد
+    if (Regex("(زليت|خربت|خربتها|انفجرت|اكلت هوايه|اكلت كثير|فشلت|ما التزمت)").containsMatchIn(q)) {
+        val kind = when {
+            Regex("(الليل|بالليل|سهر)").containsMatchIn(q) -> LapseKind.NIGHT
+            Regex("(حلو|حلويات|شوكولا|كيك)").containsMatchIn(q) -> LapseKind.SWEETS
+            Regex("(عزيمه|عزومه|وليمه|عرس|مطعم)").containsMatchIn(q) -> LapseKind.SOCIAL
+            Regex("(ما سويت|ما تمرنت|ما التزمت)").containsMatchIn(q) -> LapseKind.SKIPPED
+            else -> LapseKind.OVEREAT
+        }
+        val r = lapseRecovery(kind, t)
+        return CoachReply("${r.title}. ${r.reframe}\n" + r.steps.joinToString("\n") { "• $it" }, emptyList())
+    }
+
     if (Regex("(شربت|اشرب).*(ماء|ماي|مويه)").containsMatchIn(q)) {
         val n = if ("كوبين" in q) 2 else Regex("\\d+").find(q)?.value?.toIntOrNull() ?: 1
         return CoachReply("ممتاز 💧 سجّلها وكمّل. الماء قبل الوجبة يساعد على الشبع.", listOf(CoachAction.LogWater(n.coerceIn(1, 10))))

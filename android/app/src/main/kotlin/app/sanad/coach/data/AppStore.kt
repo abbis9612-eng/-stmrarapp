@@ -87,6 +87,11 @@ class AppStore(context: Context) {
 
     fun removeMeal(id: String) = updateDay { d -> d.copy(meals = d.meals.filterNot { it.id == id }) }
 
+    /** زلّة سجّلها المستخدم بصدق (نوعها). */
+    fun logLapse(kind: String) = updateDay { d -> d.copy(lapses = d.lapses + kind) }
+
+    fun setSleep(hours: Double) = updateDay { it.copy(sleepHours = hours) }
+
     fun addWater(delta: Int) = updateDay { d -> d.copy(water = (d.water + delta).coerceIn(0, 20)) }
 
     fun logWorkout(routineId: String) {

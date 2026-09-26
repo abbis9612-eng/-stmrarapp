@@ -30,10 +30,10 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
             time = if (isToday) null else TimeBudget.entries[idx % 3],
             meals = if (isToday) listOf(MealEntry("t1", "بيض مسلوق", 155, 13, 0, MealSource.DB)) else listOf(
                 MealEntry("a$idx", "بيض مسلوق", 155, 13, 0, MealSource.DB),
-                MealEntry("b$idx", "كبسة دجاج", 650, 38, 0, MealSource.COACH),
+                MealEntry("b$idx", "تشريب دجاج", 650, 34, 0, MealSource.COACH),
                 MealEntry("c$idx", "زبادي يوناني", 100, 17, 0, MealSource.DB),
                 MealEntry("d$idx", "شيش طاووق", 330, 42, 0, MealSource.DB),
-                MealEntry("e$idx", "شاي كرك", 150, 3, 0, MealSource.DB),
+                MealEntry("e$idx", "صمون", 270, 9, 0, MealSource.DB),
             ),
             water = if (isToday) 3 else 6,
             done = if (isToday) emptyList() else listOf("move", "eat"),

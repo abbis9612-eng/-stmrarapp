@@ -1,5 +1,24 @@
 package app.sanad.coach.ui.screens
 
+import java.time.LocalDateTime
+import app.sanad.core.welcomeBack
+import app.sanad.core.lapseRisk
+import app.sanad.core.lapseRecovery
+import app.sanad.core.Welcome
+import app.sanad.core.RiskLevel
+import app.sanad.core.Risk
+import app.sanad.core.LapseKind
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import android.os.Build
+import android.content.pm.PackageManager
+import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -141,6 +160,17 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     val rise = rememberRise()
     val celebration = LocalCelebration.current
     var kick by remember { mutableIntStateOf(0) }
+    var lapseOpen by rememberSaveable { mutableStateOf(false) }
+
+    // إذن التنبيهات (أندرويد ١٣+): نطلبه مرة وحدة بعد ما يدخل يومه الأول
+    val context = LocalContext.current
+    val askNotify = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { app.sanad.coach.notify.Reminders.schedule(context) }
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
+        else app.sanad.coach.notify.Reminders.schedule(context)
+    }
 
     Page {
         item {
@@ -156,10 +186,17 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
 
+        welcomeBack(state, todayKey)?.let { w -> item(key = "welcome") { WelcomeCard(w) } }
+
         item {
             EnergyCard(day.energy ?: Energy.MID, Modifier.rise(rise, 1)) { e ->
                 store.checkIn(e, timeFor(e)); kick++
             }
+        }
+
+        val risk = lapseRisk(state, t, LocalDateTime.now())
+        if (risk.level != RiskLevel.LOW) item(key = "radar") {
+            RadarCard(risk, onTool = { nav.navigate(Routes.player(risk.toolRoutineId)) }, onLapse = { lapseOpen = true })
         }
 
         item {
@@ -209,6 +246,13 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     )
                 }
             }
+        }
+
+        item(key = "lapse") {
+            LapseCard(
+                open = lapseOpen, onToggle = { lapseOpen = !lapseOpen }, targets = t,
+                onLog = { kind -> store.logLapse(kind.name); kick++ },
+            )
         }
 
         item {
@@ -520,5 +564,105 @@ private fun RamadanCard(plan: RamadanPlan) {
         Text(plan.water, style = Type.small.copy(color = c.ink))
         Spacer(Modifier.height(6.dp))
         plan.cautions.forEach { Text(it, style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 2.dp)) }
+    }
+}
+
+/* ------------------------------ الحارس ------------------------------ */
+
+@Composable
+private fun WelcomeCard(w: Welcome) {
+    val c = Sanad.colors
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.oasis).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            LivingOrb(34.dp, glow = false)
+            Spacer(Modifier.width(10.dp))
+            Text(w.headline, style = Type.h2.copy(color = c.ink))
+        }
+        Text(w.body, style = Type.body.copy(color = c.ink))
+        Text("مهمة اليوم: ${w.mission}", style = Type.small.copy(color = c.oasis, fontWeight = FontWeight.SemiBold))
+    }
+}
+
+/** رادار الزلّة: يطلع بس لما اللحظة حساسة، ويعرض خطتك أنت وأداة سريعة. */
+@Composable
+private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
+    val c = Sanad.colors
+    val tint = if (r.level == RiskLevel.HIGH) c.rose else c.saffron
+    val pulse = rememberInfiniteTransition(label = "radar")
+    val ring by pulse.animateFloat(0f, 1f, infiniteRepeatable(tween(1800, easing = LinearEasing)), label = "ring")
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Canvas(Modifier.size(34.dp)) {
+                val r0 = size.minDimension / 2
+                drawCircle(tint.copy(alpha = (1f - ring) * 0.5f), r0 * (0.4f + ring * 0.6f), style = Stroke(2.dp.toPx()))
+                drawCircle(tint, r0 * 0.28f)
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("رادار سند", style = Type.label.copy(color = tint))
+                Text(r.headline, style = Type.h3.copy(color = c.ink, fontWeight = FontWeight.Bold))
+            }
+        }
+        r.plan?.let { plan ->
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp)) {
+                Text("خطتك أنت:", style = Type.label.copy(color = c.inkSoft))
+                Text("${plan.whenText} ← ${plan.thenText}", style = Type.body.copy(color = c.ink))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SButton("أداة ٣ دقايق", onTool, Modifier.weight(1f), style = BtnStyle.GOLD, small = true, icon = Ico.PLAY)
+            SButton("زلّيت", onLapse, style = BtnStyle.SOFT, small = true)
+        }
+    }
+}
+
+/** "زلّيت": تسجيل صادق بدون حكم، وخطة رجوع فورية بدل "خلاص خربت". */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LapseCard(open: Boolean, onToggle: () -> Unit, targets: app.sanad.core.Targets, onLog: (LapseKind) -> Unit) {
+    val c = Sanad.colors
+    var kind by rememberSaveable { mutableStateOf<LapseKind?>(null) }
+    var logged by rememberSaveable { mutableStateOf(false) }
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(Modifier.fillMaxWidth().press(onToggle, haptic = false), verticalAlignment = Alignment.CenterVertically) {
+            Text("صار شي اليوم؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text(if (open) "سكّر" else "زلّيت", style = Type.label.copy(color = c.saffron, fontWeight = FontWeight.SemiBold))
+        }
+        AnimatedVisibility(open, enter = fadeIn() + expandVertically()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("ما في حكم هنا. اختار اللي صار، وسند يعطيك الخطوة الجاية.", style = Type.small.copy(color = c.inkSoft))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LapseKind.entries.forEach { k ->
+                        val sel = kind == k
+                        Box(
+                            Modifier.clip(CircleShape).background(if (sel) c.ink else c.glassTop).border(1.dp, if (sel) Color.Transparent else c.line, CircleShape)
+                                .press({ kind = k; logged = false }).padding(horizontal = 14.dp, vertical = 8.dp),
+                        ) { Text(k.label, style = Type.small.copy(color = if (sel) c.bg else c.ink)) }
+                    }
+                }
+                kind?.let { k ->
+                    val r = lapseRecovery(k, targets)
+                    Column(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.oasis.copy(alpha = 0.08f)).padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(r.title, style = Type.h3.copy(color = c.ink, fontWeight = FontWeight.Bold))
+                        r.steps.forEach { Text("• $it", style = Type.body.copy(color = c.ink)) }
+                        Text(r.reframe, style = Type.small.copy(color = c.oasis))
+                    }
+                    if (!logged) SButton("سجّلها وكمّل يومي", { onLog(k); logged = true }, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
+                    else Text("انسجلت. التسجيل الصادق نفسه التزام، وسلسلتك محفوظة.", style = Type.small.copy(color = c.oasis))
+                }
+            }
+        }
     }
 }

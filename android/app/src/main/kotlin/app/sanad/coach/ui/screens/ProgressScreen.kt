@@ -73,6 +73,8 @@ import app.sanad.core.AppState
 import app.sanad.core.Pacing
 import app.sanad.core.TrendPoint
 import app.sanad.core.WeeklyReview
+import app.sanad.core.weighInWeather
+import app.sanad.core.WeighIn
 import app.sanad.core.addDays
 import app.sanad.core.ar
 import app.sanad.core.computeThread
@@ -178,6 +180,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Text("أفضل وقت: الصبح بعد الحمام وقبل الأكل. ٣ مرات بالأسبوع تكفي.", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 8.dp))
             }
         }
+        weighInWeather(state, day.date, t)?.let { w -> item(key = "weather-${w.todayKg}") { WeighInCard(w) } }
         item {
             SCard {
                 Text("حرقك الحقيقي", style = Type.h2.copy(color = c.ink))
@@ -423,5 +426,24 @@ private fun Medal(name: String, earned: Boolean, a: Color, b: Color, icon: Ico, 
         }
         Spacer(Modifier.height(6.dp))
         Text(name, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp), textAlign = TextAlign.Center)
+    }
+}
+
+/** طقس الميزان: يفسّر رقم اليوم حتى ما تترك الميزان بعد قفزة. */
+@Composable
+private fun WeighInCard(w: WeighIn) {
+    val c = Sanad.colors
+    val tint = when (w.kind) {
+        WeighIn.Kind.JUMP -> c.saffron
+        WeighIn.Kind.DROP -> c.oasis
+        else -> c.sky
+    }
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text("طقس الميزان", style = Type.label.copy(color = tint))
+        Text(w.headline, style = Type.h2.copy(color = c.ink))
+        Text(w.body, style = Type.body.copy(color = c.ink))
     }
 }

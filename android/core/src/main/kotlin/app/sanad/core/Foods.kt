@@ -1,11 +1,11 @@
 package app.sanad.core
 
 /**
- * أكلات خليجية وعربية شائعة بحصص واقعية. القيم تقديرية (متوسطات جداول تغذية
+ * أكلات عراقية وخليجية وعربية شائعة بحصص واقعية. القيم تقديرية (متوسطات جداول تغذية
  * ووصفات منزلية) — الهدف تسجيل سريع وصادق، لا دقة مخبرية.
  */
 enum class FoodCat(val label: String) {
-    MAIN("أطباق"), BREAKFAST("فطور"), BREAD("خبز"), PROTEIN("بروتين"), SNACK("خفيف"),
+    IRAQI("عراقي"), MAIN("أطباق"), BREAKFAST("فطور"), BREAD("خبز"), PROTEIN("بروتين"), SNACK("خفيف"),
     SWEET("حلا"), DRINK("مشروبات"), FRUIT("فواكه وتمر"),
 }
 
@@ -21,6 +21,26 @@ data class Food(
 )
 
 val FOODS: List<Food> = listOf(
+    // عراقي — بالحصص المحلية (ماعون، صمونة، استكان)
+    Food("dolma", "دولمة", "ماعون متوسط (١٠ قطع تقريباً)", 520, 16, FoodCat.IRAQI, listOf("دولمه", "محشي", "يابسة"), false),
+    Food("tashreeb", "تشريب دجاج", "ماعون مع خبز منقوع", 650, 34, FoodCat.IRAQI, listOf("تشريب", "تشريب لحم", "ثريد عراقي"), false),
+    Food("qeema", "قيمة", "زبدية بدون تمن", 360, 20, FoodCat.IRAQI, listOf("قيمه", "قيمة نجفية"), false),
+    Food("timman-marag", "تمن ومرگة", "ماعون تمن + زبدية مرگة", 620, 20, FoodCat.IRAQI, listOf("تمن ومرق", "تمن ومركة", "مرگة فاصوليا", "مركة فاصوليا", "تمن وفاصوليا", "مرگة باميا", "تمن وباميا"), false),
+    Food("timman", "تمن", "ماعون صغير (كوب مطبوخ)", 210, 4, FoodCat.IRAQI, listOf("تمن ابيض", "تمن عنبر"), false),
+    Food("baqilla-dihin", "باگلة بالدهن", "ماعون مع خبز وبيضة", 620, 24, FoodCat.IRAQI, listOf("باگلة", "باكلة", "باقلاء بالدهن", "باقلة"), false),
+    Food("masgouf", "مسگوف", "قطعة كبيرة ٣٠٠ غ بدون خبز", 480, 58, FoodCat.IRAQI, listOf("مسكوف", "سمك مسگوف", "شبوط"), true),
+    Food("kubba-halab", "كبة حلب", "حبتين", 380, 14, FoodCat.IRAQI, listOf("كبة", "كبه", "كبة تمن"), false),
+    Food("kubba-mosul", "كبة موصلية", "قرص", 460, 22, FoodCat.IRAQI, listOf("كبة موصل", "كبة برغل"), false),
+    Food("kahi-geymar", "كاهي وگيمر", "قطعة كاهي + ملعقتين گيمر ودبس", 650, 9, FoodCat.IRAQI, listOf("كاهي", "گيمر", "قيمر", "كيمر", "كاهي وقيمر"), false),
+    Food("samoon", "صمون", "صمونة وحدة", 270, 9, FoodCat.IRAQI, listOf("صمونة", "صمونه", "صمونات", "صمونتين"), false),
+    Food("kebab-iraqi", "كباب عراقي", "٣ أسياخ بدون صمون", 540, 40, FoodCat.IRAQI, listOf("كباب", "تكة", "تكه", "لفة كباب"), true),
+    Food("falafel-iraqi", "لفة فلافل بالعمبة", "لفة صمون", 480, 13, FoodCat.IRAQI, listOf("عمبة", "عمبه", "لفة فلافل"), false),
+    Food("lablabi", "لبلبي", "كاسة", 250, 12, FoodCat.IRAQI, listOf("لبلبي", "حمص مسلوق"), false),
+    Food("pacha", "پاچة", "ماعون (رأس وكراعين) مع خبز", 900, 55, FoodCat.IRAQI, listOf("پاچة", "باچة", "باجة", "پاچه"), false),
+    Food("makhlama", "مخلمة", "٢ بيض مع لحم مفروم", 380, 24, FoodCat.IRAQI, listOf("مخلمه"), true),
+    Food("shorbat-adas-iraqi", "شوربة عدس بالليمون", "زبدية", 230, 12, FoodCat.IRAQI, emptyList(), false),
+    Food("zalabia", "زلابية", "٣ حبات", 330, 3, FoodCat.IRAQI, listOf("زلابيه", "بقلاوة", "من السما"), false),
+    Food("chai-iraqi", "استكان چاي", "استكان (ملعقتين شكر)", 35, 0, FoodCat.DRINK, listOf("چاي", "استكان"), false),
     // أطباق رئيسية
     Food("kabsa-chicken", "كبسة دجاج", "صحن متوسط (رز + ربع دجاجة)", 650, 38, FoodCat.MAIN, listOf("كبسه", "رز ودجاج", "مكبوس", "مجبوس دجاج", "مجبوس"), false),
     Food("kabsa-meat", "كبسة لحم", "صحن متوسط", 760, 36, FoodCat.MAIN, listOf("رز ولحم", "مجبوس لحم"), false),
@@ -75,7 +95,7 @@ val FOODS: List<Food> = listOf(
     Food("kunafa", "كنافة", "قطعة", 450, 8, FoodCat.SWEET, listOf("كنافه"), false),
     Food("basbousa", "بسبوسة", "قطعة", 320, 4, FoodCat.SWEET, listOf("هريسة حلا"), false),
     Food("umm-ali", "أم علي", "زبدية صغيرة", 480, 10, FoodCat.SWEET, emptyList(), false),
-    Food("kleija", "كليجا", "حبتين", 280, 4, FoodCat.SWEET, emptyList(), false),
+    Food("kleija", "كليجا", "حبتين", 280, 4, FoodCat.SWEET, listOf("كليجة", "كليچة"), false),
     Food("samosa", "سمبوسة", "٣ حبات", 330, 9, FoodCat.SNACK, listOf("سمبوسه"), false),
     Food("chocolate", "شوكولاتة", "لوح صغير ٤٥ غ", 240, 3, FoodCat.SWEET, listOf("شوكلت", "شوكولاته"), false),
     Food("nuts", "مكسرات", "حفنة ٣٠ غ", 180, 6, FoodCat.SNACK, listOf("لوز", "كاجو", "فستق"), false),
@@ -118,9 +138,14 @@ data class ParsedFood(val food: Food, val qty: Double)
 private val QUANTITY_WORDS = listOf(
     Regex("(نص|نصف)\\s") to 0.5,
     Regex("(ربع)\\s") to 0.25,
-    Regex("(صحنين|حبتين|كوبين|اثنين|٢|2)\\s") to 2.0,
+    Regex("(صحنين|ماعونين|صمونتين|استكانين|حبتين|كوبين|اثنين|٢|2)\\s") to 2.0,
     Regex("(ثلاث|٣|3)\\s") to 3.0,
 )
+
+/** الأسماء القصيرة (تمن، كبة، شاي) لازم تجي ككلمة، حتى "اتمنى" ما تنحسب تمن. */
+private fun mentions(part: String, n: String): Boolean =
+    if (n.length > 4) part.contains(n)
+    else Regex("(^|\\s)(و|ب|ال|وال|بال)?${Regex.escape(n)}(\\s|$)").containsMatchIn(part)
 
 /** يستخرج أطعمة من جملة حرة مثل "تغديت كبسة دجاج ولبن ونص صحن سلطة". */
 fun parseMealText(text: String): List<ParsedFood> {
@@ -130,7 +155,7 @@ fun parseMealText(text: String): List<ParsedFood> {
         var best: Food? = null
         var bestLen = 0
         for (f in FOODS) for (n in (listOf(f.name) + f.aliases).map(::normalizeArabic)) {
-            if (n.length >= 2 && part.contains(n) && n.length > bestLen) {
+            if (n.length >= 2 && n.length > bestLen && mentions(part, n)) {
                 best = f; bestLen = n.length
             }
         }
@@ -142,3 +167,19 @@ fun parseMealText(text: String): List<ParsedFood> {
     }
     return found
 }
+
+/** أكلة متكررة من سجل المستخدم نفسه — تسجيل بضغطة بدل البحث كل مرة. */
+data class UsualMeal(val name: String, val kcal: Int, val protein: Int, val times: Int)
+
+/**
+ * "وجباتي المعتادة": أكثر ما سجّله المستخدم آخر ٣٠ يوم (مرتين فأكثر)،
+ * بآخر سعرات سجّلها لها. الناس ياكلون نفس ~١٥ أكلة غالباً، فهذا أسرع سجل.
+ */
+fun usualMeals(state: AppState, limit: Int = 6): List<UsualMeal> =
+    state.days.values.sortedBy { it.date }.takeLast(30).flatMap { it.meals }
+        .filter { it.source != MealSource.PHOTO || it.kcal > 0 }
+        .groupBy { normalizeArabic(it.name) }
+        .filter { it.value.size >= 2 }
+        .map { (_, ms) -> val last = ms.maxBy { it.at }; UsualMeal(last.name, last.kcal, last.protein, ms.size) }
+        .sortedWith(compareByDescending<UsualMeal> { it.times }.thenBy { it.name })
+        .take(limit)

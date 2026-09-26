@@ -56,6 +56,7 @@ import app.sanad.coach.ui.theme.Sanad
 import app.sanad.coach.ui.theme.Type
 import app.sanad.core.AppState
 import app.sanad.core.FOODS
+import app.sanad.core.usualMeals
 import app.sanad.core.Food
 import app.sanad.core.FoodCat
 import app.sanad.core.MealSource
@@ -86,7 +87,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
     val t = state.targets() ?: return
     val day = state.today()
     var q by rememberSaveable { mutableStateOf("") }
-    var cat by rememberSaveable { mutableStateOf("star") }
+    var cat by rememberSaveable { mutableStateOf("IRAQI") }
     var open by rememberSaveable { mutableStateOf<String?>(null) }
     var name by rememberSaveable { mutableStateOf("") }
     var kcal by rememberSaveable { mutableStateOf("") }
@@ -126,7 +127,18 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 }
             }
         }
-        item { SField(q, { q = it }, "ابحث: كبسة، شاورما، كرك…", Modifier.fillMaxWidth()) }
+        val usual = usualMeals(state)
+        if (usual.isNotEmpty() && q.isBlank()) item {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("وجباتي المعتادة — ضغطة وحدة", style = Type.label.copy(color = c.inkSoft))
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    usual.forEach { u ->
+                        SChip("+ ${u.name} · ${ar(u.kcal)}", false, { store.addMeal(u.name, u.kcal, u.protein, MealSource.QUICK) })
+                    }
+                }
+            }
+        }
+        item { SField(q, { q = it }, "ابحث: دولمة، تشريب، صمون، كباب…", Modifier.fillMaxWidth()) }
         if (q.isBlank()) item {
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SChip("غني بالبروتين", cat == "star", { cat = "star" })
