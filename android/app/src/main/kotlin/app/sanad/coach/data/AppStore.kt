@@ -92,6 +92,8 @@ class AppStore(context: Context) {
 
     fun setSleep(hours: Double) = updateDay { it.copy(sleepHours = hours) }
 
+    fun setGathering(on: Boolean) = updateDay { it.copy(gathering = on) }
+
     fun addWater(delta: Int) = updateDay { d -> d.copy(water = (d.water + delta).coerceIn(0, 20)) }
 
     fun logWorkout(routineId: String) {

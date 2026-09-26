@@ -66,7 +66,12 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
     }
     if (Regex("(عزيمه|عزومه|وليمه|مناسبه|عرس|ضيوف|مطعم)").containsMatchIn(q)) {
         return CoachReply(
-            "العزايم جزء من حياتنا، ما نبي نهرب منها. الخطة: صحن واحد، نصه سلطة ومشاوي، ربع رز، وتحلية صغيرة إذا تبي. وقبلها بساعتين وجبة بروتين خفيفة.",
+            gatheringPlan(t, day).let { g ->
+                "العزايم جزء من حياتنا، ما نهرب منها — نروح لها بخطة.\n" +
+                    "قبل: ${g.before.first()}.\n" +
+                    "هناك: ${g.plate[1]}.\n" +
+                    "بعد: ${g.after[2]}.\n" + g.note
+            },
             listOf(CoachAction.AddIfThen("إذا عندي عزيمة", "آكل بروتين خفيف قبلها وآخذ صحن واحد: نص خضار، ربع بروتين، ربع رز")),
         )
     }

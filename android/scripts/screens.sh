@@ -36,6 +36,8 @@ shot 07-eat 7 --ez demo true --ez skipIntro true --es route eat
 shot 15-today-tired 7 --ez demo true --ez skipIntro true --es checkin LOW
 scroll_shot 16-today-tired-scrolled
 scroll_shot 17-today-tired-bottom
+shot 19-today-gathering 7 --ez demo true --ez skipIntro true --es checkin MID --ez gathering true
+scroll_shot 19b-today-gathering-scrolled
 shot 08-move 7 --ez skipIntro true --es route move
 scroll_shot 09-move-library
 shot 10-exercise 7 --ez skipIntro true --es route exercise/squat

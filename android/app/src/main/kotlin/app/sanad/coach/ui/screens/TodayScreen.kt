@@ -1,6 +1,8 @@
 package app.sanad.coach.ui.screens
 
 import java.time.LocalDateTime
+import app.sanad.core.gatheringPlan
+import app.sanad.core.GatheringPlan
 import app.sanad.core.welcomeBack
 import app.sanad.core.lapseRisk
 import app.sanad.core.lapseRecovery
@@ -203,6 +205,10 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             RadarCard(risk, onTool = { nav.navigate(Routes.player(risk.toolRoutineId)) }, onLapse = { lapseOpen = true })
         }
 
+        if (day.gathering) item(key = "gathering") {
+            GatheringCard(gatheringPlan(t, day), onCancel = { store.setGathering(false) })
+        }
+
         item {
             RingsCard(
                 day.intake, day.protein, day.water, t.kcal, t.protein, t.water,
@@ -255,6 +261,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
         item(key = "lapse") {
             LapseCard(
                 open = lapseOpen, onToggle = { lapseOpen = !lapseOpen }, targets = t,
+                gathering = day.gathering, onGathering = { store.setGathering(true); kick++ },
                 onLog = { kind -> store.logLapse(kind.name); kick++ },
             )
         }
@@ -573,6 +580,34 @@ private fun RamadanCard(plan: RamadanPlan) {
 
 /* ------------------------------ الحارس ------------------------------ */
 
+/** خطة العزيمة: قبل، الصحن، بعد — بلا حرمان وبلا تعويض. */
+@Composable
+private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit) {
+    val c = Sanad.colors
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.saffron).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("خطة العزيمة", style = Type.label.copy(color = c.saffron))
+                Text("تروح مرتاح، وترجع مرتاح", style = Type.h2.copy(color = c.ink))
+            }
+            Text("مو اليوم", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.clip(CircleShape).press(onCancel, haptic = false).padding(8.dp))
+        }
+        Text(g.note, style = Type.body.copy(color = c.ink))
+        listOf("قبل" to g.before, "الصحن" to g.plate, "بعد" to g.after).forEach { (title, steps) ->
+            Column(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(title, style = Type.label.copy(color = c.saffron, fontWeight = FontWeight.SemiBold))
+                steps.forEach { Text("• $it", style = Type.small.copy(color = c.ink)) }
+            }
+        }
+    }
+}
+
 /** سؤال الصبح: نمت كم؟ ضغطة وحدة، ويغذّي الرادار وبنك النوم. */
 @Composable
 private fun SleepAsk(onPick: (Double) -> Unit) {
@@ -656,7 +691,10 @@ private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
 /** "زلّيت": تسجيل صادق بدون حكم، وخطة رجوع فورية بدل "خلاص خربت". */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun LapseCard(open: Boolean, onToggle: () -> Unit, targets: app.sanad.core.Targets, onLog: (LapseKind) -> Unit) {
+private fun LapseCard(
+    open: Boolean, onToggle: () -> Unit, targets: app.sanad.core.Targets,
+    gathering: Boolean, onGathering: () -> Unit, onLog: (LapseKind) -> Unit,
+) {
     val c = Sanad.colors
     var kind by rememberSaveable { mutableStateOf<LapseKind?>(null) }
     var logged by rememberSaveable { mutableStateOf(false) }
@@ -664,9 +702,10 @@ private fun LapseCard(open: Boolean, onToggle: () -> Unit, targets: app.sanad.co
         Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Row(Modifier.fillMaxWidth().press(onToggle, haptic = false), verticalAlignment = Alignment.CenterVertically) {
-            Text("صار شي اليوم؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
-            Text(if (open) "سكّر" else "زلّيت", style = Type.label.copy(color = c.saffron, fontWeight = FontWeight.SemiBold))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("عندك موقف اليوم؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+            if (!gathering) SButton("عندي عزيمة", onGathering, style = BtnStyle.SOFT, small = true)
+            SButton(if (open) "سكّر" else "زلّيت", onToggle, style = BtnStyle.GHOST, small = true)
         }
         AnimatedVisibility(open, enter = fadeIn() + expandVertically()) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

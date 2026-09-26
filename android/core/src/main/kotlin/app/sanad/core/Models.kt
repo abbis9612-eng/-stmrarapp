@@ -89,6 +89,8 @@ data class DayLog(
     val sleepHours: Double? = null,
     /** زلّات سجّلها المستخدم بصدق (نوعها) — التسجيل نفسه التزام */
     val lapses: List<String> = emptyList(),
+    /** عنده عزيمة/مناسبة اليوم (يفعّل خطة العزايم والرادار) */
+    val gathering: Boolean = false,
 ) {
     val intake: Int get() = meals.sumOf { it.kcal }
     val protein: Int get() = meals.sumOf { it.protein }

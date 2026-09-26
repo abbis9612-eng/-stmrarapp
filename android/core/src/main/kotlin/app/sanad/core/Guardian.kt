@@ -61,7 +61,8 @@ fun lapseRisk(state: AppState, t: Targets, now: LocalDateTime): Risk {
     if (weekAgo != null && last != null && last.trend - weekAgo.trend > 0.3) sig += RiskSignal("gain", 15, "الاتجاه طالع هالأسبوع")
     if (d != null && h < 18 && d.intake > t.kcal * 0.85) sig += RiskSignal("early", 15, "أكلت أغلب حصتك قبل المسا")
     val recentChat = state.chat.takeLast(12).filter { it.role == ChatRole.USER && it.at > 0 }
-    if (recentChat.any { SOCIAL_WORDS.containsMatchIn(normalizeArabic(it.text)) }) sig += RiskSignal("social", 15, "عندك مناسبة")
+    if (d?.gathering == true) sig += RiskSignal("social", 20, "عندك عزيمة اليوم")
+    else if (recentChat.any { SOCIAL_WORDS.containsMatchIn(normalizeArabic(it.text)) }) sig += RiskSignal("social", 15, "عندك مناسبة")
     if (p != null && Barrier.NIGHT in p.barriers && h >= 21) sig += RiskSignal("night-barrier", 10, "جوع الليل من عوائقك")
     if (p != null && Barrier.STRESS in p.barriers && d?.energy == Energy.LOW) sig += RiskSignal("stress", 5, "التعب يفتح باب الأكل العاطفي")
 
@@ -266,6 +267,9 @@ fun nextReminder(state: AppState, t: Targets, now: LocalDateTime): Reminder? {
         }
         if (d?.energy == null) candidates += Reminder(at(date, 9, 0), "morning", "صباح الخير ${p.name}", "شلون طاقتك اليوم؟ لمسة وحدة وخطتك تتفصّل على قدّك.")
         if (d == null || d.meals.none { it.at > 0 }) candidates += Reminder(at(date, 14, 30), "lunch", "شنو تغديت؟", "قول لسند بجملة أو صوّر صحنك — ثواني بس.")
+        if (d?.gathering == true) {
+            candidates += Reminder(at(date, 17, 30), "gathering", "قبل العزيمة بشوي", "بروتين خفيف هسه وكوبين ماي. هناك: صحن واحد، وتمن بقدّ قبضتك.")
+        }
         val risk = lapseRisk(state, t, at(date, 20, 45))
         if (risk.level != RiskLevel.LOW) {
             val plan = risk.plan?.let { "${it.whenText} ← ${it.thenText}" } ?: "جرّب ٥ دقايق تهدئة قبل ما تفتح الثلاجة."
