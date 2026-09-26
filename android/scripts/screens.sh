@@ -4,6 +4,8 @@ set -euo pipefail
 APK="$1"; OUT="$2"
 mkdir -p "$OUT"
 adb install -r "$APK"
+# نمنح إذن التنبيهات مسبقاً حتى نافذة الإذن ما تغطي اللقطات
+adb shell pm grant app.sanad.coach android.permission.POST_NOTIFICATIONS || true
 PKG=app.sanad.coach/.MainActivity
 
 shot() {
@@ -30,7 +32,10 @@ scroll_shot 03-today-checkin-scrolled
 shot 04-today-plan 7 --ez demo true --ez skipIntro true --es checkin HIGH
 scroll_shot 05-today-plan-scrolled
 scroll_shot 06-today-plan-bottom
-shot 07-eat 7 --ez skipIntro true --es route eat
+shot 07-eat 7 --ez demo true --ez skipIntro true --es route eat
+shot 15-today-tired 7 --ez demo true --ez skipIntro true --es checkin LOW
+scroll_shot 16-today-tired-scrolled
+scroll_shot 17-today-tired-bottom
 shot 08-move 7 --ez skipIntro true --es route move
 scroll_shot 09-move-library
 shot 10-exercise 7 --ez skipIntro true --es route exercise/squat
