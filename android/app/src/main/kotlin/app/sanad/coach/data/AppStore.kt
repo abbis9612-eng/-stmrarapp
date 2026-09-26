@@ -98,6 +98,15 @@ class AppStore(context: Context) {
 
     fun setSteps(n: Int) = updateDay { it.copy(steps = n) }
 
+    fun readLesson(id: String) = set { s ->
+        val date = today()
+        val d = s.days[date] ?: DayLog(date)
+        s.copy(
+            lessonsRead = if (id in s.lessonsRead) s.lessonsRead else s.lessonsRead + id,
+            days = s.days + (date to d.copy(lesson = id)),
+        )
+    }
+
     fun addWater(delta: Int) = updateDay { d -> d.copy(water = (d.water + delta).coerceIn(0, 20)) }
 
     fun logWorkout(routineId: String) {

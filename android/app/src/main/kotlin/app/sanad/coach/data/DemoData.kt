@@ -55,5 +55,6 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
         ),
         days = days,
         favorites = listOf("greek-yogurt", "eggs-2"),
+        lessonsRead = app.sanad.core.LESSONS.take(12).map { it.id },
     )
 }

@@ -1,6 +1,9 @@
 package app.sanad.coach.ui.screens
 
 import java.time.LocalDateTime
+import app.sanad.core.lessonForToday
+import app.sanad.core.WEEK_THEMES
+import app.sanad.core.Lesson
 import app.sanad.core.stepsNote
 import app.sanad.core.gatheringPlan
 import app.sanad.core.GatheringPlan
@@ -230,6 +233,10 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
 
         item { StreakCard(thread.length, thread.best, weaveCells(state.days, todayKey, 7, p.createdAt), todayKey, Modifier.rise(rise, 3)) }
+
+        lessonForToday(state.lessonsRead, p.createdAt, todayKey, day.lesson != null)?.let { lesson ->
+            item(key = "lesson-${lesson.id}") { LessonCard(lesson) { store.readLesson(lesson.id); kick++ } }
+        }
 
         if (thread.rescueToday) item {
             Note("أمس فات، وهذا عادي. اليوم مهمة وحدة بس تمسك سلسلتك." + if (p.why.isNotBlank()) "\nتذكّر ليش بديت: ${p.why}" else "")
@@ -645,6 +652,32 @@ private fun StepsCard(steps: Int, target: Int, needsPermission: Boolean, onEnabl
             }
             Text(stepsNote(steps, target), style = Type.small.copy(color = c.inkSoft))
         }
+    }
+}
+
+/** درس اليوم من رحلة الـ١٢ أسبوع: دقيقة قراءة وخطوة وحدة. */
+@Composable
+private fun LessonCard(l: Lesson, onRead: () -> Unit) {
+    val c = Sanad.colors
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.sky).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            "درس اليوم · الأسبوع ${ar(l.week)}: ${WEEK_THEMES[l.week - 1]}",
+            style = Type.label.copy(color = c.sky),
+        )
+        Text(l.title, style = Type.h2.copy(color = c.ink))
+        Text(l.body, style = Type.body.copy(color = c.ink))
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SIcon(Ico.CHECK, size = 18.dp, tint = c.oasis)
+            Spacer(Modifier.width(8.dp))
+            Text(l.action, style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
+        }
+        SButton("قريته، أجرّبها اليوم", onRead, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
     }
 }
 

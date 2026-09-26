@@ -1,5 +1,8 @@
 package app.sanad.coach.ui.screens
 
+import androidx.compose.foundation.layout.fillMaxHeight
+import app.sanad.core.WEEK_THEMES
+import app.sanad.core.LESSONS
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
@@ -147,6 +150,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 3)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
         sleepBank(state.days, day.date)?.let { b -> item(key = "sleep-bank") { SleepBankCard(b) } }
+        item(key = "journey") { JourneyCard(state.lessonsRead.size) }
         item {
             SCard(Modifier.rise(rise, 4)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -493,5 +497,35 @@ private fun SleepBankCard(b: SleepBank) {
             drawLine(ink.copy(alpha = 0.35f), Offset(0f, goalY), Offset(size.width, goalY), 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f)))
         }
         Text(b.tip, style = Type.small.copy(color = c.inkSoft))
+    }
+}
+
+/** رحلة ١٢ أسبوع: ١٢ نقطة، كل نقطة تمتلي بقد دروس أسبوعها. */
+@Composable
+private fun JourneyCard(read: Int) {
+    val c = Sanad.colors
+    val total = LESSONS.size
+    val week = (read / 7 + 1).coerceAtMost(12)
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp)).padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("رحلة ١٢ أسبوع", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("${ar(read)} من ${ar(total)} درس", style = Type.small.copy(color = c.inkSoft))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            (0 until 12).forEach { i ->
+                val f = ((read - i * 7) / 7f).coerceIn(0f, 1f)
+                Box(Modifier.weight(1f).height(10.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.08f))) {
+                    Box(Modifier.fillMaxWidth(f).fillMaxHeight().clip(CircleShape).background(c.sky))
+                }
+            }
+        }
+        Text(
+            if (read >= total) "خلصت الرحلة كاملة. العادات صارت مالتك."
+            else "الأسبوع ${ar(week)}: ${WEEK_THEMES[week - 1]}",
+            style = Type.small.copy(color = c.sky),
+        )
     }
 }

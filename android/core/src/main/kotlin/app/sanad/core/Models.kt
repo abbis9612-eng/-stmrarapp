@@ -93,6 +93,8 @@ data class DayLog(
     val gathering: Boolean = false,
     /** وجبات انأكلت بمؤقت الأكل على مهل */
     val slowMeals: Int = 0,
+    /** الدرس اللي انقرا هذا اليوم */
+    val lesson: String? = null,
 ) {
     val intake: Int get() = meals.sumOf { it.kcal }
     val protein: Int get() = meals.sumOf { it.protein }
@@ -136,4 +138,6 @@ data class AppState(
     val days: Map<String, DayLog> = emptyMap(),
     val chat: List<ChatMessage> = emptyList(),
     val favorites: List<String> = emptyList(),
+    /** دروس رحلة الـ١٢ أسبوع المقروءة بالترتيب */
+    val lessonsRead: List<String> = emptyList(),
 )
