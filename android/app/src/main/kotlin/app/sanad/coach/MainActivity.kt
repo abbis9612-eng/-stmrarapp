@@ -63,6 +63,22 @@ class MainActivity : ComponentActivity() {
                 if (it.hasExtra("ramadan")) Graph.store.setRamadan(it.getBooleanExtra("ramadan", false))
                 it.getStringExtra("checkin")?.let { e -> Graph.store.checkIn(Energy.valueOf(e), TimeBudget.TWENTY) }
                 if (it.getBooleanExtra("gathering", false)) Graph.store.setGathering(true)
+                // حالات للتحقق باللقطات: رجوع بعد غياب، نوم قليل، وصول للهدف، شريك، GLP-1، تنبيه فوري
+                if (it.getBooleanExtra("away", false)) Graph.store.replaceAll(demoState(java.time.LocalDate.now().minusDays(3)))
+                it.getStringExtra("sleep")?.toDoubleOrNull()?.let { h -> Graph.store.setSleep(h) }
+                if (it.getBooleanExtra("reached", false)) {
+                    val s = demoState()
+                    Graph.store.replaceAll(s.copy(profile = s.profile!!.copy(goalWeightKg = 97.0)))
+                }
+                if (it.getBooleanExtra("partner", false)) Graph.store.setPartner("حسن", false)
+                if (it.getBooleanExtra("glp1", false)) Graph.store.setGlp1(true)
+                if (it.getBooleanExtra("notifyNow", false)) {
+                    val st = Graph.store.state.value
+                    val t = st.profile?.let { p -> app.sanad.core.computeTargets(p, st.days.values.mapNotNull { d -> d.weightKg }.lastOrNull() ?: p.startWeightKg) }
+                    val r = t?.let { tt -> app.sanad.core.nextReminder(st, tt, java.time.LocalDateTime.now().minusHours(12)) }
+                    app.sanad.coach.notify.Reminders.ensureChannel(this)
+                    app.sanad.coach.notify.Reminders.show(this, r?.id ?: "test", r?.title ?: "سند", r?.body ?: "تنبيه تجريبي")
+                }
                 startRoute = it.getStringExtra("route")
                 skipIntro = it.getBooleanExtra("skipIntro", false)
             }

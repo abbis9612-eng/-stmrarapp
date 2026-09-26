@@ -24,6 +24,40 @@ scroll_shot() {
   echo "captured $name"
 }
 
+
+# يضغط على عنصر نصه أو وصفه يطابق $1 (من شجرة الوصول)؛ ما يفشل السكربت إذا ما لقاه
+tap_text() {
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 || true
+  local b
+  b=$(adb shell cat /sdcard/ui.xml | tr '>' '\n' | grep -F "\"$1\"" | head -1 | grep -o 'bounds="[^"]*"' | head -1 || true)
+  local n=($(echo "$b" | grep -o '[0-9]\+' | tr '\n' ' '))
+  if [ ${#n[@]} -lt 4 ]; then echo "AUDIT tap_text: NOT FOUND '$1'"; return 0; fi
+  adb shell input tap $(( (n[0]+n[2])/2 )) $(( (n[1]+n[3])/2 ))
+  echo "AUDIT tap_text: tapped '$1'"
+}
+
+# يمرّر لتحت لحد ما يبين النص $1، بعدين يلتقط $2
+scroll_to() {
+  local found=0
+  for i in 1 2 3 4 5 6 7 8 9; do
+    adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 || true
+    if adb shell cat /sdcard/ui.xml | grep -qF "$1"; then found=1; break; fi
+    adb shell input swipe 540 1700 540 900 500
+    sleep 1.5
+  done
+  if [ $found = 1 ]; then
+    adb shell input swipe 540 1500 540 1100 400
+    echo "AUDIT scroll_to: found '$1'"
+  else
+    echo "AUDIT scroll_to: NOT FOUND '$1'"
+  fi
+  sleep 1.5
+  adb exec-out screencap -p > "$OUT/$2.png"
+  echo "captured $2"
+}
+
+cap() { sleep "${2:-1.5}"; adb exec-out screencap -p > "$OUT/$1.png"; echo "captured $1"; }
+
 adb shell cmd uimode night no
 shot 00-intro 2.2 --ez fresh true
 shot 01-welcome 3 --ez fresh true
@@ -48,6 +82,46 @@ shot 25-plate 7 --ez skipIntro true --es route plate
 shot 13-progress 7 --ez demo true --ez skipIntro true --es route progress
 scroll_shot 14-progress-scrolled
 scroll_shot 18-progress-bottom
+
+
+# ---------------- تدقيق الإضافات (كل ميزة لازم تبين بلقطة) ----------------
+shot 40-welcome-back 8 --ez skipIntro true --ez away true
+shot 41-radar-tired 8 --ez demo true --ez skipIntro true --es checkin LOW --es sleep 5
+scroll_to "صار شي اليوم؟" 42-lapse-card
+tap_text "زلّيت"; cap 43-lapse-open 2
+tap_text "أكلت هواية"; cap 44-lapse-recovery 2
+scroll_to "سجّلها وكمّل يومي" 44b-lapse-recovery-steps
+tap_text "سجّلها وكمّل يومي"; cap 45-lapse-logged 2
+
+shot 46-today-lesson 8 --ez demo true --ez skipIntro true --es checkin MID
+scroll_to "قريته، أجرّبها اليوم" 47-lesson-card
+tap_text "قريته، أجرّبها اليوم"; cap 48-lesson-read 2
+
+shot 49-progress-audit 8 --ez demo true --ez skipIntro true --es route progress
+scroll_to "طقس الميزان" 50-weigh-in-weather
+scroll_to "آخذ إبر أو حبوب التنحيف" 51-glp1-off
+tap_text "وضع أدوية التنحيف"; cap 52-glp1-on 2
+shot 53-today-glp1-plan 8 --ez skipIntro true
+scroll_to "البروتين أول لقمة" 54-today-glp1-missions
+
+shot 55-progress-partner 8 --ez demo true --ez skipIntro true --ez partner true --es route progress
+scroll_to "ارسل تقرير الأسبوع" 56-partner-set
+tap_text "ارسل تقرير الأسبوع لـحسن"; cap 57-partner-share-sheet 3
+adb shell input keyevent KEYCODE_BACK; sleep 1
+
+shot 58-goal-reached 8 --ez skipIntro true --ez reached true --es route progress
+scroll_to "وصلت هدفك" 59-goal-reached-card
+tap_text "ابدأ وضع الحفاظ"; sleep 2
+scroll_to "وضع الحفاظ" 60-maintenance
+
+shot 61-coach-settings 8 --ez skipIntro true --es route coach-settings
+
+# التنبيه: نعرض التنبيه الجاي فوراً ونفتح لوحة الإشعارات
+shot 62-notify 6 --ez demo true --ez skipIntro true --ez notifyNow true
+adb shell cmd statusbar expand-notifications; cap 63-notification-shade 2
+adb shell cmd statusbar collapse
+echo "AUDIT alarms:"; adb shell dumpsys alarm | grep -A2 "app.sanad.coach" | head -12 || true
+echo "AUDIT step sensor:"; adb shell dumpsys sensorservice | grep -i "step" | head -5 || true
 
 adb shell cmd uimode night yes
 shot 20-dark-today 7 --ez demo true --ez skipIntro true --es checkin MID
