@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import app.sanad.coach.ui.BottomBarSpace
-import kotlinx.coroutines.delay
 
 /** قالب صفحة موحّد: هوامش ١٨، مسافات ١٦، ومساحة فوق شريط التنقل العائم. */
 @Composable
@@ -50,10 +49,7 @@ fun Modifier.rise(state: RiseState, index: Int): Modifier {
     val a = remember { Animatable(if (first) 0f else 1f) }
     LaunchedEffect(Unit) {
         state.seen += index
-        if (a.value < 1f) {
-            delay(80L + index * 70L)
-            a.animateTo(1f, tween(800, easing = Out))
-        }
+        if (a.value < 1f) a.animateTo(1f, tween(700, delayMillis = 60 + index.coerceAtMost(6) * 60, easing = Out))
     }
     return this.graphicsLayer {
         alpha = a.value
