@@ -175,7 +175,7 @@ class AppStore(context: Context) {
     fun apply(a: CoachAction): String = when (a) {
         is CoachAction.LogMeal -> { addMeal(a.name, a.kcal, a.protein, MealSource.COACH); "سُجّل: ${a.name}" }
         is CoachAction.LogWater -> { addWater(a.cups); "+${a.cups} ماء" }
-        is CoachAction.AddIfThen -> { addIfThen(a.whenText, a.thenText); "انحفظت الخطة" }
+        is CoachAction.AddIfThen -> { addIfThen(a.whenText, a.thenText); "حُفظت الخطة" }
         is CoachAction.StartWorkout -> ""
     }
 

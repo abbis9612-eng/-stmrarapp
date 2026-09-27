@@ -25,7 +25,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 private val CONFETTI = listOf(
-    Color(0xFFFFB648), Color(0xFFFF7A45), Color(0xFF34D7B8), Color(0xFF5B8CFF), Color(0xFFFF5C7A), Color(0xFFF2F0EB),
+    Color(0xFFD9902C), Color(0xFF1F6B4E), Color(0xFF0B7475), Color(0xFF276C9C), Color(0xFF6B4FA0), Color(0xFFF2C66B),
 )
 
 private class Bit(

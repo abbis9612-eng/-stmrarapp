@@ -32,6 +32,6 @@ class SleepTest {
 
     @Test fun fullBank() {
         val b = sleepBank(mapOf(d("2026-09-26", 8.0)), "2026-09-26")!!
-        assertEquals("رصيد نومك ممتلي", b.headline)
+        assertEquals("رصيد نومك ممتلئ", b.headline)
     }
 }

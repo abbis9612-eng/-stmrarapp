@@ -56,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
@@ -82,7 +81,7 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.ConfettiLayer
 import app.sanad.coach.ui.components.ConfettiState
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Moon
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SIcon
@@ -101,10 +100,17 @@ import app.sanad.coach.ui.screens.PlateScreen
 import app.sanad.coach.ui.screens.PlayerScreen
 import app.sanad.coach.ui.screens.ProgressScreen
 import app.sanad.coach.ui.screens.TodayScreen
-import app.sanad.coach.ui.theme.ProvideMood
 import app.sanad.coach.ui.theme.Sanad
 import app.sanad.coach.ui.theme.Type
 import app.sanad.core.ar
+import app.sanad.core.skyOf
+import app.sanad.core.AppState
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.heightIn
+import androidx.activity.compose.BackHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -122,17 +128,17 @@ object Routes {
     const val PLATE = "plate"
     fun player(id: String) = "player/$id"
     fun exercise(id: String) = "exercise/$id"
-    fun coach(q: String? = null) = if (q == null) COACH else "$COACH?q=${android.net.Uri.encode(q)}"
+    fun coach(q: String? = null, camera: Boolean = false): String {
+        val args = listOfNotNull(q?.let { "q=${android.net.Uri.encode(it)}" }, if (camera) "camera=true" else null)
+        return if (args.isEmpty()) COACH else "$COACH?${args.joinToString("&")}"
+    }
 }
 
-private data class Tab(val route: String, val label: String, val icon: Ico?)
+private data class Tab(val route: String, val label: String, val icon: Ico)
 
-private val TABS = listOf(
-    Tab(Routes.TODAY, "اليوم", Ico.SUN),
-    Tab(Routes.COACH, "المدرب", null),
-    Tab(Routes.MOVE, "تمارين", Ico.DUMBBELL),
-    Tab(Routes.PROGRESS, "التقدّم", Ico.TREND),
-)
+/** شريط التنقل: أربع صفحات، وبالنص زر التسجيل (أكثر فعل يتكرر). المدرب من قمر «اليوم». */
+private val LEFT_TABS = listOf(Tab(Routes.TODAY, "اليوم", Ico.SUN), Tab(Routes.EAT, "الأكل", Ico.EAT))
+private val RIGHT_TABS = listOf(Tab(Routes.MOVE, "حركة", Ico.DUMBBELL), Tab(Routes.PROGRESS, "تقدّمي", Ico.TREND))
 
 /** احتفال "يومك اكتمل" فوق كل شي، يُطلب من أي شاشة. */
 class Celebration { var streak by mutableStateOf<Int?>(null) }
@@ -144,6 +150,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
     val state by store.state.collectAsStateWithLifecycle()
     val nav = rememberNavController()
     var introDone by rememberSaveable { mutableStateOf(skipIntro) }
+    var logOpen by rememberSaveable { mutableStateOf(false) }
     val start = remember { if (state.profile == null) Routes.START else Routes.TODAY }
     val confetti = remember { ConfettiState() }
     val celebration = remember { Celebration() }
@@ -152,239 +159,241 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
         if (startRoute != null && state.profile != null) nav.navigate(startRoute) { launchSingleTop = true }
     }
 
-    ProvideMood(state.today().energy) {
-        CompositionLocalProvider(LocalConfetti provides confetti, LocalCelebration provides celebration) {
-            val c = Sanad.colors
-            Box(Modifier.fillMaxSize().background(c.bg)) {
-                AmbientLight()
-                val entry by nav.currentBackStackEntryAsState()
-                val route = entry?.destination?.route?.substringBefore("?")
-                val showBar = route in setOf(Routes.TODAY, Routes.COACH, Routes.MOVE, Routes.PROGRESS)
-                val out = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
+    CompositionLocalProvider(LocalConfetti provides confetti, LocalCelebration provides celebration) {
+        val c = Sanad.colors
+        Box(Modifier.fillMaxSize().background(c.bg)) {
+            val entry by nav.currentBackStackEntryAsState()
+            val route = entry?.destination?.route?.substringBefore("?")
+            val showBar = route in setOf(Routes.TODAY, Routes.EAT, Routes.MOVE, Routes.PROGRESS)
+            val out = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 
-                NavHost(
-                    navController = nav,
-                    startDestination = start,
-                    modifier = Modifier.fillMaxSize(),
-                    enterTransition = { fadeIn(tween(450, easing = out)) + slideInHorizontally(tween(550, easing = out)) { -it / 12 } + scaleIn(tween(550, easing = out), initialScale = 0.985f) },
-                    exitTransition = { fadeOut(tween(200)) },
-                    popEnterTransition = { fadeIn(tween(350, easing = out)) },
-                    popExitTransition = { fadeOut(tween(200)) + slideOutVertically(tween(300)) { it / 24 } },
-                ) {
-                    composable(Routes.START) {
-                        OnboardingScreen(store) { nav.navigate(Routes.TODAY) { popUpTo(Routes.START) { inclusive = true } } }
-                    }
-                    composable(Routes.TODAY) { TodayScreen(store, state, nav) }
-                    composable(Routes.EAT) { EatScreen(store, state, nav) }
-                    composable(
-                        "${Routes.COACH}?q={q}",
-                        arguments = listOf(navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null }),
-                    ) { e -> CoachScreen(store, coach, state, nav, initialQuestion = e.arguments?.getString("q")) }
-                    composable(Routes.COACH_SETTINGS) { CoachSettingsScreen(coach, nav) }
-                    composable(Routes.PACER) { PacerScreen(store, nav) }
-                    composable(Routes.PLATE) { PlateScreen(store, nav) }
-                    composable(Routes.MOVE) { MoveScreen(state, nav) }
-                    composable(Routes.PROGRESS) { ProgressScreen(store, state, nav) }
-                    composable(Routes.PLAYER, arguments = listOf(navArgument("routineId") { type = NavType.StringType })) { e ->
-                        PlayerScreen(e.arguments?.getString("routineId").orEmpty(), store, nav)
-                    }
-                    composable(Routes.EXERCISE, arguments = listOf(navArgument("id") { type = NavType.StringType })) { e ->
-                        ExerciseScreen(e.arguments?.getString("id").orEmpty(), nav)
-                    }
+            NavHost(
+                navController = nav,
+                startDestination = start,
+                modifier = Modifier.fillMaxSize(),
+                enterTransition = { fadeIn(tween(350, easing = out)) + slideInHorizontally(tween(450, easing = out)) { -it / 16 } },
+                exitTransition = { fadeOut(tween(180)) },
+                popEnterTransition = { fadeIn(tween(300, easing = out)) },
+                popExitTransition = { fadeOut(tween(180)) + slideOutVertically(tween(260)) { it / 24 } },
+            ) {
+                composable(Routes.START) {
+                    OnboardingScreen(store) { nav.navigate(Routes.TODAY) { popUpTo(Routes.START) { inclusive = true } } }
                 }
-
-                // ظل ناعم تحت شريط الحالة حتى لا يتداخل المحتوى مع الساعة
-                if (route != null && !route.startsWith("player") && route != Routes.PACER) {
-                    Box(
-                        Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars)
-                            .background(Brush.verticalGradient(listOf(c.bg, c.bg.copy(alpha = 0.85f)))),
-                    )
+                composable(Routes.TODAY) { TodayScreen(store, state, nav) }
+                composable(Routes.EAT) { EatScreen(store, state, nav) }
+                composable(
+                    "${Routes.COACH}?q={q}&camera={camera}",
+                    arguments = listOf(
+                        navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null },
+                        navArgument("camera") { type = NavType.BoolType; defaultValue = false },
+                    ),
+                ) { e -> CoachScreen(store, coach, state, nav, initialQuestion = e.arguments?.getString("q"), openCamera = e.arguments?.getBoolean("camera") == true) }
+                composable(Routes.COACH_SETTINGS) { CoachSettingsScreen(coach, nav) }
+                composable(Routes.PACER) { PacerScreen(store, nav) }
+                composable(Routes.PLATE) { PlateScreen(store, nav) }
+                composable(Routes.MOVE) { MoveScreen(state, nav) }
+                composable(Routes.PROGRESS) { ProgressScreen(store, state, nav) }
+                composable(Routes.PLAYER, arguments = listOf(navArgument("routineId") { type = NavType.StringType })) { e ->
+                    PlayerScreen(e.arguments?.getString("routineId").orEmpty(), store, nav)
                 }
-
-                AnimatedVisibility(
-                    visible = showBar,
-                    enter = slideInVertically(tween(500, easing = out)) { it * 2 } + fadeIn(),
-                    exit = slideOutVertically(tween(400)) { it * 2 } + fadeOut(),
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                ) { TabBar(nav, route) }
-
-                celebration.streak?.let { n -> DayComplete(n) { celebration.streak = null } }
-                ConfettiLayer(confetti)
-                if (!introDone) Intro { introDone = true }
+                composable(Routes.EXERCISE, arguments = listOf(navArgument("id") { type = NavType.StringType })) { e ->
+                    ExerciseScreen(e.arguments?.getString("id").orEmpty(), nav)
+                }
             }
+
+            // خلفية ورقية تحت شريط الحالة حتى ما يتداخل المحتوى مع الساعة
+            if (route != null && !route.startsWith("player") && route != Routes.PACER) {
+                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(c.bg))
+            }
+
+            AnimatedVisibility(
+                visible = showBar,
+                enter = slideInVertically(tween(350, easing = out)) { it } + fadeIn(),
+                exit = slideOutVertically(tween(250)) { it } + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) { TabBar(nav, route) { logOpen = true } }
+
+            if (logOpen) LogSheet(
+                onClose = { logOpen = false },
+                onGo = { r -> logOpen = false; nav.navigate(r) { launchSingleTop = true } },
+            )
+
+            celebration.streak?.let { n -> DayComplete(n, state) { celebration.streak = null } }
+            ConfettiLayer(confetti)
+            if (!introDone) Intro { introDone = true }
         }
     }
 }
 
-/** إضاءة محيطة بألوان مزاج اليوم خلف كل الشاشات. */
 @Composable
-private fun AmbientLight() {
-    val m = Sanad.mood
-    Canvas(Modifier.fillMaxSize()) {
-        val w = size.width; val h = size.height
-        drawRect(Brush.radialGradient(listOf(m.a.copy(alpha = 0.26f), Color.Transparent), center = Offset(w * 0.85f, -h * 0.05f), radius = w * 0.95f))
-        drawRect(Brush.radialGradient(listOf(m.c.copy(alpha = 0.13f), Color.Transparent), center = Offset(0f, h * 0.3f), radius = w * 0.75f))
-        drawRect(Brush.radialGradient(listOf(m.b.copy(alpha = 0.12f), Color.Transparent), center = Offset(w * 0.5f, h * 1.12f), radius = w * 0.95f))
-    }
-}
-
-@Composable
-private fun TabBar(nav: NavHostController, route: String?) {
+private fun TabBar(nav: NavHostController, route: String?, onLog: () -> Unit) {
     val c = Sanad.colors
-    val shape = RoundedCornerShape(28.dp)
-    val index = TABS.indexOfFirst { it.route == route }.coerceAtLeast(0)
-    BoxWithConstraints(
-        Modifier
-            .navigationBarsPadding()
-            .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
-            .fillMaxWidth()
-            .height(70.dp)
-            .shadow(24.dp, shape, ambientColor = Color.Black, spotColor = Color.Black)
-            .background(Color(0xE6141820), shape)
-            .border(1.dp, c.line, shape)
-            .padding(7.dp),
-    ) {
-        val slot = maxWidth / TABS.size
-        val x by animateDpAsState(slot * index, spring(dampingRatio = 0.62f, stiffness = Spring.StiffnessMediumLow), label = "tab-ind")
-        Box(Modifier.offset(x = x).width(slot).fillMaxHeight().background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(22.dp)))
-        Row(Modifier.fillMaxSize()) {
-            TABS.forEach { t ->
-                val active = route == t.route
-                val tint = if (active) c.ink else c.faint
-                val lift by animateFloatAsState(if (active) 1.08f else 1f, spring(dampingRatio = 0.5f), label = "lift")
-                Column(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .press({
-                            if (!active) nav.navigate(t.route) {
-                                popUpTo(Routes.TODAY) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }, role = Role.Tab)
-                        .semantics { selected = active },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Box(Modifier.graphicsLayer { scaleX = lift; scaleY = lift }, contentAlignment = Alignment.Center) {
-                        if (t.icon == null) LivingOrb(22.dp, glow = true)
-                        else SIcon(t.icon, size = 23.dp, tint = tint)
-                    }
-                    Spacer(Modifier.height(3.dp))
-                    Text(t.label, style = Type.label.copy(color = tint, fontSize = 11.sp))
-                }
+    fun go(r: String) = nav.navigate(r) {
+        popUpTo(Routes.TODAY) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+    Column(Modifier.fillMaxWidth().background(c.surface)) {
+        Box(Modifier.fillMaxWidth().height(1.dp).background(c.line))
+        Row(
+            Modifier.fillMaxWidth().navigationBarsPadding().height(72.dp).padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LEFT_TABS.forEach { t -> TabItem(t, route == t.route, Modifier.weight(1f)) { go(t.route) } }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)).background(c.primary)
+                        .press(onLog).semantics { contentDescription = "سجّل أكلاً أو وزناً أو حركة" },
+                    contentAlignment = Alignment.Center,
+                ) { SIcon(Ico.PLUS, size = 26.dp, tint = c.onPrimary) }
             }
+            RIGHT_TABS.forEach { t -> TabItem(t, route == t.route, Modifier.weight(1f)) { go(t.route) } }
         }
     }
 }
 
-/**
- * الافتتاحية: الكرة تولد فوق، الكلمة تنكتب من اليمين لليسار،
- * ثم تنزل الكرة وتصير نقطة النون.
- */
+@Composable
+private fun TabItem(t: Tab, active: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val c = Sanad.colors
+    val tint = if (active) c.primary else c.inkSoft
+    val lift by animateFloatAsState(if (active) 1.06f else 1f, spring(dampingRatio = 0.55f), label = "lift")
+    Column(
+        modifier.fillMaxHeight().press({ if (!active) onClick() }, role = Role.Tab).semantics { selected = active },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        SIcon(t.icon, size = 24.dp, tint = tint, modifier = Modifier.graphicsLayer { scaleX = lift; scaleY = lift })
+        Spacer(Modifier.height(2.dp))
+        Text(t.label, style = Type.label.copy(color = tint, fontSize = 12.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium))
+    }
+}
+
+/** قائمة التسجيل من الزر الأوسط: أسرع طرق التسجيل بمكان واحد. */
+@Composable
+private fun LogSheet(onClose: () -> Unit, onGo: (String) -> Unit) {
+    val c = Sanad.colors
+    BackHandler(onBack = onClose)
+    val appear = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { appear.animateTo(1f, spring(dampingRatio = 0.85f, stiffness = 500f)) }
+    Box(
+        Modifier.fillMaxSize().background(c.ink.copy(alpha = 0.35f * appear.value))
+            .clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClose),
+    ) {
+        Column(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .graphicsLayer { translationY = (1f - appear.value) * 400.dp.toPx() }
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .background(c.surface)
+                .clickable(remember { MutableInteractionSource() }, indication = null) {}
+                .navigationBarsPadding()
+                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Box(Modifier.align(Alignment.CenterHorizontally).size(width = 40.dp, height = 4.dp).clip(CircleShape).background(c.line))
+            Spacer(Modifier.height(8.dp))
+            Text("سجّل", style = Type.h2.copy(color = c.ink))
+            LogRow(Ico.CAMERA, "صوّر صحنك", "سند يحسب السعرات بالصحن والرغيف") { onGo(Routes.coach(camera = true)) }
+            LogRow(Ico.WRITE, "اكتب ما أكلت", "جملة واحدة تكفي: «تغدّيت كبسة وسلطة»") { onGo(Routes.COACH) }
+            LogRow(Ico.REPEAT, "وجبة معتادة", "وجباتك المتكررة بضغطة واحدة") { onGo(Routes.EAT) }
+            LogRow(Ico.SCALE, "سجّل وزنك", "مرة بالأسبوع تكفي") { onGo(Routes.PROGRESS) }
+            LogRow(Ico.MOVE, "تحركت؟", "اختر حركة اليوم وسجّلها") { onGo(Routes.MOVE) }
+        }
+    }
+}
+
+@Composable
+private fun LogRow(icon: Ico, title: String, hint: String, onClick: () -> Unit) {
+    val c = Sanad.colors
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 64.dp).clip(RoundedCornerShape(14.dp)).press(onClick).padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(c.primaryTint), contentAlignment = Alignment.Center) {
+            SIcon(icon, size = 23.dp, tint = c.primary)
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = Type.h3.copy(color = c.ink))
+            Text(hint, style = Type.small.copy(color = c.inkSoft))
+        }
+        SIcon(Ico.NEXT, size = 20.dp, tint = c.faint)
+    }
+}
+
+/** الافتتاحية: القمر يكبر من هلال إلى بدر، واسم سند يُكتب بخط اليد. */
 @Composable
 private fun Intro(onDone: () -> Unit) {
     val c = Sanad.colors
-    val density = LocalDensity.current
-    val t = remember { Animatable(0f) }
-    val write = remember { Animatable(0f) }
-    val tag = remember { Animatable(0f) }
+    val grow = remember { Animatable(0.05f) }
+    val word = remember { Animatable(0f) }
     val fade = remember { Animatable(1f) }
-    var dot by remember { mutableStateOf(Offset.Zero) }
-    var dotSize by remember { mutableStateOf(1f) }
-    var width by remember { mutableStateOf(0f) }
     LaunchedEffect(Unit) {
-        launch { t.animateTo(1f, tween(2200, easing = CubicBezierEasing(0.6f, 0f, 0.25f, 1f))) }
-        launch { delay(700); write.animateTo(1f, tween(1100, easing = CubicBezierEasing(0.6f, 0f, 0.2f, 1f))) }
-        launch { delay(2000); tag.animateTo(1f, tween(800)) }
-        delay(3100)
-        fade.animateTo(0f, tween(600))
+        launch { grow.animateTo(1f, tween(1700, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f))) }
+        launch { delay(500); word.animateTo(1f, tween(900)) }
+        delay(2500)
+        fade.animateTo(0f, tween(450))
         onDone()
     }
-    val orbPx = with(density) { 64.dp.toPx() }
-    val k = t.value
-    // من الأعلى: تكبر (٠–٣٠٪)، تستقر (٣٠–٥٥٪)، ثم تنزل للنقطة
-    val startY = -with(density) { 150.dp.toPx() }
-    val move = ((k - 0.55f) / 0.45f).coerceIn(0f, 1f)
-    val scale = when {
-        k < 0.3f -> 1.6f * (k / 0.3f)
-        k < 0.55f -> 1.6f - 0.15f * ((k - 0.3f) / 0.25f)
-        else -> 1.45f + (dotSize / orbPx - 1.45f) * move
-    }
-    val px = (width / 2) + (dot.x - width / 2) * move
-    val py = startY + (dot.y - startY) * move
-
     Box(
         Modifier.fillMaxSize().alpha(fade.value).background(c.bg)
             .clickable(remember { MutableInteractionSource() }, indication = null) {},
         contentAlignment = Alignment.Center,
     ) {
-        Box {
-            Wordmark(
-                96.sp, reveal = write.value, showDot = false,
-                onDot = { center, size -> dot = center; dotSize = size },
-                modifier = Modifier.onSizeChanged { width = it.width.toFloat() },
-            )
-            LivingOrb(
-                64.dp,
-                Modifier.align(AbsoluteAlignment.TopLeft).graphicsLayer {
-                    translationX = px - orbPx / 2
-                    translationY = py - orbPx / 2
-                    scaleX = scale.coerceAtLeast(0.001f); scaleY = scale.coerceAtLeast(0.001f)
-                },
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Moon(120.dp, phase = grow.value)
+            Spacer(Modifier.height(18.dp))
+            Wordmark(64.sp, Modifier.alpha(word.value))
+            Text(
+                "خطوة صغيرة كل يوم… وسند معك",
+                style = Type.body.copy(color = c.inkSoft),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.alpha(word.value),
             )
         }
-        Text(
-            "خطوة صغيرة كل يوم… وسند وياك",
-            style = Type.body.copy(color = c.inkSoft),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 140.dp).alpha(tag.value),
-        )
     }
 }
 
-/** "يومك اكتمل": الكرة تنفجر فرحاً والسلسلة تنقلب للرقم الجديد. */
+/** "اكتمل يومك": القمر يكبر ليلة، والسلسلة تنقلب للرقم الجديد. */
 @Composable
-private fun DayComplete(streak: Int, onClose: () -> Unit) {
+private fun DayComplete(streak: Int, state: AppState, onClose: () -> Unit) {
     val c = Sanad.colors
     val confetti = LocalConfetti.current
     val point = rememberBurstPoint()
     val appear = remember { Animatable(0f) }
     val flip = remember { Animatable(0f) }
     var kick by remember { mutableStateOf(0) }
+    val sky = skyOf(state.days, AppStore.today(), state.profile?.createdAt)
     LaunchedEffect(Unit) {
-        appear.animateTo(1f, tween(500))
+        appear.animateTo(1f, tween(400))
         kick++
-        confetti.burst(point.center, 160, 1.3f)
+        confetti.burst(point.center, 120, 1.1f)
         flip.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 180f))
-        delay(400)
-        confetti.burst(point.center + Offset(-260f, 180f), 60)
-        confetti.burst(point.center + Offset(260f, 180f), 60)
     }
     Box(
-        Modifier.fillMaxSize().alpha(appear.value).background(Color(0xD9080A0E))
+        Modifier.fillMaxSize().alpha(appear.value).background(c.bg.copy(alpha = 0.97f))
             .clickable(remember { MutableInteractionSource() }, indication = null) {},
         contentAlignment = Alignment.Center,
     ) {
-        Column(Modifier.padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            LivingOrb(130.dp, Modifier.burstFrom(point), kick = kick)
+        Column(Modifier.padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Moon(130.dp, Modifier.burstFrom(point), phase = sky.phase, kick = kick)
             Spacer(Modifier.height(6.dp))
-            Text("يومك اكتمل", style = Type.h1.copy(fontSize = 34.sp, color = c.ink))
+            Text("اكتمل يومك", style = Type.h1.copy(color = c.ink))
             Text(
                 ar(streak),
-                style = Type.hero.copy(fontSize = 64.sp, color = c.saffron),
+                style = Type.hero.copy(fontSize = 64.sp, color = c.primary),
                 modifier = Modifier.graphicsLayer {
                     rotationX = 90f * (1f - flip.value); alpha = flip.value.coerceIn(0f, 1f)
                     scaleX = 0.6f + 0.4f * flip.value; scaleY = 0.6f + 0.4f * flip.value
                 },
             )
-            Text("يوم في السلسلة", style = Type.body.copy(color = c.inkSoft))
-            Text("الأيام الصغيرة هذي هي اللي تنزّل الوزن فعلاً. نشوفك بكرة.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
-            SButton("تمام", onClose, Modifier.width(220.dp), style = BtnStyle.GOLD)
+            Text("يوم في السلسلة، وقمرك كبر ليلة", style = Type.body.copy(color = c.inkSoft))
+            Text("هذه الأيام الصغيرة هي التي تُنزل الوزن فعلاً. نراك غداً.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
+            SButton("تمام", onClose, Modifier.width(220.dp))
         }
     }
 }
 
-/** مسافة سفلية ثابتة للصفحات فوق شريط التنقل العائم. */
-val BottomBarSpace = 124.dp
+/** مسافة سفلية ثابتة للصفحات فوق شريط التنقل. */
+val BottomBarSpace = 112.dp

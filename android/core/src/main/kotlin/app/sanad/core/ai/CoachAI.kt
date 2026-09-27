@@ -33,9 +33,9 @@ data class ProviderPreset(
 
 /** قوالب جاهزة: اختر المزوّد والصق المفتاح. أي خدمة متوافقة مع OpenAI تشتغل عبر "مخصّص". */
 val PRESETS = listOf(
-    ProviderPreset("claude", "Claude", ProviderKind.CLAUDE, "", "claude-opus-5", "https://console.anthropic.com/settings/keys", "أقوى فهم للهجة وأدق تقدير للأكل."),
-    ProviderPreset("gemini", "Google Gemini", ProviderKind.OPENAI_COMPAT, "https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-2.5-flash", "https://aistudio.google.com/apikey", "عنده خطة مجانية."),
-    ProviderPreset("groq", "Groq", ProviderKind.OPENAI_COMPAT, "https://api.groq.com/openai/v1/", "llama-3.3-70b-versatile", "https://console.groq.com/keys", "سريع جداً، وعنده خطة مجانية."),
+    ProviderPreset("claude", "Claude", ProviderKind.CLAUDE, "", "claude-opus-5", "https://console.anthropic.com/settings/keys", "أقوى فهم للهجات وأدق تقدير للأكل."),
+    ProviderPreset("gemini", "Google Gemini", ProviderKind.OPENAI_COMPAT, "https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-2.5-flash", "https://aistudio.google.com/apikey", "لديه خطة مجانية."),
+    ProviderPreset("groq", "Groq", ProviderKind.OPENAI_COMPAT, "https://api.groq.com/openai/v1/", "llama-3.3-70b-versatile", "https://console.groq.com/keys", "سريع جداً، ولديه خطة مجانية."),
     ProviderPreset("openrouter", "OpenRouter", ProviderKind.OPENAI_COMPAT, "https://openrouter.ai/api/v1/", "openrouter/auto", "https://openrouter.ai/keys", "بوابة لنماذج كثيرة بعضها مجاني."),
     ProviderPreset("custom", "مخصّص (OpenAI-compatible)", ProviderKind.OPENAI_COMPAT, "", "", "", "أي خدمة تدعم /chat/completions."),
 )

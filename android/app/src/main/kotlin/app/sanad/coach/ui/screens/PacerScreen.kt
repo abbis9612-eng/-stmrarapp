@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -59,7 +58,7 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Moon
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.glass
@@ -120,27 +119,27 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    Modifier.size(44.dp).clip(CircleShape).background(c.glass2).border(1.dp, c.line, CircleShape).press({ nav.popBackStack() }),
+                    Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ nav.popBackStack() }),
                     contentAlignment = Alignment.Center,
                 ) { SIcon(Ico.CLOSE, size = 20.dp, description = "إغلاق") }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Eyebrow("كل على مهلك")
+                    Eyebrow("كُل على مهل")
                     Text("٢٠ دقيقة للشبع", style = Type.h2.copy(color = c.ink))
                 }
             }
 
             Spacer(Modifier.height(8.dp))
-            // الساعة: حلقة تمتلي مع الوقت والكرة تتنفس بنصها
+            // الساعة: حلقة تمتلئ مع الوقت، والقمر يكبر ويتنفس في وسطها
             Box(Modifier.size(280.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
                     val sw = 8.dp.toPx()
                     val tl = Offset(sw / 2, sw / 2)
                     val sz = Size(size.width - sw, size.height - sw)
-                    drawArc(Color.White.copy(alpha = 0.07f), 0f, 360f, false, tl, sz, style = Stroke(sw))
-                    drawArc(Brush.sweepGradient(listOf(c.oasis, c.sky, c.oasis)), -90f, 360f * frac, false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
+                    drawArc(c.surface2, 0f, 360f, false, tl, sz, style = Stroke(sw))
+                    drawArc(c.oasis, -90f, 360f * frac, false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
                 }
-                LivingOrb(170.dp, breathe = true, kick = kick)
+                Moon(170.dp, phase = 0.08f + 0.92f * frac, breathe = true, kick = kick)
             }
             Text(
                 "${ar(left / 60)}:${ar(left % 60).padStart(2, '٠')}",
@@ -156,17 +155,17 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                     Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), c.oasis).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text("شبعان كم من ٥؟", style = Type.h3.copy(color = c.ink))
+                    Text("كم شبعك من ٥؟", style = Type.h3.copy(color = c.ink))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         (1..5).forEach { n ->
                             Box(
-                                Modifier.weight(1f).height(44.dp).clip(CircleShape).background(c.glassTop).border(1.dp, c.line, CircleShape)
+                                Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp))
                                     .press({ fullness = n; running = true }),
                                 contentAlignment = Alignment.Center,
                             ) { Text(ar(n), style = Type.bodyStrong.copy(color = c.ink)) }
                         }
                     }
-                    Text("١ جوعان · ٣ مرتاح · ٥ متروس", style = Type.label.copy(color = c.inkSoft))
+                    Text("١ جائع · ٣ مرتاح · ٥ ممتلئ جداً", style = Type.label.copy(color = c.inkSoft))
                 }
             } else if (fullness > 0) {
                 Text(fullnessAdvice(fullness, elapsed), style = Type.body.copy(color = c.oasis), textAlign = TextAlign.Center)
@@ -175,10 +174,10 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
             Spacer(Modifier.weight(1f))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(
-                    Modifier.size(58.dp).clip(RoundedCornerShape(22.dp)).background(c.glass2).border(1.dp, c.line, RoundedCornerShape(22.dp)).press({ running = !running }),
+                    Modifier.size(58.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp)).press({ running = !running }),
                     contentAlignment = Alignment.Center,
                 ) { SIcon(if (running) Ico.PAUSE else Ico.PLAY, size = 22.dp, description = if (running) "إيقاف مؤقت" else "استئناف") }
-                SButton("شبعت، خلصت", { finished = true }, Modifier.weight(1f), style = BtnStyle.GOLD, icon = Ico.CHECK)
+                SButton("شبعت، انتهيت", { finished = true }, Modifier.weight(1f), style = BtnStyle.GOLD, icon = Ico.CHECK)
             }
         }
 
@@ -189,14 +188,14 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
             ) {
-                LivingOrb(110.dp, kick = kick)
-                Text("أكلت على مهلك ${ar(minutes)} دقيقة", style = Type.h1.copy(color = c.ink), textAlign = TextAlign.Center)
+                Moon(110.dp, phase = 1f, kick = kick)
+                Text("أكلت على مهل ${ar(minutes)} دقيقة", style = Type.h1.copy(color = c.ink), textAlign = TextAlign.Center)
                 Text(
-                    if (elapsed >= 15 * 60) "هذا اللي يخلّي الشبع يوصل قبل ما تتروس. كرّرها بوجبة العشا."
-                    else "حتى الإبطاء القليل يفرق. المرة الجاية حاول توصل ١٥ دقيقة.",
+                    if (elapsed >= 15 * 60) "هكذا يصل الشبع قبل أن تمتلئ زيادة. كرّرها في العشاء."
+                    else "حتى الإبطاء القليل يفرق. في المرة القادمة جرّب ١٥ دقيقة.",
                     style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center,
                 )
-                SButton("سجّلها وارجع", { store.logSlowMeal(); nav.popBackStack() }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
+                SButton("سجّلها وعُد", { store.logSlowMeal(); nav.popBackStack() }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
             }
         }
     }

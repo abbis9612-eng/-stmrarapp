@@ -1,12 +1,12 @@
 package app.sanad.core
 
 /**
- * أكلات عراقية وخليجية وعربية شائعة بحصص واقعية. القيم تقديرية (متوسطات جداول تغذية
+ * أكلات عربية شائعة (الخليج، العراق، الشام، مصر، المغرب العربي) بحصص واقعية. القيم تقديرية (متوسطات جداول تغذية
  * ووصفات منزلية) — الهدف تسجيل سريع وصادق، لا دقة مخبرية.
  */
 enum class FoodCat(val label: String) {
-    IRAQI("عراقي"), MAIN("أطباق"), BREAKFAST("فطور"), BREAD("خبز"), PROTEIN("بروتين"), SNACK("خفيف"),
-    SWEET("حلا"), DRINK("مشروبات"), FRUIT("فواكه وتمر"),
+    MAIN("أطباق"), IRAQI("العراق"), LEVANT("الشام"), EGYPT("مصر"), MAGHREB("المغرب العربي"),
+    BREAKFAST("فطور"), BREAD("خبز"), PROTEIN("بروتين"), SNACK("خفيف"), SWEET("حلويات"), DRINK("مشروبات"), FRUIT("فواكه وتمر"),
 }
 
 data class Food(
@@ -41,6 +41,23 @@ val FOODS: List<Food> = listOf(
     Food("shorbat-adas-iraqi", "شوربة عدس بالليمون", "زبدية", 230, 12, FoodCat.IRAQI, emptyList(), false),
     Food("zalabia", "زلابية", "٣ حبات", 330, 3, FoodCat.IRAQI, listOf("زلابيه", "بقلاوة", "من السما"), false),
     Food("chai-iraqi", "استكان چاي", "استكان (ملعقتين شكر)", 35, 0, FoodCat.DRINK, listOf("چاي", "استكان"), false),
+    // الشام
+    Food("mansaf", "منسف", "صحن متوسط (رز + لحم + جميد)", 850, 45, FoodCat.LEVANT, listOf("منسف لحم"), false),
+    Food("maqluba", "مقلوبة دجاج", "صحن متوسط", 650, 32, FoodCat.LEVANT, listOf("مقلوبه", "مقلوبة"), false),
+    Food("musakhan", "مسخّن", "رغيف مع ربع دجاجة", 700, 38, FoodCat.LEVANT, listOf("مسخن"), false),
+    Food("warak-enab", "ورق عنب", "١٠ أصابع", 300, 6, FoodCat.LEVANT, listOf("يبرق", "ورق دوالي"), false),
+    Food("fatteh-hummus", "فتة حمص", "صحن صغير", 450, 15, FoodCat.LEVANT, listOf("فتة حمص", "فتة شامية"), false),
+    // مصر
+    Food("koshari", "كشري", "صحن متوسط", 700, 20, FoodCat.EGYPT, listOf("كشرى", "كشري مصري"), false),
+    Food("molokhia", "ملوخية بالدجاج", "زبدية + ربع دجاجة بلا رز", 420, 38, FoodCat.EGYPT, listOf("ملوخيه", "ملوخية"), true),
+    Food("fatta-egypt", "فتة باللحم", "صحن متوسط", 750, 35, FoodCat.EGYPT, listOf("فته", "فتة"), false),
+    Food("mahshi-egypt", "محشي كرنب", "٦ أصابع", 320, 7, FoodCat.EGYPT, listOf("محشي كرنب", "محشي ملفوف"), false),
+    // المغرب العربي
+    Food("couscous", "كسكس باللحم والخضار", "صحن متوسط", 650, 30, FoodCat.MAGHREB, listOf("كسكسي", "كسكسو", "كسكس"), false),
+    Food("tagine-chicken", "طاجين دجاج بالزيتون", "صحن بلا خبز", 420, 38, FoodCat.MAGHREB, listOf("طاجين", "طجين"), true),
+    Food("harira", "حريرة", "زبدية", 250, 12, FoodCat.MAGHREB, listOf("حريره", "شوربة حريرة"), false),
+    Food("msemen", "مسمّن", "رغيف", 320, 6, FoodCat.MAGHREB, listOf("مسمن", "ملاوي", "ملوي"), false),
+    Food("pastilla", "بسطيلة دجاج", "قطعة", 520, 22, FoodCat.MAGHREB, listOf("بسطيله", "بستيلة"), false),
     // أطباق رئيسية
     Food("kabsa-chicken", "كبسة دجاج", "صحن متوسط (رز + ربع دجاجة)", 650, 38, FoodCat.MAIN, listOf("كبسه", "رز ودجاج", "مكبوس", "مجبوس دجاج", "مجبوس"), false),
     Food("kabsa-meat", "كبسة لحم", "صحن متوسط", 760, 36, FoodCat.MAIN, listOf("رز ولحم", "مجبوس لحم"), false),

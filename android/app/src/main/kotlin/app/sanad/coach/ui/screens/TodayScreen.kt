@@ -1,37 +1,14 @@
 package app.sanad.coach.ui.screens
 
-import java.time.LocalDateTime
-import app.sanad.core.lessonForToday
-import app.sanad.core.WEEK_THEMES
-import app.sanad.core.Lesson
-import app.sanad.core.stepsNote
-import app.sanad.core.gatheringPlan
-import app.sanad.core.GatheringPlan
-import app.sanad.core.welcomeBack
-import app.sanad.core.lapseRisk
-import app.sanad.core.lapseRecovery
-import app.sanad.core.Welcome
-import app.sanad.core.RiskLevel
-import app.sanad.core.Risk
-import app.sanad.core.LapseKind
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.compose.rememberLauncherForActivityResult
-import android.os.Build
-import android.content.pm.PackageManager
 import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -46,14 +23,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,23 +43,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -89,9 +66,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import app.sanad.coach.data.AppStore
 import app.sanad.coach.data.targets
@@ -100,10 +77,12 @@ import app.sanad.coach.ui.LocalCelebration
 import app.sanad.coach.ui.Routes
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
+import app.sanad.coach.ui.components.HandNote
+import app.sanad.coach.ui.components.HeroCard
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.LivingOrb
 import app.sanad.coach.ui.components.LocalConfetti
-import app.sanad.coach.ui.components.Note
+import app.sanad.coach.ui.components.Meter
+import app.sanad.coach.ui.components.Moon
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
 import app.sanad.coach.ui.components.SIcon
@@ -114,31 +93,47 @@ import app.sanad.coach.ui.components.rememberBurstPoint
 import app.sanad.coach.ui.theme.Sanad
 import app.sanad.coach.ui.theme.Type
 import app.sanad.core.AppState
+import app.sanad.core.DayLog
+import app.sanad.core.DayMark
 import app.sanad.core.Energy
+import app.sanad.core.GatheringPlan
+import app.sanad.core.LapseKind
+import app.sanad.core.Lesson
 import app.sanad.core.Mission
 import app.sanad.core.MissionKind
 import app.sanad.core.RamadanPlan
+import app.sanad.core.Risk
+import app.sanad.core.RiskLevel
+import app.sanad.core.Targets
 import app.sanad.core.TimeBudget
-import app.sanad.core.WeaveCell
+import app.sanad.core.WEEK_THEMES
+import app.sanad.core.Welcome
 import app.sanad.core.addDays
 import app.sanad.core.ar
 import app.sanad.core.computeThread
+import app.sanad.core.dayMarks
 import app.sanad.core.dayMissions
+import app.sanad.core.gatheringPlan
+import app.sanad.core.lapseRecovery
+import app.sanad.core.lapseRisk
+import app.sanad.core.lessonForToday
+import app.sanad.core.occasionBank
 import app.sanad.core.ramadanPlan
 import app.sanad.core.routineById
-import app.sanad.core.weaveCells
+import app.sanad.core.skyOf
+import app.sanad.core.stepsNote
+import app.sanad.core.welcomeBack
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.math.PI
-import kotlin.math.max
 
 private fun greeting(): String {
     val h = LocalTime.now().hour
     return when {
-        h < 5 -> "سهرانين"
+        h < 5 -> "تأخر الوقت"
         h < 12 -> "صباح الخير"
         h < 17 -> "نهارك سعيد"
         else -> "مساء الخير"
@@ -163,6 +158,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     val day = state.today()
     val todayKey = day.date
     val thread = computeThread(state.days, todayKey)
+    val sky = skyOf(state.days, todayKey, p.createdAt)
     val rise = rememberRise()
     val celebration = LocalCelebration.current
     var kick by remember { mutableIntStateOf(0) }
@@ -178,31 +174,51 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
         else app.sanad.coach.notify.Reminders.schedule(context)
     }
 
+    val e = day.energy ?: Energy.MID
+    val missions = dayMissions(e, timeFor(e), t, p)
+    fun toggle(m: Mission) {
+        val wasDone = m.id in day.done
+        store.toggleMission(m.id)
+        if (!wasDone) {
+            kick++
+            val s = store.state.value
+            val d = s.days[todayKey]
+            if (d != null && d.done.count { it in setOf("move", "eat", "restore") } == 3) {
+                celebration.streak = computeThread(s.days, todayKey).length
+            }
+        }
+    }
+
     Page {
+        // الرأس: التاريخ، التحية بخط اليد، المدرب، والقمر
         item {
-            Row(Modifier.rise(rise, 0), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.rise(rise, 0), verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f)) {
                     Eyebrow(arabicDate(LocalDate.parse(todayKey)))
-                    Text(greeting(), style = Type.h1.copy(color = c.ink))
+                    Text("${greeting()} يا ${p.name}", style = Type.handTitle.copy(color = c.ink, fontSize = 30.sp))
                 }
-                Box(
-                    Modifier.size(52.dp).press({ nav.navigate(Routes.COACH) }).semantics { contentDescription = "افتح المدرب" },
-                    contentAlignment = Alignment.Center,
-                ) { LivingOrb(46.dp, kick = kick) }
+                Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(
+                        Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp))
+                            .press({ nav.navigate(Routes.COACH) }).semantics { contentDescription = "تحدّث مع سند" },
+                        contentAlignment = Alignment.Center,
+                    ) { SIcon(Ico.COACH, size = 23.dp) }
+                    Box(
+                        Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp))
+                            .press({ nav.navigate(Routes.PROGRESS) }).semantics { contentDescription = "قمرك: ${ar(sky.nights)} ليلة" },
+                        contentAlignment = Alignment.Center,
+                    ) { Moon(36.dp, phase = sky.phase, kick = kick) }
+                }
             }
         }
 
-        welcomeBack(state, todayKey)?.let { w -> item(key = "welcome") { WelcomeCard(w) } }
+        item { WeekStrip(dayMarks(state.days, todayKey, t.kcal, p.createdAt), todayKey, thread.length, Modifier.rise(rise, 1)) }
 
-        item {
-            EnergyCard(day.energy ?: Energy.MID, Modifier.rise(rise, 1)) { e ->
-                store.checkIn(e, timeFor(e)); kick++
-            }
-        }
+        welcomeBack(state, todayKey)?.let { w -> item(key = "welcome") { WelcomeCard(w, sky.phase) } }
 
-        if (day.sleepHours == null) item(key = "sleep-ask") {
-            SleepAsk { h -> store.setSleep(h); kick++ }
-        }
+        item { EnergyPicker(e, Modifier.rise(rise, 2)) { picked -> store.checkIn(picked, timeFor(picked)); kick++ } }
+
+        if (day.sleepHours == null) item(key = "sleep-ask") { SleepAsk { h -> store.setSleep(h); kick++ } }
 
         val risk = lapseRisk(state, t, LocalDateTime.now())
         if (risk.level != RiskLevel.LOW) item(key = "radar") {
@@ -213,64 +229,62 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             GatheringCard(gatheringPlan(t, day), onCancel = { store.setGathering(false) }, onPacer = { nav.navigate(Routes.PACER) })
         }
 
+        // الخطوة الوحيدة المهمة الآن
+        val next = missions.firstOrNull { it.kind == MissionKind.MOVE && it.id !in day.done } ?: missions.firstOrNull { it.id !in day.done }
+        item(key = "hero-${next?.id}-${e.name}") {
+            if (next != null) NextStep(next, Modifier.rise(rise, 3),
+                onStart = { next.routineId?.let { nav.navigate(Routes.player(it)) } ?: toggle(next) },
+                onSwap = { nav.navigate(Routes.MOVE) },
+            ) else AllDone(Modifier.rise(rise, 3))
+        }
+
         item {
-            RingsCard(
-                day.intake, day.protein, day.water, t.kcal, t.protein, t.water,
-                onWater = { store.addWater(1) }, onOpen = { nav.navigate(Routes.EAT) },
-                modifier = Modifier.rise(rise, 2),
+            val tracker = app.sanad.coach.Graph.steps
+            var granted by remember { mutableStateOf(tracker.hasPermission()) }
+            val askSteps = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> granted = ok; if (ok) tracker.start() }
+            NumbersCard(
+                day, t, Modifier.rise(rise, 4),
+                stepsNeedPermission = tracker.available && !granted,
+                onEnableSteps = { if (Build.VERSION.SDK_INT >= 29) askSteps.launch(Manifest.permission.ACTIVITY_RECOGNITION) },
+                onWater = { d -> store.addWater(d); if (d > 0) kick++ },
+                onOpen = { nav.navigate(Routes.EAT) },
             )
         }
 
-        val tracker = app.sanad.coach.Graph.steps
-        if (tracker.available || day.steps > 0) item(key = "steps") {
-            var granted by remember { mutableStateOf(tracker.hasPermission()) }
-            val askSteps = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-                granted = ok; if (ok) tracker.start()
-            }
-            StepsCard(day.steps, t.steps, needsPermission = tracker.available && !granted) {
-                if (Build.VERSION.SDK_INT >= 29) askSteps.launch(Manifest.permission.ACTIVITY_RECOGNITION)
-            }
+        val bank = occasionBank(state.days, todayKey, t.kcal)
+        if (bank.saved >= 50 && !day.gathering) item(key = "bank") {
+            BankCard(bank.saved, bank.cap) { store.setGathering(true); kick++ }
         }
 
-        item { StreakCard(thread.length, thread.best, weaveCells(state.days, todayKey, 7, p.createdAt), todayKey, Modifier.rise(rise, 3)) }
+        item(key = "note") {
+            HandNote(
+                if (thread.rescueToday) "أمس فات، وهذا عادي. اليوم خطوة واحدة فقط تحفظ سلسلتك." + if (p.why.isNotBlank()) "\nتذكّر لماذا بدأت: ${p.why}" else ""
+                else coachNote(day, t),
+                Modifier.rise(rise, 5),
+                action = "ردّ عليه",
+                onAction = { nav.navigate(Routes.COACH) },
+            )
+        }
 
         lessonForToday(state.lessonsRead, p.createdAt, todayKey, day.lesson != null)?.let { lesson ->
             item(key = "lesson-${lesson.id}") { LessonCard(lesson) { store.readLesson(lesson.id); kick++ } }
         }
 
-        if (thread.rescueToday) item {
-            Note("أمس فات، وهذا عادي. اليوم مهمة وحدة بس تمسك سلسلتك." + if (p.why.isNotBlank()) "\nتذكّر ليش بديت: ${p.why}" else "")
-        }
-
         if (p.ramadan) item { RamadanCard(ramadanPlan(p, t)) }
 
-        // مثل التصميم: الخطة تظهر دائماً؛ بدون تسجيل طاقة نعتبر اليوم "عادي"
-        run {
-            val e = day.energy ?: Energy.MID
-            val missions = dayMissions(e, timeFor(e), t, p)
+        item {
             val doneCount = day.done.count { it in setOf("move", "eat", "restore") }
-            item {
-                Row(Modifier.padding(horizontal = 4.dp).rise(rise, 4), verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (p.ramadan) "خطتك الرمضانية اليوم" else planTitle(e), style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
-                    Text("${ar(doneCount)} من ٣", style = Type.small.copy(color = c.inkSoft))
-                }
+            Row(Modifier.padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(if (p.ramadan) "خطتك الرمضانية اليوم" else planTitle(e), style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+                Text("${ar(doneCount)} من ٣", style = Type.small.copy(color = c.inkSoft))
             }
-            missions.forEachIndexed { i, m ->
-                item(key = "${e.name}-${m.id}") {
-                    MissionCard(
-                        m, done = m.id in day.done, index = i,
-                        onToggle = {
-                            val wasDone = m.id in day.done
-                            store.toggleMission(m.id)
-                            if (!wasDone) {
-                                kick++
-                                val s = store.state.value
-                                val d = s.days[todayKey]
-                                if (d != null && d.done.count { it in setOf("move", "eat", "restore") } == 3) {
-                                    celebration.streak = computeThread(s.days, todayKey).length
-                                }
-                            }
-                        },
+        }
+        item {
+            Column {
+                missions.forEachIndexed { i, m ->
+                    PlanRow(
+                        m, done = m.id in day.done, last = i == missions.lastIndex,
+                        onToggle = { toggle(m) },
                         onStart = { m.routineId?.let { nav.navigate(Routes.player(it)) } },
                     )
                 }
@@ -284,22 +298,10 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 onLog = { kind -> store.logLapse(kind.name); kick++ },
             )
         }
-
-        item {
-            Row(
-                Modifier.fillMaxWidth().rise(rise, 6).glass(RoundedCornerShape(24.dp)).press({ nav.navigate(Routes.COACH) }).padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                LivingOrb(30.dp, glow = false)
-                Spacer(Modifier.width(12.dp))
-                Text("اسأل سند… «شنو آكل على العشا؟»", style = Type.body.copy(color = c.inkSoft), modifier = Modifier.weight(1f))
-                SIcon(Ico.NEXT, size = 20.dp, tint = c.inkSoft)
-            }
-        }
     }
 }
 
-/** الوقت المتاح للحركة يتبع الطاقة: تعبان دقيقتين، عادي ١٠، نشيط ٢٠. */
+/** الوقت المتاح للحركة يتبع الطاقة: متعب دقيقتين، عادي ١٠، نشيط ٢٠. */
 private fun timeFor(e: Energy) = when (e) {
     Energy.LOW -> TimeBudget.TWO
     Energy.MID -> TimeBudget.TEN
@@ -312,257 +314,329 @@ private fun planTitle(e: Energy) = when (e) {
     Energy.HIGH -> "يوم الطاقة العالية"
 }
 
+/** ملاحظة سند اليومية: جملة واحدة عملية حسب ما سجّلته حتى الآن. */
+private fun coachNote(d: DayLog, t: Targets): String {
+    val left = t.kcal - d.intake
+    return when {
+        d.intake == 0 -> "ابدأ يومك بوجبة فيها بروتين: بيضتان أو زبادي أو فول. تشبعك لوقت أطول."
+        d.protein < t.protein * 0.35 && d.intake > t.kcal * 0.4 -> "بروتينك قليل حتى الآن. اجعل وجبتك القادمة فيها دجاج أو سمك أو بيض."
+        left > 250 -> "متبقٍ لك ${ar(left)} سعرة. صحن متوازن: نصفه خضار، وربعه بروتين، وربعه أرز أو خبز."
+        left >= 0 -> "أنت قريب من خطتك اليوم. عشاء خفيف ومشية قصيرة بعده ويكتمل يومك."
+        else -> "تجاوزت خطتك قليلاً، وهذا يحدث. مشية ١٥ دقيقة بعد الأكل تساعد، وغداً يوم جديد."
+    }
+}
+
+/* ------------------------------ شريط الأسبوع ------------------------------ */
+
+@Composable
+private fun WeekStrip(marks: List<DayMark>, today: String, streak: Int, modifier: Modifier) {
+    val c = Sanad.colors
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            // الأقدم يمين (بداية السطر في العربي)
+            marks.forEachIndexed { i, mark ->
+                val date = LocalDate.parse(addDays(today, (i - 6).toLong()))
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        if (mark == DayMark.TODAY) "اليوم" else DAY_LETTER.getValue(date.dayOfWeek),
+                        style = Type.label.copy(color = if (mark == DayMark.TODAY) c.primary else c.inkSoft, fontSize = 12.sp, fontWeight = if (mark == DayMark.TODAY) FontWeight.Bold else FontWeight.Medium),
+                    )
+                    DayRing(mark, ar(date.dayOfMonth))
+                }
+            }
+        }
+        Text(
+            "سلسلتك ${ar(streak)} يوم · أخضر ضمن خطتك، أصفر زيادة بسيطة، بنفسجي مناسبة، منقّط لم تسجّل",
+            style = Type.label.copy(color = c.inkSoft, fontSize = 12.sp),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun DayRing(mark: DayMark, number: String) {
+    val c = Sanad.colors
+    val size = 40.dp
+    val label = when (mark) {
+        DayMark.ON_PLAN -> "ضمن الخطة"
+        DayMark.OVER -> "زيادة بسيطة"
+        DayMark.OCCASION -> "مناسبة"
+        DayMark.EMPTY -> "لم تسجّل"
+        DayMark.TODAY -> "اليوم"
+        DayMark.BEFORE -> "قبل البداية"
+    }
+    Box(Modifier.size(size).semantics { contentDescription = "$number: $label" }, contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(size)) {
+            val sw = 3.dp.toPx()
+            val r = this.size.minDimension / 2 - sw / 2
+            when (mark) {
+                DayMark.TODAY -> drawCircle(c.primary, this.size.minDimension / 2)
+                DayMark.ON_PLAN -> drawCircle(c.primary, r, style = Stroke(sw))
+                DayMark.OVER -> drawCircle(c.amber, r, style = Stroke(sw))
+                DayMark.OCCASION -> { drawCircle(c.violet, r, style = Stroke(sw)); drawCircle(c.violet, r - sw * 1.6f, style = Stroke(sw * 0.45f)) }
+                DayMark.EMPTY -> drawCircle(c.faint, r, style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))))
+                DayMark.BEFORE -> drawCircle(c.surface2, this.size.minDimension / 2)
+            }
+        }
+        Text(
+            number,
+            style = Type.label.copy(
+                fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                color = when (mark) { DayMark.TODAY -> c.onPrimary; DayMark.EMPTY, DayMark.BEFORE -> c.inkSoft; else -> c.ink },
+            ),
+        )
+    }
+}
+
 /* ------------------------------ الطاقة ------------------------------ */
 
 @Composable
-private fun EnergyCard(energy: Energy, modifier: Modifier, onPick: (Energy) -> Unit) {
+private fun EnergyPicker(energy: Energy, modifier: Modifier, onPick: (Energy) -> Unit) {
     val c = Sanad.colors
-    val m = Sanad.mood
-    val labels = listOf(Energy.LOW to "تعبان", Energy.MID to "عادي", Energy.HIGH to "نشيط")
-    BoxWithConstraints(modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(5.dp).semantics { contentDescription = "طاقتي اليوم" }) {
-        val slot = (maxWidth - 12.dp) / 3
-        val idx = labels.indexOfFirst { it.first == energy }
-        val x by animateDpAsState((slot + 6.dp) * idx, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMediumLow), label = "pill")
-        Box(
-            Modifier.offset(x = x).width(slot).height(58.dp)
-                .shadow(16.dp, RoundedCornerShape(17.dp), ambientColor = m.a, spotColor = m.a)
-                .background(Color(0xFF232833), RoundedCornerShape(17.dp))
-                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(17.dp)),
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            labels.forEach { (e, label) ->
-                val sel = energy == e
-                val col by animateColorAsState(if (sel) c.ink else c.inkSoft, label = "e-col")
-                Column(
-                    Modifier.width(slot).height(58.dp).clip(RoundedCornerShape(17.dp))
-                        .press({ if (!sel) onPick(e) }, role = Role.RadioButton)
+    val labels = listOf(Energy.LOW to "متعب", Energy.MID to "عادي", Energy.HIGH to "نشيط")
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("كيف طاقتك الآن؟", style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(horizontal = 4.dp))
+        Row(Modifier.fillMaxWidth().semantics { contentDescription = "طاقتي اليوم" }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            labels.forEach { (en, label) ->
+                val sel = energy == en
+                val bg by animateColorAsState(if (sel) c.primaryTint else c.surface, label = "e-bg")
+                Row(
+                    Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(14.dp)).background(bg)
+                        .border(if (sel) 2.dp else 1.dp, if (sel) c.primary else c.line, RoundedCornerShape(14.dp))
+                        .press({ if (!sel) onPick(en) }, role = Role.RadioButton)
                         .semantics { selected = sel; stateDescription = if (sel) "مختار" else "" },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    app.sanad.coach.ui.components.Battery(e.level, Modifier.scale(0.78f), color = col)
-                    Spacer(Modifier.height(4.dp))
-                    Text(label, style = Type.small.copy(color = col, fontWeight = FontWeight.Medium))
+                    app.sanad.coach.ui.components.Battery(en.level, Modifier.graphicsLayer { scaleX = 0.72f; scaleY = 0.72f }, color = c.ink)
+                    Spacer(Modifier.width(4.dp))
+                    Text(label, style = Type.body.copy(color = c.ink, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal))
                 }
             }
         }
     }
 }
 
-/* ------------------------------ الحلقات ------------------------------ */
+/* ------------------------------ الخطوة التالية ------------------------------ */
 
 @Composable
-private fun RingsCard(
-    kcal: Int, protein: Int, water: Int, kcalGoal: Int, proteinGoal: Int, waterGoal: Int,
-    onWater: () -> Unit, onOpen: () -> Unit, modifier: Modifier,
+private fun NextStep(m: Mission, modifier: Modifier, onStart: () -> Unit, onSwap: () -> Unit) {
+    val c = Sanad.colors
+    val minutes = when {
+        m.kind != MissionKind.MOVE -> null
+        m.routineId != null -> routineById(m.routineId!!)?.minutes
+        else -> null
+    }
+    HeroCard(modifier) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "خطوتك التالية" + (minutes?.let { " · ${ar(it)} دقائق" } ?: ""),
+                    style = Type.label.copy(color = c.onPrimary.copy(alpha = 0.85f), fontWeight = FontWeight.SemiBold),
+                )
+                Text(m.title, style = Type.h1.copy(color = c.onPrimary, fontSize = 26.sp))
+                Text(m.detail, style = Type.body.copy(color = c.onPrimary.copy(alpha = 0.92f)))
+            }
+            Spacer(Modifier.width(8.dp))
+            InkFigureSquat(Modifier.size(width = 70.dp, height = 90.dp), c.onPrimary, c.amber)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(
+                Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(14.dp)).background(c.onPrimary).press(onStart),
+                contentAlignment = Alignment.Center,
+            ) { Text(if (m.routineId != null) "ابدأ الآن" else "تم", style = Type.h3.copy(color = c.primary, fontWeight = FontWeight.Bold, fontSize = 17.sp)) }
+            if (m.kind == MissionKind.MOVE) Box(
+                Modifier.width(96.dp).height(52.dp).clip(RoundedCornerShape(14.dp)).border(1.5.dp, c.onPrimary.copy(alpha = 0.6f), RoundedCornerShape(14.dp)).press(onSwap),
+                contentAlignment = Alignment.Center,
+            ) { Text("غيّرها", style = Type.body.copy(color = c.onPrimary)) }
+        }
+    }
+}
+
+/** رسمة حبر بسيطة لوضعية القرفصاء: الفخذ والساق بلون العضلة الشغالة مزاحة قليلاً. */
+@Composable
+fun InkFigureSquat(modifier: Modifier, ink: Color, accent: Color) {
+    Canvas(modifier) {
+        val sx = size.width / 60f; val sy = size.height / 92f
+        fun o(x: Float, y: Float) = Offset(x * sx, y * sy)
+        val w = 2.6f * sx
+        val shift = 2f * sx
+        drawLine(accent, o(22f, 58f) + Offset(shift, shift), o(42f, 64f) + Offset(shift, shift), w * 2f, StrokeCap.Round)
+        drawLine(accent, o(42f, 64f) + Offset(shift, shift), o(34f, 86f) + Offset(shift, shift), w * 2f, StrokeCap.Round)
+        drawCircle(ink, 6f * sx, o(34f, 30f), style = Stroke(w))
+        drawLine(ink, o(32f, 37f), o(22f, 58f), w * 1.2f, StrokeCap.Round)
+        drawLine(ink, o(31f, 41f), o(50f, 40f), w, StrokeCap.Round)
+        drawLine(ink, o(22f, 58f), o(42f, 64f), w, StrokeCap.Round)
+        drawLine(ink, o(42f, 64f), o(34f, 86f), w, StrokeCap.Round)
+        drawLine(ink, o(34f, 86f), o(42f, 86f), w, StrokeCap.Round)
+        drawLine(ink.copy(alpha = 0.5f), o(8f, 90f), o(52f, 90f), 1.5f * sx)
+    }
+}
+
+@Composable
+private fun AllDone(modifier: Modifier) {
+    val c = Sanad.colors
+    SCard(modifier, color = c.primary) {
+        Text("خطة اليوم اكتملت", style = Type.h2.copy(color = c.ink))
+        Text("أحسنت. ارتح الآن، وقمرك كبر ليلة.", style = Type.body.copy(color = c.inkSoft))
+    }
+}
+
+/* ------------------------------ الأرقام ------------------------------ */
+
+@Composable
+private fun NumbersCard(
+    day: DayLog, t: Targets, modifier: Modifier,
+    stepsNeedPermission: Boolean, onEnableSteps: () -> Unit,
+    onWater: (Int) -> Unit, onOpen: () -> Unit,
 ) {
     val c = Sanad.colors
-    val fk by animateFloatAsState((kcal / kcalGoal.toFloat()).coerceIn(0f, 1f), tween(1600), label = "rk")
-    val fp by animateFloatAsState((protein / proteinGoal.toFloat()).coerceIn(0f, 1f), tween(1600), label = "rp")
-    val fw by animateFloatAsState((water / waterGoal.toFloat()).coerceIn(0f, 1f), tween(1600), label = "rw")
-    val left by animateIntAsState(kcalGoal - kcal, tween(1200), label = "left")
-    Row(
-        modifier
-            .fillMaxWidth()
-            .glass()
-            .press(onOpen, haptic = false)
-            .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(168.dp), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.size(168.dp).semantics { contentDescription = "أكلت ${ar(kcal)} من ${ar(kcalGoal)} سعرة، بروتين ${ar(protein)} غ، ماء ${ar(water)} أكواب" }) {
-                val sw = 11.dp.toPx()
-                fun ring(r: Float, frac: Float, a: Color, b: Color) {
-                    val tl = Offset(center.x - r, center.y - r)
-                    val sz = Size(r * 2, r * 2)
-                    drawArc(Color.White.copy(alpha = 0.07f), 0f, 360f, false, tl, sz, style = Stroke(sw))
-                    if (frac > 0.001f) {
-                        // اتجاه عربي: من الأعلى عكس عقارب الساعة
-                        drawArc(b.copy(alpha = 0.35f), -90f, -360f * frac, false, tl, sz, style = Stroke(sw * 1.9f, cap = StrokeCap.Round))
-                        drawArc(Brush.sweepGradient(listOf(a, b, a), center), -90f, -360f * frac, false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
-                    }
+    val left by animateIntAsState(t.kcal - day.intake, tween(900), label = "left")
+    Column(modifier.fillMaxWidth().glass().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth().press(onOpen, haptic = false), verticalAlignment = Alignment.Bottom) {
+            Text(ar(if (left >= 0) left else -left), style = Type.hero.copy(fontSize = 40.sp, color = if (left >= 0) c.ink else c.saffron))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                if (left >= 0) "سعرة متبقية من ${ar(t.kcal)}" else "فوق خطتك اليوم",
+                style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 4.dp),
+            )
+        }
+        Meter(day.intake / t.kcal.toFloat(), height = 12.dp, color = if (left >= 0) c.primary else c.amber)
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            MiniStat("بروتين", ar(day.protein), " / ${ar(t.protein)}غ", day.protein / t.protein.toFloat(), c.oasis, Modifier.weight(1f).fillMaxHeight())
+            Column(
+                Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(c.bg).padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text("ماء", style = Type.label.copy(color = c.inkSoft))
+                Text(
+                    "${ar(day.water)} / ${ar(t.water)}",
+                    style = Type.number.copy(fontSize = 18.sp, color = c.ink),
+                    modifier = Modifier.semantics { contentDescription = "ماء ${ar(day.water)} من ${ar(t.water)} أكواب" },
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(
+                        Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(9.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(9.dp))
+                            .press({ onWater(-1) }).semantics { contentDescription = "قلّل كوب ماء" },
+                        contentAlignment = Alignment.Center,
+                    ) { SIcon(Ico.MINUS, size = 16.dp) }
+                    Box(
+                        Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(9.dp)).background(c.sky)
+                            .press({ onWater(1) }).semantics { contentDescription = "أضف كوب ماء" },
+                        contentAlignment = Alignment.Center,
+                    ) { SIcon(Ico.PLUS, size = 16.dp, tint = c.onPrimary) }
                 }
-                val R = size.minDimension / 2 - sw
-                ring(R, fk, c.saffron, c.ember)
-                ring(R - sw * 1.55f, fp, Color(0xFF5CF0CF), Color(0xFF1FB093))
-                ring(R - sw * 3.1f, fw, Color(0xFF8FB0FF), Color(0xFF4B74F0))
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(ar(if (left >= 0) left else -left), style = Type.number.copy(fontSize = 26.sp, color = if (left >= 0) c.ink else c.saffron))
-                Text(if (left >= 0) "سعرة باقية" else "فوق الهدف", style = Type.label.copy(fontSize = 10.sp, color = c.inkSoft))
-            }
+            if (stepsNeedPermission) Column(
+                Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(c.bg).press(onEnableSteps).padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text("خطوات", style = Type.label.copy(color = c.inkSoft))
+                Text("فعّل العدّاد", style = Type.small.copy(color = c.primary, fontWeight = FontWeight.Bold))
+                Text("بلا إنترنت", style = Type.label.copy(color = c.inkSoft))
+            } else MiniStat("خطوات", ar(day.steps), "", day.steps / t.steps.toFloat(), c.amber, Modifier.weight(1f).fillMaxHeight())
         }
-        Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Legend(c.saffron, "أكلت", ar(kcal), "من ${ar(kcalGoal)}")
-            Legend(c.oasis, "بروتين", "${ar(protein)} غ", "من ${ar(proteinGoal)}")
-            // لمسة على سطر الماء تضيف كوب
-            Legend(c.sky, "ماء", ar(water), "من ${ar(waterGoal)} أكواب", Modifier.press(onWater).semantics { contentDescription = "ماء ${ar(water)} من ${ar(waterGoal)}، المس لإضافة كوب" })
-        }
+        if (!stepsNeedPermission && day.steps > 0) Text(stepsNote(day.steps, t.steps), style = Type.small.copy(color = c.inkSoft))
     }
 }
 
 @Composable
-private fun Legend(dot: Color, key: String, value: String, of: String, modifier: Modifier = Modifier) {
+private fun MiniStat(label: String, value: String, of: String, progress: Float, color: Color, modifier: Modifier) {
     val c = Sanad.colors
-    Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(dot))
-            Spacer(Modifier.width(7.dp))
-            Text(key, style = Type.label.copy(color = c.inkSoft))
-        }
+    Column(modifier.clip(RoundedCornerShape(14.dp)).background(c.bg).padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(label, style = Type.label.copy(color = c.inkSoft))
         Row(verticalAlignment = Alignment.Bottom) {
             Text(value, style = Type.number.copy(fontSize = 18.sp, color = c.ink))
-            Spacer(Modifier.width(4.dp))
-            Text(of, style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 2.dp))
+            if (of.isNotEmpty()) Text(of, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp), modifier = Modifier.padding(bottom = 2.dp))
         }
+        Spacer(Modifier.weight(1f))
+        Meter(progress, height = 5.dp, color = color)
     }
 }
 
-/* ------------------------------ السلسلة ------------------------------ */
-
+/** رصيد المناسبات: ما وفّرته هذا الأسبوع لعزومة قادمة. */
 @Composable
-private fun StreakCard(length: Int, best: Int, week: List<WeaveCell>, today: String, modifier: Modifier) {
+private fun BankCard(saved: Int, cap: Int, onUse: () -> Unit) {
     val c = Sanad.colors
-    val spin = rememberInfiniteTransition(label = "sun")
-    val deg by spin.animateFloat(0f, 360f, infiniteRepeatable(tween(16000, easing = LinearEasing)), label = "rays")
-    val breathe by spin.animateFloat(4f, 8f, infiniteRepeatable(tween(1200), RepeatMode.Reverse), label = "breathe")
-    SCard(modifier, pad = 16.dp) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Canvas(Modifier.size(44.dp)) {
-                val cx = center
-                rotate(deg, cx) {
-                    for (i in 0 until 8) {
-                        val a = (i * PI / 4).toFloat()
-                        val r1 = size.minDimension * 0.34f; val r2 = size.minDimension * 0.46f
-                        drawLine(c.saffron.copy(alpha = 0.85f), Offset(cx.x + kotlin.math.cos(a) * r1, cx.y + kotlin.math.sin(a) * r1), Offset(cx.x + kotlin.math.cos(a) * r2, cx.y + kotlin.math.sin(a) * r2), 2.4.dp.toPx(), StrokeCap.Round)
-                    }
-                }
-                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFE3A8), c.saffron, c.ember), center = cx, radius = size.minDimension * 0.22f), size.minDimension * 0.2f, cx)
-            }
-            Spacer(Modifier.width(12.dp))
-            Column {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(ar(length), style = Type.number.copy(color = c.ink))
-                    Spacer(Modifier.width(6.dp))
-                    Text("يوم", style = Type.h3.copy(color = c.ink), modifier = Modifier.padding(bottom = 3.dp))
-                }
-                Text("سلسلة الاستمرار", style = Type.label.copy(color = c.inkSoft))
-            }
-            Spacer(Modifier.weight(1f))
-            Text("فاتك يوم؟ عادي، بس لا تفوّت يومين ورا بعض.", style = Type.label.copy(color = c.inkSoft), textAlign = TextAlign.End, modifier = Modifier.width(140.dp))
+    Row(
+        Modifier.fillMaxWidth().glass().padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(c.violetTint), contentAlignment = Alignment.Center) {
+            SIcon(Ico.PEOPLE, size = 24.dp, tint = c.violet)
         }
-        Spacer(Modifier.height(14.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            // الأقدم يمين (بداية السطر في العربي)
-            week.forEachIndexed { i, cell ->
-                val date = LocalDate.parse(addDays(today, (i - 6).toLong()))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    DayDot(cell, if (cell == WeaveCell.TODAY) breathe.dp else 0.dp)
-                    Spacer(Modifier.height(6.dp))
-                    Text(DAY_LETTER.getValue(date.dayOfWeek), style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp))
-                }
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("رصيد المناسبات", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+                Text("${ar(saved)} / ${ar(cap)}", style = Type.label.copy(color = c.violet, fontWeight = FontWeight.Bold))
             }
+            Text("ما بقي تحت خطتك هذا الأسبوع محفوظ لعزومة أو مناسبة، بلا ذنب.", style = Type.small.copy(color = c.inkSoft))
+            Meter(saved / cap.toFloat(), height = 6.dp, color = c.violet)
+            Text(
+                "عندي مناسبة اليوم",
+                style = Type.small.copy(color = c.violet, fontWeight = FontWeight.Bold),
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).press(onUse).padding(vertical = 6.dp),
+            )
         }
     }
 }
 
-@Composable
-private fun DayDot(cell: WeaveCell, halo: Dp) {
-    val c = Sanad.colors
-    val m = Modifier.size(34.dp)
-    when (cell) {
-        WeaveCell.WOVEN -> Box(
-            m.clip(CircleShape).background(Brush.linearGradient(listOf(c.saffron, c.ember))).semantics { contentDescription = "يوم منجز" },
-            contentAlignment = Alignment.Center,
-        ) { SIcon(Ico.CHECK, size = 16.dp, tint = c.onGold) }
-        WeaveCell.HELD -> Canvas(m.semantics { contentDescription = "يوم فائت ما كسر السلسلة" }) {
-            drawCircle(c.saffron.copy(alpha = 0.55f), size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))))
-        }
-        WeaveCell.TODAY -> Box(
-            m.border(halo, c.saffron.copy(alpha = 0.1f), CircleShape).border(1.5.dp, c.saffron, CircleShape).semantics { contentDescription = "اليوم" },
-        )
-        WeaveCell.BROKEN -> Box(m.border(1.5.dp, c.rose.copy(alpha = 0.35f), CircleShape).semantics { contentDescription = "يوم فائت" })
-        WeaveCell.BEFORE -> Box(m.background(Color.White.copy(alpha = 0.03f), CircleShape))
-    }
-}
-
-/* ------------------------------ المهمات ------------------------------ */
+/* ------------------------------ الخطة كخط زمني ------------------------------ */
 
 @Composable
-private fun MissionCard(m: Mission, done: Boolean, index: Int, onToggle: () -> Unit, onStart: () -> Unit) {
+private fun PlanRow(m: Mission, done: Boolean, last: Boolean, onToggle: () -> Unit, onStart: () -> Unit) {
     val c = Sanad.colors
     val haptic = LocalHapticFeedback.current
     val confetti = LocalConfetti.current
     val point = rememberBurstPoint()
-    val enter = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 90L)
-        enter.animateTo(1f, tween(700, easing = androidx.compose.animation.core.CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)))
-    }
-    val checkScale by animateFloatAsState(if (done) 1.08f else 1f, spring(dampingRatio = 0.4f, stiffness = 500f), label = "check")
-    val tick by animateFloatAsState(if (done) 1f else 0f, tween(450, delayMillis = 100), label = "tick")
-    val fill by animateColorAsState(if (done) c.oasis else Color.Transparent, label = "fill")
-    val (tileColor, icon) = when (m.kind) {
-        MissionKind.MOVE -> c.saffron to Ico.MOVE
-        MissionKind.EAT -> c.oasis to Ico.EAT
-        MissionKind.RESTORE -> c.sky to if ("ماء" in m.title || "أكواب" in m.title) Ico.DROP else Ico.MOON
-    }
+    val checkScale by animateFloatAsState(if (done) 1.1f else 1f, spring(dampingRatio = 0.4f, stiffness = 500f), label = "check")
+    val tick by animateFloatAsState(if (done) 1f else 0f, tween(420, delayMillis = 80), label = "tick")
     val routine = m.routineId?.let(::routineById)
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                alpha = enter.value
-                translationX = (1f - enter.value) * 40.dp.toPx()
-                val s = 0.96f + 0.04f * enter.value
-                scaleX = s; scaleY = s
+    val kindLabel = when (m.kind) {
+        MissionKind.MOVE -> "حركة"
+        MissionKind.EAT -> "أكل"
+        MissionKind.RESTORE -> "راحة"
+    }
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        // عمود الخط الزمني: دائرة تنقر فيها لتعلّمها تمّت
+        Column(Modifier.width(40.dp).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Canvas(
+                Modifier
+                    .size(32.dp)
+                    .burstFrom(point)
+                    .graphicsLayer { scaleX = checkScale; scaleY = checkScale }
+                    .press({
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (!done) confetti.burst(point.center, 36, 0.8f)
+                        onToggle()
+                    }, role = Role.Checkbox, haptic = false)
+                    .semantics { contentDescription = if (done) "إلغاء: ${m.title}" else "تم: ${m.title}" },
+            ) {
+                val r = size.minDimension / 2
+                if (done) drawCircle(c.primary, r) else drawCircle(c.faint, r - 1.dp.toPx(), style = Stroke(2.dp.toPx()))
+                if (tick > 0f) {
+                    val p1 = Offset(size.width * 0.28f, size.height * 0.52f)
+                    val p2 = Offset(size.width * 0.44f, size.height * 0.68f)
+                    val p3 = Offset(size.width * 0.74f, size.height * 0.36f)
+                    val k1 = (tick * 2f).coerceAtMost(1f)
+                    val k2 = ((tick - 0.5f) * 2f).coerceIn(0f, 1f)
+                    val sw = 3.dp.toPx()
+                    drawLine(c.onPrimary, p1, p1 + (p2 - p1) * k1, sw, StrokeCap.Round)
+                    if (k2 > 0f) drawLine(c.onPrimary, p2, p2 + (p3 - p2) * k2, sw, StrokeCap.Round)
+                }
             }
-            .glass(RoundedCornerShape(24.dp))
-            .padding(start = 14.dp, end = 12.dp, top = 14.dp, bottom = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(tileColor.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
-            SIcon(icon, size = 24.dp, tint = tileColor)
-        }
-        Spacer(Modifier.width(14.dp))
-        Column(Modifier.weight(1f)) {
-            Text(m.title, style = Type.h3.copy(color = if (done) c.inkSoft else c.ink, fontWeight = FontWeight.SemiBold))
-            Text(m.detail, style = Type.small.copy(color = c.inkSoft))
-        }
-        if (routine != null && !done) {
-            Spacer(Modifier.width(8.dp))
-            Box(Modifier.clip(CircleShape).background(c.ink).press(onStart).padding(horizontal = 14.dp, vertical = 8.dp)) {
-                Text("ابدأ", style = Type.label.copy(color = c.bg, fontWeight = FontWeight.SemiBold))
-            }
+            if (!last) Box(Modifier.width(2.dp).weight(1f).background(if (done) c.primary else c.line))
         }
         Spacer(Modifier.width(10.dp))
-        Canvas(
-            Modifier
-                .size(34.dp)
-                .burstFrom(point)
-                .graphicsLayer { scaleX = checkScale; scaleY = checkScale }
-                .press({
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (!done) confetti.burst(point.center, 40, 0.8f)
-                    onToggle()
-                }, role = Role.Checkbox, haptic = false)
-                .semantics { contentDescription = if (done) "إلغاء: ${m.title}" else "تم: ${m.title}" },
-        ) {
-            val r = size.minDimension / 2
-            if (done) drawCircle(c.oasis.copy(alpha = 0.15f), r * 1.35f)
-            drawCircle(fill, r)
-            drawCircle(if (done) c.oasis else Color.White.copy(alpha = 0.2f), r - 1.dp.toPx(), style = Stroke(2.dp.toPx()))
-            if (tick > 0f) {
-                // علامة صح ترسم نفسها
-                val p1 = Offset(size.width * 0.28f, size.height * 0.52f)
-                val p2 = Offset(size.width * 0.44f, size.height * 0.68f)
-                val p3 = Offset(size.width * 0.74f, size.height * 0.36f)
-                val k1 = (tick * 2f).coerceAtMost(1f)
-                val k2 = ((tick - 0.5f) * 2f).coerceIn(0f, 1f)
-                val sw = 3.dp.toPx()
-                drawLine(Color(0xFF04221C), p1, p1 + (p2 - p1) * k1, sw, StrokeCap.Round)
-                if (k2 > 0f) drawLine(Color(0xFF04221C), p2, p2 + (p3 - p2) * k2, sw, StrokeCap.Round)
+        Column(Modifier.weight(1f).padding(bottom = if (last) 0.dp else 18.dp)) {
+            Text(kindLabel, style = Type.label.copy(color = c.inkSoft))
+            Text(m.title, style = Type.h3.copy(color = if (done) c.inkSoft else c.ink, fontWeight = FontWeight.SemiBold))
+            Text(m.detail, style = Type.small.copy(color = c.inkSoft))
+            if (routine != null && !done) {
+                Spacer(Modifier.height(8.dp))
+                SButton("ابدأ", onStart, small = true, icon = Ico.PLAY)
             }
         }
     }
@@ -575,7 +649,7 @@ private fun RamadanCard(plan: RamadanPlan) {
     val c = Sanad.colors
     SCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).clip(RoundedCornerShape(14.dp)).background(c.saffron.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(c.amberTint), contentAlignment = Alignment.Center) {
                 SIcon(Ico.MOON, size = 22.dp, tint = c.saffron)
             }
             Spacer(Modifier.width(12.dp))
@@ -584,7 +658,7 @@ private fun RamadanCard(plan: RamadanPlan) {
         Spacer(Modifier.height(12.dp))
         plan.meals.forEach { m ->
             Row(
-                Modifier.padding(bottom = 8.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(horizontal = 14.dp, vertical = 10.dp),
+                Modifier.padding(bottom = 8.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.bg).padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(m.name, style = Type.bodyStrong.copy(color = c.ink), modifier = Modifier.weight(1f))
@@ -599,28 +673,28 @@ private fun RamadanCard(plan: RamadanPlan) {
 
 /* ------------------------------ الحارس ------------------------------ */
 
-/** خطة العزيمة: قبل، الصحن، بعد — بلا حرمان وبلا تعويض. */
+/** خطة المناسبة: قبل، الصحن، بعد — بلا حرمان وبلا تعويض. */
 @Composable
 private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit, onPacer: () -> Unit) {
     val c = Sanad.colors
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.saffron).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.violet).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("خطة العزيمة", style = Type.label.copy(color = c.saffron))
-                Text("تروح مرتاح، وترجع مرتاح", style = Type.h2.copy(color = c.ink))
+                Text("خطة المناسبة", style = Type.label.copy(color = c.violet, fontWeight = FontWeight.Bold))
+                Text("تذهب مرتاحاً وتعود مرتاحاً", style = Type.h2.copy(color = c.ink))
             }
-            Text("مو اليوم", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.clip(CircleShape).press(onCancel, haptic = false).padding(8.dp))
+            Text("ليس اليوم", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.clip(RoundedCornerShape(10.dp)).press(onCancel, haptic = false).padding(10.dp))
         }
         Text(g.note, style = Type.body.copy(color = c.ink))
         listOf("قبل" to g.before, "الصحن" to g.plate, "بعد" to g.after).forEach { (title, steps) ->
             Column(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp),
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface).padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(title, style = Type.label.copy(color = c.saffron, fontWeight = FontWeight.SemiBold))
+                Text(title, style = Type.label.copy(color = c.violet, fontWeight = FontWeight.Bold))
                 steps.forEach { Text("• $it", style = Type.small.copy(color = c.ink)) }
             }
         }
@@ -628,78 +702,48 @@ private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit, onPacer: () ->
     }
 }
 
-/** الخطوات: شريط نحو هدف اليوم، أو زر تفعيل العدّاد إذا ما عنده إذن. */
-@Composable
-private fun StepsCard(steps: Int, target: Int, needsPermission: Boolean, onEnable: () -> Unit) {
-    val c = Sanad.colors
-    val f by animateFloatAsState((steps / target.toFloat()).coerceIn(0f, 1f), tween(1400), label = "steps")
-    Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            SIcon(Ico.MOVE, size = 20.dp, tint = c.oasis)
-            Spacer(Modifier.width(8.dp))
-            Text("خطواتك", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
-            if (!needsPermission) Text("${ar(steps)} / ${ar(target)}", style = Type.bodyStrong.copy(color = c.oasis))
-        }
-        if (needsPermission) {
-            Text("فعّل العدّاد ويحسب خطواتك لحاله، بدون إنترنت.", style = Type.small.copy(color = c.inkSoft))
-            SButton("فعّل عدّاد الخطوات", onEnable, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
-        } else {
-            Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.08f))) {
-                Box(Modifier.fillMaxWidth(f).fillMaxHeight().clip(CircleShape).background(Brush.horizontalGradient(listOf(c.oasis, c.sky))))
-            }
-            Text(stepsNote(steps, target), style = Type.small.copy(color = c.inkSoft))
-        }
-    }
-}
-
-/** درس اليوم من رحلة الـ١٢ أسبوع: دقيقة قراءة وخطوة وحدة. */
+/** درس اليوم من رحلة الـ١٢ أسبوعاً: دقيقة قراءة وخطوة واحدة. */
 @Composable
 private fun LessonCard(l: Lesson, onRead: () -> Unit) {
     val c = Sanad.colors
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.sky).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.sky).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            "درس اليوم · الأسبوع ${ar(l.week)}: ${WEEK_THEMES[l.week - 1]}",
-            style = Type.label.copy(color = c.sky),
-        )
+        Text("درس اليوم · الأسبوع ${ar(l.week)}: ${WEEK_THEMES[l.week - 1]}", style = Type.label.copy(color = c.sky, fontWeight = FontWeight.Bold))
         Text(l.title, style = Type.h2.copy(color = c.ink))
         Text(l.body, style = Type.body.copy(color = c.ink))
         Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp),
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface).padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SIcon(Ico.CHECK, size = 18.dp, tint = c.oasis)
             Spacer(Modifier.width(8.dp))
             Text(l.action, style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
         }
-        SButton("قريته، أجرّبها اليوم", onRead, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
+        SButton("قرأته، سأجرّبه اليوم", onRead, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
     }
 }
 
-/** سؤال الصبح: نمت كم؟ ضغطة وحدة، ويغذّي الرادار وبنك النوم. */
+/** سؤال الصباح: كم نمت؟ ضغطة واحدة، ويغذّي الرادار وبنك النوم. */
 @Composable
 private fun SleepAsk(onPick: (Double) -> Unit) {
     val c = Sanad.colors
     val opts = listOf(5.0 to "٥ أو أقل", 6.0 to "٦", 7.0 to "٧", 8.0 to "٨", 9.0 to "٩+")
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+        Modifier.fillMaxWidth().glass().padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SIcon(Ico.MOON, size = 20.dp, tint = c.sky)
+            SIcon(Ico.MOON, size = 20.dp, tint = c.violet)
             Spacer(Modifier.width(8.dp))
-            Text("نمت كم ساعة البارحة؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("كم ساعة نمت البارحة؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             opts.forEach { (h, label) ->
                 Box(
-                    Modifier.weight(1f).height(40.dp).clip(CircleShape).background(c.glassTop)
-                        .border(1.dp, c.line, CircleShape).press({ onPick(h) })
+                    Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(12.dp)).background(c.bg)
+                        .border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ onPick(h) })
                         .semantics { contentDescription = "نمت $label ساعات" },
                     contentAlignment = Alignment.Center,
                 ) { Text(label, style = Type.small.copy(color = c.ink, fontWeight = FontWeight.Medium)) }
@@ -709,14 +753,14 @@ private fun SleepAsk(onPick: (Double) -> Unit) {
 }
 
 @Composable
-private fun WelcomeCard(w: Welcome) {
+private fun WelcomeCard(w: Welcome, phase: Float) {
     val c = Sanad.colors
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.oasis).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.oasis).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            LivingOrb(34.dp, glow = false)
+            Moon(34.dp, phase = phase)
             Spacer(Modifier.width(10.dp))
             Text(w.headline, style = Type.h2.copy(color = c.ink))
         }
@@ -725,7 +769,7 @@ private fun WelcomeCard(w: Welcome) {
     }
 }
 
-/** رادار الزلّة: يطلع بس لما اللحظة حساسة، ويعرض خطتك أنت وأداة سريعة. */
+/** رادار سند: يظهر فقط حين تكون اللحظة حساسة، ويعرض خطتك أنت وأداة سريعة. */
 @Composable
 private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
     val c = Sanad.colors
@@ -733,7 +777,7 @@ private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
     val pulse = rememberInfiniteTransition(label = "radar")
     val ring by pulse.animateFloat(0f, 1f, infiniteRepeatable(tween(1800, easing = LinearEasing)), label = "ring")
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), tint).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -744,66 +788,67 @@ private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("رادار سند", style = Type.label.copy(color = tint))
+                Text("رادار سند", style = Type.label.copy(color = tint, fontWeight = FontWeight.Bold))
                 Text(r.headline, style = Type.h3.copy(color = c.ink, fontWeight = FontWeight.Bold))
             }
         }
         r.plan?.let { plan ->
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(12.dp)) {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface).padding(12.dp)) {
                 Text("خطتك أنت:", style = Type.label.copy(color = c.inkSoft))
                 Text("${plan.whenText} ← ${plan.thenText}", style = Type.body.copy(color = c.ink))
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SButton("أداة ٣ دقايق", onTool, Modifier.weight(1f), style = BtnStyle.GOLD, small = true, icon = Ico.PLAY)
-            SButton("زلّيت", onLapse, style = BtnStyle.SOFT, small = true)
+            SButton("أداة ٣ دقائق", onTool, Modifier.weight(1f), small = true, icon = Ico.PLAY)
+            SButton("تعثّرت", onLapse, style = BtnStyle.SOFT, small = true)
         }
     }
 }
 
-/** "زلّيت": تسجيل صادق بدون حكم، وخطة رجوع فورية بدل "خلاص خربت". */
+/** «تعثّرت»: تسجيل صادق بلا حكم، وخطة رجوع فورية بدل «خلاص خربت». */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LapseCard(
-    open: Boolean, onToggle: () -> Unit, targets: app.sanad.core.Targets,
+    open: Boolean, onToggle: () -> Unit, targets: Targets,
     gathering: Boolean, onGathering: () -> Unit, onLog: (LapseKind) -> Unit,
 ) {
     val c = Sanad.colors
     var kind by rememberSaveable { mutableStateOf<LapseKind?>(null) }
     var logged by rememberSaveable { mutableStateOf(false) }
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+        Modifier.fillMaxWidth().glass().padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("عندك موقف اليوم؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
-            if (!gathering) SButton("عندي عزيمة", onGathering, style = BtnStyle.SOFT, small = true)
-            SButton(if (open) "سكّر" else "زلّيت", onToggle, style = BtnStyle.GHOST, small = true)
+            Text("حدث شيء اليوم؟", style = Type.h3.copy(color = c.ink), modifier = Modifier.weight(1f))
+            if (!gathering) SButton("عندي مناسبة", onGathering, style = BtnStyle.SOFT, small = true)
+            SButton(if (open) "إغلاق" else "تعثّرت", onToggle, style = BtnStyle.GHOST, small = true)
         }
         AnimatedVisibility(open, enter = fadeIn() + expandVertically()) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("ما في حكم هنا. اختار اللي صار، وسند يعطيك الخطوة الجاية.", style = Type.small.copy(color = c.inkSoft))
+                Text("لا حكم هنا. اختر ما حدث، وسند يعطيك الخطوة التالية.", style = Type.small.copy(color = c.inkSoft))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     LapseKind.entries.forEach { k ->
                         val sel = kind == k
                         Box(
-                            Modifier.clip(CircleShape).background(if (sel) c.ink else c.glassTop).border(1.dp, if (sel) Color.Transparent else c.line, CircleShape)
-                                .press({ kind = k; logged = false }).padding(horizontal = 14.dp, vertical = 8.dp),
-                        ) { Text(k.label, style = Type.small.copy(color = if (sel) c.bg else c.ink)) }
+                            Modifier.clip(RoundedCornerShape(12.dp)).background(if (sel) c.primaryTint else c.surface)
+                                .border(if (sel) 2.dp else 1.dp, if (sel) c.primary else c.line, RoundedCornerShape(12.dp))
+                                .press({ kind = k; logged = false }).padding(horizontal = 14.dp, vertical = 10.dp),
+                        ) { Text(k.label, style = Type.small.copy(color = c.ink, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal)) }
                     }
                 }
                 kind?.let { k ->
                     val r = lapseRecovery(k, targets)
                     Column(
-                        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.oasis.copy(alpha = 0.08f)).padding(14.dp),
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.primaryTint).padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(r.title, style = Type.h3.copy(color = c.ink, fontWeight = FontWeight.Bold))
                         r.steps.forEach { Text("• $it", style = Type.body.copy(color = c.ink)) }
-                        Text(r.reframe, style = Type.small.copy(color = c.oasis))
+                        Text(r.reframe, style = Type.small.copy(color = c.primary))
                     }
-                    if (!logged) SButton("سجّلها وكمّل يومي", { onLog(k); logged = true }, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
-                    else Text("انسجلت. التسجيل الصادق نفسه التزام، وسلسلتك محفوظة.", style = Type.small.copy(color = c.oasis))
+                    if (!logged) SButton("سجّلها وأكمل يومي", { onLog(k); logged = true }, Modifier.fillMaxWidth(), style = BtnStyle.SOFT, small = true)
+                    else Text("تم التسجيل. التسجيل الصادق نفسه التزام، وسلسلتك محفوظة.", style = Type.small.copy(color = c.primary))
                 }
             }
         }

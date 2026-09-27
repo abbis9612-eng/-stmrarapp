@@ -71,7 +71,8 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.ExerciseFigure
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.BodyMap
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
@@ -96,16 +97,13 @@ import app.sanad.core.routineById
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
-private val TINTS = listOf(Color(0xFF34D7B8), Color(0xFF5B8CFF), Color(0xFFFF7A45), Color(0xFFA57BFF), Color(0xFFFFB648))
+private val TINTS = listOf(Color(0xFFE4EFE8), Color(0xFFE3EEF6), Color(0xFFF7ECD6), Color(0xFFEEE8F6), Color(0xFFEEF2EE))
 
-/** خلفية "مسرح" للشخصية: توهّج ناعم وخطوط أرضية خفيفة. */
+/** خلفية "مسرح" للشخصية: ورقة بلون فاتح صلب. */
 @Composable
-private fun Modifier.stage(tint: Color, radius: Int = 18): Modifier {
+private fun Modifier.stage(tint: Color, radius: Int = 16): Modifier {
     val shape = RoundedCornerShape(radius.dp)
-    return this
-        .clip(shape)
-        .background(Brush.radialGradient(listOf(tint.copy(alpha = 0.2f), Color.Transparent)))
-        .background(Color.White.copy(alpha = 0.03f))
+    return this.clip(shape).background(tint)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -132,11 +130,11 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
         }
         item {
             Row(
-                Modifier.fillMaxWidth().rise(rise, 1).glass(RoundedCornerShape(30.dp)).press({ nav.navigate(Routes.player(featured.id)) }).padding(18.dp),
+                Modifier.fillMaxWidth().rise(rise, 1).glass(RoundedCornerShape(22.dp)).press({ nav.navigate(Routes.player(featured.id)) }).padding(18.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 featured.exercises.firstOrNull()?.let {
-                    ExerciseFigure(it, Modifier.size(120.dp).stage(c.saffron))
+                    ExerciseFigure(it, Modifier.size(120.dp).stage(c.amberTint))
                     Spacer(Modifier.width(14.dp))
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -154,7 +152,7 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
             ) {
                 ROUTINES.filter { it.id != featured.id }.forEachIndexed { i, r ->
                     Column(
-                        Modifier.weight(1f).glass(RoundedCornerShape(26.dp)).press({ nav.navigate(Routes.player(r.id)) }).padding(12.dp),
+                        Modifier.weight(1f).glass(RoundedCornerShape(20.dp)).press({ nav.navigate(Routes.player(r.id)) }).padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         r.exercises.firstOrNull()?.let { ExerciseFigure(it, Modifier.fillMaxWidth().height(128.dp).stage(TINTS[i % TINTS.size])) }
@@ -170,7 +168,7 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp), maxItemsInEachRow = 2) {
                 EXERCISES.forEachIndexed { i, e ->
                     Column(
-                        Modifier.weight(1f).glass(RoundedCornerShape(26.dp)).press({ nav.navigate(Routes.exercise(e.id)) }).padding(12.dp),
+                        Modifier.weight(1f).glass(RoundedCornerShape(20.dp)).press({ nav.navigate(Routes.exercise(e.id)) }).padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         ExerciseFigure(e, Modifier.fillMaxWidth().height(128.dp).stage(TINTS[i % TINTS.size]))
@@ -199,8 +197,8 @@ private fun RoutineCard(r: Routine, fits: Boolean, tint: Color, onStart: () -> U
             Text(r.exercises.joinToString("، ") { it.name }, style = Type.label.copy(color = c.faint), maxLines = 1)
             if (fits) Badge("يناسب طاقتك اليوم")
         }
-        Box(Modifier.size(42.dp).clip(CircleShape).background(c.ink), contentAlignment = Alignment.Center) {
-            SIcon(Ico.PLAY, size = 18.dp, tint = c.bg)
+        Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.primary), contentAlignment = Alignment.Center) {
+            SIcon(Ico.PLAY, size = 18.dp, tint = c.onPrimary)
         }
     }
 }
@@ -215,7 +213,7 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
     Page(bottom = false) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(44.dp).clip(CircleShape).background(c.glass2).border(1.dp, c.line, CircleShape).press({ nav.popBackStack() }), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ nav.popBackStack() }), contentAlignment = Alignment.Center) {
                     SIcon(Ico.BACK, size = 20.dp, description = "رجوع")
                 }
                 Spacer(Modifier.width(12.dp))
@@ -224,9 +222,20 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
             }
         }
         item {
-            Box(Modifier.fillMaxWidth().height(330.dp).glass(RoundedCornerShape(34.dp)).stage(c.oasis, 34), contentAlignment = Alignment.Center) {
-                FloorLines()
-                ExerciseFigure(e, Modifier.fillMaxSize().padding(10.dp), onDark = true)
+            Box(Modifier.fillMaxWidth().height(260.dp).glass(RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) {
+                ExerciseFigure(e, Modifier.fillMaxSize().padding(10.dp))
+            }
+        }
+        // خريطة العضلات: قدّام وورا، الأساسية كهرمانية والمساعدة فاتحة
+        item {
+            SCard {
+                Eyebrow("العضلات التي تعمل")
+                Spacer(Modifier.height(8.dp))
+                BodyMap(e.muscles.take(2), e.muscles.drop(2), Modifier.fillMaxWidth().height(250.dp))
+                Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.SpaceAround) {
+                    Text("الأمام", style = Type.label.copy(color = c.inkSoft))
+                    Text("الخلف", style = Type.label.copy(color = c.inkSoft))
+                }
             }
         }
         item {
@@ -236,12 +245,8 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
             }
         }
         item {
-            SCard {
-                Eyebrow("العضلات المستهدفة")
-                Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    e.muscles.forEach { m -> Badge(m.label, gold = true) }
-                }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                e.muscles.forEachIndexed { i, m -> Badge(m.label, gold = i < 2) }
             }
         }
         if (e.mistakes.isNotEmpty()) item {
@@ -261,7 +266,7 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 alts.forEachIndexed { i, (label, altId) ->
                     val alt = exerciseById(altId) ?: return@forEachIndexed
-                    Column(Modifier.weight(1f).glass(RoundedCornerShape(24.dp)).press({ nav.navigate(Routes.exercise(alt.id)) }).padding(12.dp)) {
+                    Column(Modifier.weight(1f).glass(RoundedCornerShape(20.dp)).press({ nav.navigate(Routes.exercise(alt.id)) }).padding(12.dp)) {
                         ExerciseFigure(alt, Modifier.fillMaxWidth().aspectRatio(1.3f).stage(TINTS[i + 1]))
                         Spacer(Modifier.height(6.dp))
                         Text(label, style = Type.label.copy(color = c.saffron))
@@ -281,7 +286,7 @@ private fun FloorLines() {
         val step = 36.dp.toPx()
         while (x < size.width) {
             drawLine(
-                Brush.verticalGradient(listOf(Color.Transparent, Color.White.copy(alpha = 0.05f)), startY = top, endY = size.height),
+                Brush.verticalGradient(listOf(Color.Transparent, Color(0x1415231C)), startY = top, endY = size.height),
                 Offset(x, top), Offset(x, size.height), 1.dp.toPx(),
             )
             x += step
@@ -352,7 +357,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(44.dp).clip(CircleShape).background(c.glass2).border(1.dp, c.line, CircleShape).press({ nav.popBackStack() }), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ nav.popBackStack() }), contentAlignment = Alignment.Center) {
                     SIcon(Ico.CLOSE, size = 20.dp, description = "إغلاق")
                 }
                 Spacer(Modifier.width(12.dp))
@@ -360,8 +365,8 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                 Row(Modifier.weight(1f).height(5.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     r.moves.forEachIndexed { i, m ->
                         val f = when { finished || i < idx -> 1f; i == idx -> frac; else -> 0f }
-                        Box(Modifier.weight(m.seconds.toFloat()).fillMaxHeight().clip(CircleShape).background(Color.White.copy(alpha = 0.1f))) {
-                            Box(Modifier.fillMaxWidth(f).fillMaxHeight().background(Brush.horizontalGradient(listOf(c.oasis, c.saffron))))
+                        Box(Modifier.weight(m.seconds.toFloat()).fillMaxHeight().clip(CircleShape).background(c.surface2)) {
+                            Box(Modifier.fillMaxWidth(f).fillMaxHeight().background(c.primary))
                         }
                     }
                 }
@@ -370,10 +375,10 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
             Row(verticalAlignment = Alignment.Bottom) {
                 Column(Modifier.weight(1f)) {
                     Eyebrow(if (move.isRest) "راحة" else "الحركة ${ar(exIndex)} من ${ar(exCount)}")
-                    Text(ex?.name ?: "خذ نفس", style = Type.h1.copy(fontSize = 28.sp, color = c.ink))
+                    Text(ex?.name ?: "خذ نفساً", style = Type.h1.copy(fontSize = 28.sp, color = c.ink))
                 }
                 ex?.muscles?.firstOrNull()?.let {
-                    Box(Modifier.clip(CircleShape).background(c.glass2).padding(horizontal = 11.dp, vertical = 6.dp)) {
+                    Box(Modifier.clip(RoundedCornerShape(8.dp)).background(c.amberTint).padding(horizontal = 11.dp, vertical = 6.dp)) {
                         Text(ex.muscles.take(2).joinToString(" و") { m -> m.label }, style = Type.label.copy(color = c.ink))
                     }
                 }
@@ -381,24 +386,23 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
 
             // المسرح
             Box(
-                Modifier.fillMaxWidth().height(330.dp).glass(RoundedCornerShape(34.dp)).stage(c.oasis, 34),
+                Modifier.fillMaxWidth().height(330.dp).glass(RoundedCornerShape(22.dp)),
                 contentAlignment = Alignment.Center,
             ) {
-                FloorLines()
                 AnimatedContent(ex, transitionSpec = { (fadeIn(tween(300)) + scaleIn(initialScale = 0.95f)) togetherWith fadeOut(tween(200)) }, label = "stage") { e ->
-                    if (e != null) ExerciseFigure(e, Modifier.fillMaxSize().padding(8.dp), playing = running, onDark = true)
+                    if (e != null) ExerciseFigure(e, Modifier.fillMaxSize().padding(8.dp), playing = running)
                     else Box(Modifier.fillMaxSize())
                 }
                 val restAlpha by animateFloatAsState(if (move.isRest && !finished) 1f else 0f, tween(500), label = "rest")
                 if (restAlpha > 0.01f) {
                     Column(
-                        Modifier.fillMaxSize().graphicsLayer { alpha = restAlpha }.background(Color(0xB80A0D12)),
+                        Modifier.fillMaxSize().graphicsLayer { alpha = restAlpha }.background(c.surface.copy(alpha = 0.94f)),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        LivingOrb(120.dp, breathe = true)
+                        Moon(120.dp, phase = 0.5f, breathe = true)
                         Spacer(Modifier.height(18.dp))
-                        Text(if ((left / 3) % 2 == 0) "خذ نفس…" else "طلّعه بهدوء…", style = Type.h1.copy(fontSize = 22.sp, color = c.ink))
+                        Text(if ((left / 3) % 2 == 0) "خذ نفساً…" else "أخرِجه بهدوء…", style = Type.h1.copy(fontSize = 22.sp, color = c.ink))
                         nextName?.let { Text("التالي: $it", style = Type.small.copy(color = c.inkSoft)) }
                     }
                 }
@@ -410,8 +414,8 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                         val sw = 7.dp.toPx()
                         val tl = Offset(sw / 2, sw / 2)
                         val sz = Size(size.width - sw, size.height - sw)
-                        drawArc(Color.White.copy(alpha = 0.08f), 0f, 360f, false, tl, sz, style = Stroke(sw))
-                        drawArc(Brush.sweepGradient(listOf(c.saffron, c.ember, c.saffron)), -90f, -360f * (1f - frac), false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
+                        drawArc(c.surface2, 0f, 360f, false, tl, sz, style = Stroke(sw))
+                        drawArc(c.primary, -90f, -360f * (1f - frac), false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(ar(left), style = Type.number.copy(fontSize = 34.sp, color = c.ink))
@@ -429,13 +433,13 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
             Spacer(Modifier.weight(1f))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(
-                    Modifier.size(58.dp).clip(RoundedCornerShape(22.dp)).background(c.glass2).border(1.dp, c.line, RoundedCornerShape(22.dp)).press({ running = !running }),
+                    Modifier.size(58.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp)).press({ running = !running }),
                     contentAlignment = Alignment.Center,
                 ) { SIcon(if (running) Ico.PAUSE else Ico.PLAY, size = 22.dp, description = if (running) "إيقاف مؤقت" else "استئناف") }
                 SButton("التالي", {
                     if (idx < r.moves.lastIndex) { idx += 1; left = r.moves[idx].seconds } else finished = true
                 }, style = BtnStyle.SOFT)
-                SButton(if (move.isRest) "كمّل" else "أنهيت الحركة", {
+                SButton(if (move.isRest) "أكمل" else "أنهيت الحركة", {
                     if (idx < r.moves.lastIndex) { idx += 1; left = r.moves[idx].seconds } else finished = true
                 }, Modifier.weight(1f), style = BtnStyle.GOLD)
             }
@@ -452,15 +456,15 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
             ) {
-                LivingOrb(110.dp, Modifier.burstFrom(finPoint), kick = kick)
+                Moon(110.dp, Modifier.burstFrom(finPoint), phase = 1f, kick = kick)
                 Text("أنهيت تمرينك!", style = Type.h1.copy(color = c.ink))
-                Text("كل مرة تتمرن قوة، تحمي عضلك وتخلي النزول من الدهون مو من العضل.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
+                Text("كل تمرين قوة يحمي عضلاتك، ويجعل ما تخسره من الدهون لا من العضل.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Stat(ar(minutes), "دقيقة", Modifier.weight(1f))
                     Stat(ar(reps), "عدّة", Modifier.weight(1f))
                     Stat(ar(kcal), "سعرة تقريباً", Modifier.weight(1f))
                 }
-                SButton("سجّلها وارجع ليومي", { store.logWorkout(r.id); nav.popBackStack() }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
+                SButton("سجّلها وعد ليومي", { store.logWorkout(r.id); nav.popBackStack() }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
             }
         }
     }

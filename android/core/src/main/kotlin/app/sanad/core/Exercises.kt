@@ -169,19 +169,19 @@ private val STEP_SIDE = STAND.with(Joint.KNEE_N to (56 to 73), Joint.FOOT_N to (
 
 val EXERCISES: List<Exercise> = listOf(
     Exercise(
-        "squat", "سكوات", "القدمين بعرض الكتفين، الورك للخلف كأنك بتجلس، صدرك مرفوع.",
+        "squat", "سكوات", "القدمان بعرض الكتفين، الورك إلى الخلف كأنك ستجلس، وصدرك مرفوع.",
         listOf(Muscle.QUADS, Muscle.GLUTES, Muscle.CORE),
-        listOf("الركب تدخل للداخل", "الكعب يرتفع عن الأرض", "انحناء الظهر"),
+        listOf("الركبتان تدخلان إلى الداخل", "الكعب يرتفع عن الأرض", "انحناء الظهر"),
         "chair-squat", "lunge", true, Prop.NONE, listOf(STAND_ARMS_FWD, SQUAT_LOW), 1300,
     ),
     Exercise(
         "chair-squat", "سكوات للكرسي", "انزل ببطء حتى تلمس الكرسي بخفة، ثم قم بقوة.",
         listOf(Muscle.QUADS, Muscle.GLUTES),
-        listOf("تطيح على الكرسي بثقلك", "تستند على يديك"),
+        listOf("تسقط على الكرسي بثقلك", "تستند على يديك"),
         "sit-stand", "squat", true, Prop.CHAIR, listOf(STAND_ARMS_FWD, SQUAT_LOW), 1500,
     ),
     Exercise(
-        "sit-stand", "وقوف وجلوس", "من الكرسي، قم بدون ما تستند إن قدرت، واجلس ببطء.",
+        "sit-stand", "وقوف وجلوس", "من الكرسي، قم دون أن تستند إن استطعت، واجلس ببطء.",
         listOf(Muscle.QUADS, Muscle.GLUTES),
         listOf("الاندفاع للأمام بسرعة"),
         null, "chair-squat", true, Prop.CHAIR, listOf(SEATED, STAND_ARMS_FWD), 1600,
@@ -189,7 +189,7 @@ val EXERCISES: List<Exercise> = listOf(
     Exercise(
         "pushup", "ضغط", "جسمك خط مستقيم من الرأس للكعب، انزل بصدرك قريب من الأرض.",
         listOf(Muscle.CHEST, Muscle.ARMS, Muscle.CORE),
-        listOf("الورك نازل أو مرفوع", "الكوع مفتوح للجنب بزاوية ٩٠°"),
+        listOf("الورك منخفض أو مرتفع", "المرفق مفتوح إلى الجانب بزاوية ٩٠°"),
         "wall-pushup", null, true, Prop.MAT, listOf(PUSH_TOP, PUSH_LOW), 1300,
     ),
     Exercise(
@@ -199,15 +199,15 @@ val EXERCISES: List<Exercise> = listOf(
         null, "pushup", true, Prop.WALL, listOf(WALL_TOP, WALL_LOW), 1300,
     ),
     Exercise(
-        "lunge", "طعنة خلفية", "خطوة للخلف، الركبة الخلفية قرب الأرض، وارجع.",
+        "lunge", "طعنة خلفية", "خطوة إلى الخلف، الركبة الخلفية قرب الأرض، ثم عُد.",
         listOf(Muscle.QUADS, Muscle.GLUTES, Muscle.HAMSTRINGS),
-        listOf("الركبة الأمامية تتعدى الأصابع كثير", "الجذع يطيح للأمام"),
+        listOf("الركبة الأمامية تتجاوز الأصابع كثيراً", "الجذع يميل إلى الأمام"),
         "squat", null, false, Prop.NONE, listOf(STAND, LUNGE_LOW), 1400,
     ),
     Exercise(
-        "plank", "بلانك", "على ساعديك، خط مستقيم من الرأس للكعب، شد بطنك وتنفس.",
+        "plank", "بلانك", "على ساعديك، خط مستقيم من الرأس إلى الكعب، شدّ بطنك وتنفّس.",
         listOf(Muscle.CORE, Muscle.SHOULDERS),
-        listOf("الورك نازل", "حبس النفس"),
+        listOf("الورك منخفض", "حبس النفس"),
         null, null, true, Prop.MAT, listOf(PLANK, PLANK.with(Joint.HIP to (44 to 71), Joint.MID to (58 to 68))), 1800,
     ),
     Exercise(
@@ -217,13 +217,13 @@ val EXERCISES: List<Exercise> = listOf(
         null, null, true, Prop.MAT, listOf(BRIDGE_DOWN, BRIDGE_UP), 1400,
     ),
     Exercise(
-        "march", "مشي بمكانك", "ارفع ركبك بالتناوب وحرّك ذراعيك.",
+        "march", "مشي في المكان", "ارفع ركبك بالتناوب وحرّك ذراعيك.",
         listOf(Muscle.HEART, Muscle.QUADS),
         listOf("الانحناء للخلف"),
         null, null, true, Prop.NONE, listOf(MARCH_A, STAND, MARCH_B, STAND), 380,
     ),
     Exercise(
-        "walk", "مشي", "إيقاع تقدر تتكلم فيه لكن ما تقدر تغني.",
+        "walk", "مشي", "إيقاع تستطيع أن تتكلم فيه لكن لا تستطيع أن تغني.",
         listOf(Muscle.HEART, Muscle.CALVES),
         emptyList(),
         null, null, true, Prop.NONE, listOf(WALK_A, WALK_B), 520,
@@ -237,17 +237,17 @@ val EXERCISES: List<Exercise> = listOf(
     Exercise(
         "punches", "لكمات هوائية", "بطنك مشدود، بدّل اليدين بسرعة.",
         listOf(Muscle.HEART, Muscle.SHOULDERS, Muscle.CORE),
-        listOf("قفل الكوع بعنف"),
+        listOf("قفل المرفق بعنف"),
         null, null, true, Prop.NONE, listOf(PUNCH_N, GUARD, PUNCH_F, GUARD), 260,
     ),
     Exercise(
-        "seated-knee", "رفع الركبة جالساً", "ظهرك مستقيم، ارفع ركبة وحدة بالتناوب.",
+        "seated-knee", "رفع الركبة جالساً", "ظهرك مستقيم، ارفع ركبة واحدة بالتناوب.",
         listOf(Muscle.CORE, Muscle.QUADS),
         listOf("الاستناد للخلف"),
         null, "march", true, Prop.CHAIR, listOf(SEATED, SEATED_KNEE), 700,
     ),
     Exercise(
-        "shoulder-roll", "دوران الكتفين", "ارفع كتفيك للأذن وارجعها للخلف ببطء.",
+        "shoulder-roll", "دوران الكتفين", "ارفع كتفيك نحو أذنيك وأعدهما إلى الخلف ببطء.",
         listOf(Muscle.SHOULDERS, Muscle.MOBILITY),
         emptyList(),
         null, null, true, Prop.CHAIR, listOf(SEATED, SEATED_SHRUG), 900,
@@ -265,13 +265,13 @@ val EXERCISES: List<Exercise> = listOf(
         null, null, true, Prop.MAT, listOf(CHILD, CHILD.with(Joint.HAND_N to (96 to 90), Joint.HAND_F to (95 to 91))), 2200,
     ),
     Exercise(
-        "hamstring-stretch", "إطالة الفخذ الخلفي", "مِل للأمام بظهر مستقيم حتى تحس بشد لطيف.",
+        "hamstring-stretch", "إطالة الفخذ الخلفي", "مِل إلى الأمام بظهر مستقيم حتى تشعر بشدّ لطيف.",
         listOf(Muscle.HAMSTRINGS, Muscle.MOBILITY),
         listOf("تقويس الظهر للوصول أبعد"),
         null, null, true, Prop.NONE, listOf(STAND, HINGE), 2000,
     ),
     Exercise(
-        "breathe", "تنفّس ٤-٦", "شهيق ٤ ثوانٍ مع رفع الذراعين، زفير ٦ ثوانٍ وأنت تنزلهم.",
+        "breathe", "تنفّس ٤-٦", "شهيق ٤ ثوانٍ مع رفع الذراعين، وزفير ٦ ثوانٍ وأنت تنزلهما.",
         listOf(Muscle.MOBILITY),
         emptyList(),
         null, null, true, Prop.NONE, listOf(STAND, ARMS_UP), 4000,
@@ -304,25 +304,25 @@ private fun rest(s: Int) = Move(null, s)
 val ROUTINES: List<Routine> = listOf(
     Routine(
         "reset-2", "إعادة شحن", 2, 1, "وأنت جالس",
-        "لأيام التعب: تحريك الدورة الدموية بدون إجهاد. يحسب لك يوم كامل في السلسلة.",
+        "لأيام التعب: تحريك الدورة الدموية بلا إجهاد. يُحسب لك ليلة كاملة في قمرك.",
         listOf(Move("shoulder-roll", 30), Move("seated-knee", 40), Move("sit-stand", 50)),
     ),
     Routine(
-        "wake-2", "صحصحة دقيقتين", 2, 2, "بين الاجتماعات",
+        "wake-2", "تنشيط دقيقتين", 2, 2, "بين الاجتماعات",
         "دفعة قصيرة ترفع النبض وتكسر الجلوس الطويل.",
         listOf(Move("chair-squat", 40), Move("wall-pushup", 40), Move("march", 40)),
     ),
     Routine(
-        "night-5", "قبل النوم ٥", 5, 1, "يهدّي الجوع",
+        "night-5", "قبل النوم ٥", 5, 1, "يهدّئ الجوع",
         "حركة لطيفة وتنفّس تقلل رغبة الأكل الليلي وتحسّن النوم.",
-        listOf(Move("breathe", 60), Move("cat-cow", 60), Move("child-pose", 60), Move("glute-bridge", 60, "ارفع وانزل مع النفس."), Move("breathe", 60, "وخلاص — المطبخ مسكّر.")),
+        listOf(Move("breathe", 60), Move("cat-cow", 60), Move("child-pose", 60), Move("glute-bridge", 60, "ارفع وانزل مع النفس."), Move("breathe", 60, "وانتهينا، المطبخ مغلق.")),
     ),
     Routine(
-        "low-impact-10", "١٠ دقائق بدون قفز", 10, 2, "مناسب للركب",
-        "حرق وقوة بدون ضغط على المفاصل — مثالي مع الوزن الزائد.",
+        "low-impact-10", "١٠ دقائق بلا قفز", 10, 2, "لطيف على الركبتين",
+        "حرق وقوة بلا ضغط على المفاصل، مثالي مع الوزن الزائد.",
         listOf(
             Move("march", 60, "إحماء: تنفّس براحة."), Move("chair-squat", 45), rest(15), Move("wall-pushup", 45), rest(15),
-            Move("step-touch", 60), Move("glute-bridge", 45), rest(15), Move("punches", 45), Move("chair-squat", 45, "الجولة الثانية — أبطأ وأدق."),
+            Move("step-touch", 60), Move("glute-bridge", 45), rest(15), Move("punches", 45), Move("chair-squat", 45, "الجولة الثانية: أبطأ وأدق."),
             rest(15), Move("wall-pushup", 45), rest(15), Move("glute-bridge", 45), Move("march", 60, "تهدئة."), Move("hamstring-stretch", 45),
         ),
     ),
@@ -342,11 +342,11 @@ val ROUTINES: List<Routine> = listOf(
             (1..3).flatMap {
                 listOf(Move("squat", 45), rest(15), Move("pushup", 40), rest(20), Move("lunge", 45), rest(15), Move("plank", 30), rest(30))
             } +
-            listOf(Move("walk", 300, "حافظ على إيقاع تقدر تتكلم فيه."), Move("hamstring-stretch", 60)),
+            listOf(Move("walk", 300, "حافظ على إيقاع تستطيع أن تتكلم فيه."), Move("hamstring-stretch", 60)),
     ),
     Routine(
         "walk-20", "مشي ٢٠ دقيقة", 20, 2, "بعد الأكل أفضل",
-        "المشي بعد الوجبة يخفّض ارتفاع السكر ويرفع حرقك اليومي بدون إرهاق.",
+        "المشي بعد الوجبة يخفّض ارتفاع السكر ويرفع حرقك اليومي بلا إرهاق.",
         listOf(Move("walk", 180, "إحماء بإيقاع هادئ."), Move("walk", 840, "أسرع شوي: تتكلم لكن ما تغني."), Move("walk", 180, "تهدئة.")),
     ),
 )

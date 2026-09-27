@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# يثبّت نسخة المطوّر على المحاكي ويلتقط كل الشاشات (فاتح + داكن).
+# يثبّت نسخة المطوّر على المحاكي ويلتقط كل الشاشات.
 set -euo pipefail
 APK="$1"; OUT="$2"
 mkdir -p "$OUT"
@@ -87,15 +87,15 @@ scroll_shot 18-progress-bottom
 # ---------------- تدقيق الإضافات (كل ميزة لازم تبين بلقطة) ----------------
 shot 40-welcome-back 8 --ez skipIntro true --ez away true
 shot 41-radar-tired 8 --ez demo true --ez skipIntro true --es checkin LOW --es sleep 5
-scroll_to "صار شي اليوم؟" 42-lapse-card
-tap_text "زلّيت"; cap 43-lapse-open 2
-tap_text "أكلت هواية"; cap 44-lapse-recovery 2
-scroll_to "سجّلها وكمّل يومي" 44b-lapse-recovery-steps
-tap_text "سجّلها وكمّل يومي"; cap 45-lapse-logged 2
+scroll_to "حدث شيء اليوم؟" 42-lapse-card
+tap_text "تعثّرت"; cap 43-lapse-open 2
+tap_text "أكلت كثيراً"; cap 44-lapse-recovery 2
+scroll_to "سجّلها وأكمل يومي" 44b-lapse-recovery-steps
+tap_text "سجّلها وأكمل يومي"; cap 45-lapse-logged 2
 
 shot 46-today-lesson 8 --ez demo true --ez skipIntro true --es checkin MID
-scroll_to "قريته، أجرّبها اليوم" 47-lesson-card
-tap_text "قريته، أجرّبها اليوم"; cap 48-lesson-read 2
+scroll_to "قرأته، سأجرّبه اليوم" 47-lesson-card
+tap_text "قرأته، سأجرّبه اليوم"; cap 48-lesson-read 2
 
 shot 49-progress-audit 8 --ez demo true --ez skipIntro true --es route progress
 scroll_to "طقس الميزان" 50-weigh-in-weather
@@ -105,8 +105,8 @@ shot 53-today-glp1-plan 8 --ez skipIntro true
 scroll_to "البروتين أول لقمة" 54-today-glp1-missions
 
 shot 55-progress-partner 8 --ez demo true --ez skipIntro true --ez partner true --es route progress
-scroll_to "ارسل تقرير الأسبوع" 56-partner-set
-tap_text "ارسل تقرير الأسبوع لـحسن"; cap 57-partner-share-sheet 3
+scroll_to "أرسل تقرير الأسبوع" 56-partner-set
+tap_text "أرسل تقرير الأسبوع إلى حسن"; cap 57-partner-share-sheet 3
 adb shell input keyevent KEYCODE_BACK; sleep 1
 
 shot 58-goal-reached 8 --ez skipIntro true --ez reached true --es route progress
@@ -123,12 +123,13 @@ adb shell cmd statusbar collapse
 echo "AUDIT alarms:"; adb shell dumpsys alarm | grep -A2 "app.sanad.coach" | head -12 || true
 echo "AUDIT step sensor:"; adb shell dumpsys sensorservice | grep -i "step" | head -5 || true
 
-adb shell cmd uimode night yes
-shot 20-dark-today 7 --ez demo true --ez skipIntro true --es checkin MID
-shot 21-dark-move 7 --ez skipIntro true --es route move
-shot 22-dark-player 8 --ez skipIntro true --es route player/low-impact-10
-shot 23-dark-progress 7 --ez skipIntro true --es route progress
-adb shell cmd uimode night no
+# زر «سجّل» بالنص: لوحة التسجيل
+shot 20-log-sheet 7 --ez demo true --ez skipIntro true --es checkin MID
+tap_text "سجّل أكلاً أو وزناً أو حركة"; cap 21-log-sheet-open 2
+adb shell input keyevent KEYCODE_BACK; sleep 1
+# التعريف: الأقسام المسمّاة
+shot 22-onboarding-step1 4 --ez fresh true --ez skipIntro true
+tap_text "لنبدأ — ٣ دقائق"; cap 23-onboarding-basics 2
 
 # وضع رمضان (آخر شي لأنه يبقى مفعّل)
 shot 30-ramadan-today 7 --ez demo true --ez skipIntro true --es checkin HIGH --ez ramadan true

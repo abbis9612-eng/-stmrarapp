@@ -181,14 +181,14 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     val proteinMeal = roundTo(t.protein / 3.0, 5)
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(
-            "move", MissionKind.MOVE, "دقيقتين حركة فقط",
-            "٣ تمارين هادئة وأنت بمكانك. الهدف تحافظ على السلسلة، مو تتعب.",
+            "move", MissionKind.MOVE, "دقيقتان من الحركة فقط",
+            "٣ تمارين هادئة وأنت في مكانك. الهدف أن تحفظ قمرك، لا أن تتعب.",
             if (energy == Energy.LOW) "reset-2" else "wake-2",
         )
         time == TimeBudget.TEN -> Mission(
             "move", MissionKind.MOVE,
-            if (energy == Energy.HIGH) "١٠ دقائق قوة للجسم كامل" else "١٠ دقائق حركة بدون قفز",
-            "تمارين بوزن الجسم تحمي عضلاتك وأنت تنزل وزن.",
+            if (energy == Energy.HIGH) "١٠ دقائق قوة للجسم كله" else "١٠ دقائق حركة بلا قفز",
+            "تمارين بوزن الجسم تحمي عضلاتك وأنت تخسر الوزن.",
             if (energy == Energy.HIGH) "strength-10" else "low-impact-10",
         )
         else -> Mission(
@@ -200,22 +200,22 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     }
     if (p.glp1) return glp1Missions(energy, time, t)
     val eat = if (energy == Energy.LOW) Mission(
-        "eat", MissionKind.EAT, "ابدأ وجبتك الجاية بالبروتين",
-        "حوالي ${ar(proteinMeal)} غ (بيض، زبادي، دجاج، تونة). التعب يرفع الجوع — البروتين يهدّيه.",
+        "eat", MissionKind.EAT, "ابدأ وجبتك القادمة بالبروتين",
+        "نحو ${ar(proteinMeal)} غ (بيض، زبادي، دجاج، تونة). التعب يرفع الجوع والبروتين يهدّئه.",
     ) else Mission(
-        "eat", MissionKind.EAT, "سجّل وجباتك — ولو بجملة",
-        "قل لسند \"تغديت كبسة دجاج\" ويحسبها. هدفك ${ar(t.protein)} غ بروتين اليوم.",
+        "eat", MissionKind.EAT, "سجّل وجباتك، ولو بجملة",
+        "صوّر صحنك أو قل لسند \"تغدّيت كبسة دجاج\" ويحسبها. هدفك ${ar(t.protein)} غ بروتين اليوم.",
     )
     val restore = when {
-        energy == Energy.LOW -> Mission("restore", MissionKind.RESTORE, "نوم أبكر بنص ساعة", "قلة النوم ترفع هرمون الجوع وتضعف الإرادة. الليلة استثمار.")
-        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يسكّر الساعة ٩", "بعدها شاي أو ماء فقط. خطتك لو جاك جوع الليل جاهزة عند المدرب.")
+        energy == Energy.LOW -> Mission("restore", MissionKind.RESTORE, "نم أبكر بنصف ساعة", "قلة النوم ترفع هرمون الجوع وتضعف الإرادة. الليلة استثمار.")
+        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يُغلق الساعة ٩", "بعدها شاي أو ماء فقط. خطتك لجوع الليل جاهزة عند سند.")
         else -> Mission("restore", MissionKind.RESTORE, "٨ أكواب ماء", "ابدأ بكوب قبل كل وجبة؛ يساعد على الشبع.")
     }
     return listOf(move, eat, restore)
 }
 
 val ENERGY_COPY = mapOf(
-    Energy.LOW to ("طاقتي تحت" to "عادي. اليوم نحافظ على السلسلة بأصغر خطوة ممكنة."),
-    Energy.MID to ("نص نص" to "يوم متوازن: خطوات ثابتة بدون ضغط."),
-    Energy.HIGH to ("فل طاقة" to "استغلها! اليوم نبني عضل ونسبق الخطة."),
+    Energy.LOW to ("متعب" to "لا بأس. اليوم نحفظ قمرك بأصغر خطوة ممكنة."),
+    Energy.MID to ("عادي" to "يوم متوازن: خطوات ثابتة بلا ضغط."),
+    Energy.HIGH to ("نشيط" to "استغلها! اليوم نبني العضل ونسبق الخطة."),
 )

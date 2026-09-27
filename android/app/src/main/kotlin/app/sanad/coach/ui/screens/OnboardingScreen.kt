@@ -52,7 +52,8 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.NightCard
-import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.HandNote
 import app.sanad.coach.ui.components.Wordmark
 import app.sanad.coach.ui.components.glass
 import app.sanad.coach.ui.components.Note
@@ -81,22 +82,22 @@ import java.time.LocalDate
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-private val WHY = listOf("أتحرك بخفة مع عيالي", "صحتي وتحاليلي", "ثقتي بنفسي", "ألبس اللي أحبه", "طاقة أكثر بالدوام", "مناسبة قريبة")
+private val WHY = listOf("أتحرك بخفة مع أطفالي", "صحتي وتحاليلي", "ثقتي بنفسي", "ألبس ما أحب", "طاقة أكثر في العمل", "مناسبة قريبة")
 private val BARRIERS = listOf(
-    Barrier.TIME to "ما عندي وقت", Barrier.ENERGY to "طاقتي دايماً تحت", Barrier.NIGHT to "أكل الليل",
-    Barrier.SOCIAL to "العزايم والطلعات", Barrier.STRESS to "آكل لما أتضايق", Barrier.SWEETS to "الحلا والسكريات",
+    Barrier.TIME to "ليس عندي وقت", Barrier.ENERGY to "طاقتي منخفضة دائماً", Barrier.NIGHT to "أكل الليل",
+    Barrier.SOCIAL to "العزائم والخروجات", Barrier.STRESS to "آكل عندما أتضايق", Barrier.SWEETS to "الحلويات والسكريات",
 )
 private val FLAGS = listOf(
-    SafetyFlag.DIABETES_MEDS to "آخذ أدوية سكري", SafetyFlag.GLP1 to "آخذ إبر تنحيف (GLP-1)", SafetyFlag.HEART to "قلب أو ضغط غير منضبط",
-    SafetyFlag.PREGNANT to "حامل أو مرضع", SafetyFlag.EATING_DISORDER to "عندي تاريخ اضطراب أكل",
+    SafetyFlag.DIABETES_MEDS to "آخذ أدوية للسكري", SafetyFlag.GLP1 to "آخذ إبر تنحيف (GLP-1)", SafetyFlag.HEART to "قلب أو ضغط غير منضبط",
+    SafetyFlag.PREGNANT to "حامل أو مرضع", SafetyFlag.EATING_DISORDER to "لدي تاريخ مع اضطراب الأكل",
 )
 private val STARTER_RULES = mapOf(
-    Barrier.TIME to ("إذا ما عندي وقت" to "أسوي تمرين الدقيقتين وأسجل وجبة وحدة بس"),
-    Barrier.ENERGY to ("إذا صحيت تعبان" to "أختار طاقة منخفضة وأكتفي بخطة الحد الأدنى"),
-    Barrier.NIGHT to ("إذا جاني جوع بعد الساعة ٩" to "أشرب شاي أو ماء، وإذا استمر آكل زبادي يوناني"),
-    Barrier.SOCIAL to ("إذا عندي عزيمة" to "آكل بروتين خفيف قبلها وآخذ صحن واحد"),
-    Barrier.STRESS to ("إذا تضايقت وجاني اشتهاء" to "أمشي ٥ دقائق أو أكلم سند قبل ما آكل"),
-    Barrier.SWEETS to ("إذا اشتهيت حلا" to "آخذ قطعة صغيرة بعد وجبة فيها بروتين وأسجلها"),
+    Barrier.TIME to ("إذا لم يكن عندي وقت" to "أتمرن دقيقتين فقط وأسجّل وجبة واحدة"),
+    Barrier.ENERGY to ("إذا استيقظت متعباً" to "أختار طاقة منخفضة وأكتفي بخطة الحد الأدنى"),
+    Barrier.NIGHT to ("إذا جعت بعد الساعة ٩" to "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
+    Barrier.SOCIAL to ("إذا كانت عندي عزيمة" to "آكل بروتيناً خفيفاً قبلها وآخذ صحناً واحداً"),
+    Barrier.STRESS to ("إذا تضايقت واشتهيت الأكل" to "أمشي ٥ دقائق أو أكلّم سند قبل أن آكل"),
+    Barrier.SWEETS to ("إذا اشتهيت الحلو" to "آخذ قطعة صغيرة بعد وجبة فيها بروتين وأسجّلها"),
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -139,12 +140,20 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
     Column(Modifier.fillMaxSize().imePadding().padding(top = top).navigationBarsPadding()) {
         if (step > 0) {
             Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).clip(CircleShape).background(c.surface2).press({ step-- }), contentAlignment = Alignment.Center) {
-                    SIcon(Ico.BACK, description = "رجوع")
-                }
+                Box(
+                    Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ step-- }),
+                    contentAlignment = Alignment.Center,
+                ) { SIcon(Ico.BACK, description = "رجوع") }
                 Spacer(Modifier.width(12.dp))
+                // شريط بأقسام مسمّاة: المستخدم يعرف وين هو وكم باقي
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(5) { i -> Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(if (i < step) c.sadu else c.line)) }
+                    SECTIONS.forEachIndexed { i, label ->
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(Modifier.fillMaxWidth().height(5.dp).clip(CircleShape).background(if (i < step) c.primary else c.line))
+                            Spacer(Modifier.height(4.dp))
+                            Text(label, style = Type.label.copy(fontSize = 11.sp, color = if (i == step - 1) c.ink else c.faint))
+                        }
+                    }
                 }
             }
         }
@@ -160,9 +169,9 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                 when (s) {
                     0 -> Welcome()
                     1 -> {
-                        Text("نتعرف عليك", style = Type.h1.copy(color = c.ink))
-                        SField(name, { name = it }, "شنو نناديك؟", Modifier.fillMaxWidth())
-                        Text("الجنس (يأثر على حساب الحرق)", style = Type.small.copy(color = c.inkSoft))
+                        Text("لنتعرّف عليك", style = Type.h1.copy(color = c.ink))
+                        SField(name, { name = it }, "بماذا نناديك؟", Modifier.fillMaxWidth())
+                        Text("الجنس (يؤثر في حساب الحرق)", style = Type.small.copy(color = c.inkSoft))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             SChip("ذكر", sex == Sex.M, { sex = Sex.M }); SChip("أنثى", sex == Sex.F, { sex = Sex.F })
                         }
@@ -174,67 +183,65 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                         if (w > 0 && h > 0) Text("مؤشر كتلة الجسم: ${ar(bmi(w, h))}", style = Type.small.copy(color = c.inkSoft))
                     }
                     2 -> {
-                        Text("وين تبي توصل؟", style = Type.h1.copy(color = c.ink))
+                        Text("إلى أين تريد أن تصل؟", style = Type.h1.copy(color = c.ink))
                         Note("نزول ٥–١٠٪ من وزنك يحسّن السكر والضغط والمفاصل بوضوح. أول محطة مقترحة: ${ar(milestone)} كغ.")
                         NumBox("الوزن المستهدف", goal, { goal = it }, "كغ", Modifier.fillMaxWidth())
-                        if (goal.isBlank()) SButton("خذ المحطة المقترحة", { goal = milestone.toInt().toString() }, style = BtnStyle.SOFT, small = true)
-                        else if (!goalOk) Note(if (g >= w) "الهدف لازم يكون أقل من وزنك الحالي." else "أقل وزن صحي لطولك تقريباً ${ar(minGoal)} كغ.", alert = true)
+                        if (goal.isBlank()) SButton("اعتمد المحطة المقترحة", { goal = milestone.toInt().toString() }, style = BtnStyle.SOFT, small = true)
+                        else if (!goalOk) Note(if (g >= w) "يجب أن يكون الهدف أقل من وزنك الحالي." else "أقل وزن صحي لطولك تقريباً ${ar(minGoal)} كغ.", alert = true)
                         Text("السرعة", style = Type.h3.copy(color = c.inkSoft))
-                        listOf(Pace.GENTLE to ("هادئة" to "أسهل للاستمرار، جوع أقل"), Pace.STEADY to ("ثابتة" to "التوازن الموصى به"), Pace.BRISK to ("أسرع" to "تحتاج التزام أعلى بالبروتين والقوة")).forEach { (pc, txt) ->
+                        listOf(Pace.GENTLE to ("هادئة" to "أسهل للاستمرار، جوع أقل"), Pace.STEADY to ("ثابتة" to "التوازن الموصى به"), Pace.BRISK to ("أسرع" to "تحتاج التزاماً أعلى بالبروتين وتمارين القوة")).forEach { (pc, txt) ->
                             val sel = pace == pc
                             Row(
-                                Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(if (sel) c.dateSoft else c.surface)
-                                    .border(1.5.dp, if (sel) c.date else c.line, RoundedCornerShape(18.dp)).press({ pace = pc }).padding(14.dp),
+                                Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(if (sel) c.primaryTint else c.surface)
+                                    .border(if (sel) 2.dp else 1.dp, if (sel) c.primary else c.line, RoundedCornerShape(18.dp)).press({ pace = pc }).padding(14.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Column(Modifier.weight(1f)) {
                                     Text(txt.first, style = Type.bodyStrong.copy(color = c.ink))
                                     Text(txt.second, style = Type.label.copy(color = c.inkSoft))
                                 }
-                                if (w > 0) Text("حوالي ${ar(pc.weeklyRate * w)} كغ/أسبوع", style = Type.label.copy(color = c.sadu))
+                                if (w > 0) Text("نحو ${ar(pc.weeklyRate * w)} كغ/أسبوع", style = Type.label.copy(color = c.primary))
                             }
                         }
                         Text("يومك العادي", style = Type.h3.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf(Activity.SEDENTARY to "جالس أغلب اليوم", Activity.LIGHT to "حركة خفيفة", Activity.MODERATE to "حركة متوسطة", Activity.ACTIVE to "نشيط").forEach { (ac, l) ->
+                            listOf(Activity.SEDENTARY to "جالس معظم اليوم", Activity.LIGHT to "حركة خفيفة", Activity.MODERATE to "حركة متوسطة", Activity.ACTIVE to "نشيط").forEach { (ac, l) ->
                                 SChip(l, activity == ac, { activity = ac })
                             }
                         }
                     }
                     3 -> {
-                        Text("ليش هالمرة غير؟", style = Type.h1.copy(color = c.ink))
-                        Text("السبب الشخصي هو اللي يرجعك لما يروح الحماس. سند بيذكّرك فيه بالأيام الصعبة.", style = Type.small.copy(color = c.inkSoft))
+                        Text("لماذا هذه المرة مختلفة؟", style = Type.h1.copy(color = c.ink))
+                        Text("سببك الشخصي هو ما يعيدك حين يذهب الحماس. سيذكّرك سند به في الأيام الصعبة.", style = Type.small.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             WHY.forEach { x -> SChip(x, why == x, { why = x }) }
                         }
-                        SField(if (why in WHY) "" else why, { why = it }, "أو اكتب سببك بكلامك…", Modifier.fillMaxWidth())
-                        Text("وش اللي يوقفك عادة؟", style = Type.h3.copy(color = c.inkSoft))
+                        SField(if (why in WHY) "" else why, { why = it }, "أو اكتب سببك بكلماتك…", Modifier.fillMaxWidth())
+                        Text("ما الذي يوقفك عادةً؟", style = Type.h3.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             BARRIERS.forEach { (b, l) -> SChip(l, b in barriers, { barriers = if (b in barriers) barriers - b else barriers + b }) }
                         }
-                        if (barriers.isNotEmpty()) Text("بنجهز لك خطة \"إذا… فأنا…\" لكل عائق — من أقوى أدوات تغيير السلوك.", style = Type.small.copy(color = c.palm))
+                        if (barriers.isNotEmpty()) Text("سنجهّز لك خطة «إذا… فإني…» لكل عائق، وهي من أقوى أدوات تغيير السلوك.", style = Type.small.copy(color = c.primary))
                     }
                     4 -> {
-                        Text("سلامتك أول", style = Type.h1.copy(color = c.ink))
-                        Text("اختر اللي ينطبق عليك (أو تجاوز). نعدّل الخطة على أساسه.", style = Type.small.copy(color = c.inkSoft))
+                        Text("سلامتك أولاً", style = Type.h1.copy(color = c.ink))
+                        Text("اختر ما ينطبق عليك (أو تجاوز). سنعدّل الخطة بناءً عليه.", style = Type.small.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             FLAGS.forEach { (f, l) -> SChip(l, f in flags, { flags = if (f in flags) flags - f else flags + f }) }
                         }
                         safety?.notes?.forEach { Note(it, alert = safety.block) }
                     }
                     else -> if (profile != null && targets != null) {
-                        Text("خطتك جاهزة، ${profile.name}", style = Type.h1.copy(color = c.ink))
+                        FirstCrescent()
+                        Text("خطتك جاهزة يا ${profile.name}", style = Type.h1.copy(color = c.ink))
                         if (safety?.block == true) safety.notes.forEach { Note(it, alert = true) } else {
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Stat(ar(targets.kcal), "سعرة يومياً", Modifier.weight(1f))
                                 Stat(ar(targets.protein), "غ بروتين", Modifier.weight(1f))
                                 Stat(ar(targets.steps), "خطوة", Modifier.weight(1f))
                             }
-                            Text("حرقك التقديري ${ar(targets.tdee)} سعرة. بعد أسبوعين من التسجيل، سند يتعلم حرقك الحقيقي ويعدّل الهدف تلقائياً." + if (targets.floorApplied) " ثبّتنا الهدف عند الحد الأدنى الآمن." else "", style = Type.small.copy(color = c.inkSoft))
-                            NightCard {
-                                Text("قاعدة سند الوحيدة", style = Type.h2.copy(color = c.ink))
-                                Text("كل صباح تقول طاقتك ووقتك، والخطة تصغر أو تكبر على قدّك. يوم التعب = دقيقتين. المهم ما يصير عندك يوم صفر مرتين ورا بعض.", style = Type.body.copy(color = c.onNightSoft))
-                            }
+                            Text("حرقك التقديري ${ar(targets.tdee)} سعرة. بعد أسبوعين من التسجيل يتعلّم سند حرقك الحقيقي ويعدّل الهدف تلقائياً." + if (targets.floorApplied) " ثبّتنا الهدف عند الحد الأدنى الآمن." else "", style = Type.small.copy(color = c.inkSoft))
+                            HandNote("قاعدة واحدة فقط: كل صباح أخبرني بطاقتك، فتصغر الخطة أو تكبر على قدرك. يوم التعب يكفيه دقيقتان. المهم ألّا يمرّ يومان فارغان متتاليان.")
                             if (profile.ifThens.isNotEmpty()) SCard {
                                 Text("خططك الجاهزة", style = Type.h3.copy(color = c.ink))
                                 profile.ifThens.forEach { r -> Text("${r.whenText} ← ${r.thenText}", style = Type.small.copy(color = c.ink)) }
@@ -248,10 +255,31 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
         }
         Box(Modifier.padding(16.dp)) {
             when (step) {
-                0 -> SButton("نبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
-                5 -> SButton("ابدأ يومي الأول", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
+                0 -> SButton("لنبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
+                5 -> SButton("ابدأ ليلتي الأولى", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
                 else -> SButton(if (step == 4) "اعرض خطتي" else "التالي", { step++ }, Modifier.fillMaxWidth(), enabled = canNext)
             }
+        }
+    }
+}
+
+private val SECTIONS = listOf("أنت", "هدفك", "عوائقك", "سلامتك", "قمرك")
+
+/** «هلالك الأول»: القمر يولد أمامك، وكل يوم تسجّله يضيف له ليلة. */
+@Composable
+private fun FirstCrescent() {
+    val c = Sanad.colors
+    val grow = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { grow.animateTo(0.08f, tween(1400, easing = FastOutSlowInEasing)) }
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.nightSky).padding(18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Moon(72.dp, phase = grow.value, night = true, description = "هلالك الأول")
+        Spacer(Modifier.width(16.dp))
+        Column(Modifier.weight(1f)) {
+            Text("هلالك الأول", style = Type.h2.copy(color = Color.White))
+            Text("كل يوم تسجّل فيه يضيف ليلة. بعد ٣٠ ليلة يكتمل بدرك.", style = Type.small.copy(color = Color(0xFFC9D3E0)))
         }
     }
 }
@@ -269,26 +297,25 @@ private fun NumBox(label: String, value: String, onChange: (String) -> Unit, uni
 @Composable
 private fun Welcome() {
     val c = Sanad.colors
-    val write = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { write.animateTo(1f, tween(1300, easing = FastOutSlowInEasing)) }
+    val grow = remember { Animatable(0.04f) }
+    LaunchedEffect(Unit) { grow.animateTo(0.3f, tween(1600, easing = FastOutSlowInEasing)) }
     Spacer(Modifier.height(12.dp))
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        LivingOrb(120.dp)
-        Spacer(Modifier.height(22.dp))
-        Wordmark(84.sp, reveal = write.value)
-        Spacer(Modifier.height(8.dp))
-        Text("مدرب تنحيف ذكي يمشي على قد طاقتك.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
+        Moon(110.dp, phase = grow.value)
+        Spacer(Modifier.height(14.dp))
+        Wordmark(72.sp)
+        Text("مدرّب تنحيف يمشي على قدر طاقتك.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
     }
     Spacer(Modifier.height(10.dp))
     listOf(
-        Triple(Ico.SPARK, "قول طاقتك، ناخذ خطة بحجمها", "يوم تعبان؟ دقيقتين تكفي. يوم نشيط؟ نبني عضل."),
-        Triple(Ico.COACH, "قول شنو أكلت بجملة", "«تغديت كبسة ولبن» وسند يحسبها لك."),
-        Triple(Ico.MOVE, "تمارين تشوفها تتحرك", "كل تمرين برسم متحرك، بدون أدوات، ولطيف على الركب."),
-        Triple(Ico.FLAME, "لا تفوّت يومين", "يوم واحد ما يكسر سلسلتك. نرجع بكرة بدون تأنيب."),
+        Triple(Ico.SPARK, "أخبرنا بطاقتك، فتأتي الخطة على قدرها", "متعب؟ دقيقتان تكفيان. نشيط؟ نبني العضل."),
+        Triple(Ico.CAMERA, "صوّر صحنك أو اكتبه بجملة", "«تغدّيت كبسة دجاج وزبادي» وسند يحسبها لك."),
+        Triple(Ico.MOVE, "تمارين تراها تتحرك", "كل تمرين برسم متحرك، بلا أدوات، ولطيف على الركبتين."),
+        Triple(Ico.FLAME, "كل يوم تسجّله يكبر قمرك", "يوم واحد فائت لا يطفئه. نعود غداً بلا لوم."),
     ).forEach { (icon, t, s) ->
-        Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(14.dp), verticalAlignment = Alignment.Top) {
-            Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(c.saffron.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-                SIcon(icon, size = 20.dp, tint = c.saffron)
+        Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(18.dp)).padding(14.dp), verticalAlignment = Alignment.Top) {
+            Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(c.primaryTint), contentAlignment = Alignment.Center) {
+                SIcon(icon, size = 20.dp, tint = c.primary)
             }
             Spacer(Modifier.width(12.dp))
             Column {
@@ -297,5 +324,5 @@ private fun Welcome() {
             }
         }
     }
-    Text("بياناتك تبقى على جهازك. سند مدرب سلوكي، مو بديل عن الطبيب.", style = Type.label.copy(color = c.faint), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Text("بياناتك تبقى على جهازك. سند مدرّب سلوكي، وليس بديلاً عن الطبيب.", style = Type.label.copy(color = c.faint), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }

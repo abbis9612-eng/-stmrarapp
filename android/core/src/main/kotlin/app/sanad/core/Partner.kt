@@ -11,12 +11,12 @@ fun partnerReport(p: Profile, r: WeeklyReview, streak: Int, showWeight: Boolean)
     appendLine("• حضر ${ar(r.activeDays)} من ٧ أيام")
     if (r.workouts > 0) appendLine("• تمرّن ${ar(r.workouts)} مرات (${ar(r.workoutMinutes)} دقيقة)")
     if (r.proteinDays > 0) appendLine("• وصل هدف البروتين ${ar(r.proteinDays)} أيام")
-    if (streak >= 2) appendLine("• سلسلة الاستمرار: ${ar(streak)} يوم")
+    if (streak >= 2) appendLine("• أيام متتالية: ${ar(streak)}")
     if (showWeight) r.trendChangeKg?.let { d ->
-        appendLine(if (d <= 0) "• الاتجاه نزل ${ar(-d)} كغ" else "• الاتجاه ثابت تقريباً هالأسبوع")
+        appendLine(if (d <= 0) "• الاتجاه نزل ${ar(-d)} كغ" else "• الاتجاه ثابت تقريباً هذا الأسبوع")
     }
     // إنجاز الأسبوع ممكن يذكر الوزن؛ إذا الوزن مخفي نعطي إنجاز الحضور بداله
-    val win = if (!showWeight && ("كغ" in r.win || "وزن" in r.win)) "رجع لخطته ${ar(r.activeDays)} أيام هالأسبوع" else r.win
+    val win = if (!showWeight && ("كغ" in r.win || "وزن" in r.win)) "عاد إلى خطته ${ar(r.activeDays)} أيام هذا الأسبوع" else r.win
     appendLine("إنجاز الأسبوع: $win")
-    append("شجّعه برسالة 💬 — التشجيع يفرق أكثر مما تتصور.")
+    append("شجّعه برسالة 💬 فالتشجيع يصنع فرقاً أكبر مما تتصور.")
 }

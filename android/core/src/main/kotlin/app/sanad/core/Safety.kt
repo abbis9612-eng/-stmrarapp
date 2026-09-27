@@ -8,7 +8,7 @@ fun assessSafety(age: Int, weightKg: Double, heightCm: Double, flags: List<Safet
     var block = false
     if (age < 18 || SafetyFlag.UNDER18 in flags) {
         block = true
-        notes += "لأقل من ١٨ سنة: الأفضل خطة يشرف عليها طبيب أو أخصائي تغذية، مو عجز سعرات."
+        notes += "لمن هم دون ١٨ سنة: الأفضل خطة يشرف عليها طبيب أو أخصائي تغذية، لا عجز في السعرات."
     }
     if (SafetyFlag.PREGNANT in flags) {
         block = true
@@ -22,8 +22,8 @@ fun assessSafety(age: Int, weightKg: Double, heightCm: Double, flags: List<Safet
         block = true
         notes += "وزنك ضمن الطبيعي أو أقل؛ التنحيف غير مناسب. ركّز على القوة واللياقة."
     }
-    if (SafetyFlag.DIABETES_MEDS in flags) notes += "أدوية السكري قد تحتاج تعديل مع تقليل الأكل — راجع طبيبك قبل البدء."
-    if (SafetyFlag.GLP1 in flags) notes += "مع إبر GLP-1: البروتين وتمارين المقاومة أهم شي لحماية عضلاتك — سند يرفع أولويتهم لك."
+    if (SafetyFlag.DIABETES_MEDS in flags) notes += "أدوية السكري قد تحتاج إلى تعديل مع تقليل الأكل، فراجع طبيبك قبل البدء."
+    if (SafetyFlag.GLP1 in flags) notes += "مع إبر GLP-1: البروتين وتمارين المقاومة أهم ما يحمي عضلاتك، وسند يرفع أولويتهما لك."
     if (SafetyFlag.HEART in flags) notes += "مع أمراض القلب أو الضغط غير المنضبط: خذ موافقة طبيبك على التمارين، وابدأ بالمشي."
     return SafetyResult(block, notes)
 }

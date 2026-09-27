@@ -74,7 +74,7 @@ fun PlateScreen(store: AppStore, nav: NavHostController) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    Modifier.size(44.dp).clip(CircleShape).background(c.glass2).press({ nav.popBackStack() }),
+                    Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(12.dp)).press({ nav.popBackStack() }),
                     contentAlignment = Alignment.Center,
                 ) { SIcon(Ico.BACK, size = 20.dp, description = "رجوع") }
                 Spacer(Modifier.width(12.dp))
@@ -86,7 +86,7 @@ fun PlateScreen(store: AppStore, nav: NavHostController) {
         }
         item {
             Column(
-                Modifier.fillMaxWidth().glass(RoundedCornerShape(30.dp), tint).padding(20.dp),
+                Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -98,31 +98,31 @@ fun PlateScreen(store: AppStore, nav: NavHostController) {
             }
         }
         item {
-            Column(Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                QuarterRow("خضار وسلطة", veg, 2, c.oasis) { veg = it; saved = false }
-                QuarterRow("بروتين", protein, 2, c.rose) { protein = it; saved = false }
-                QuarterRow("تمن / خبز / صمون", carbs, 3, c.saffron) { carbs = it; saved = false }
+            Column(Modifier.fillMaxWidth().glass(RoundedCornerShape(20.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                QuarterRow("خضار وسلطة", veg, 2, c.primary) { veg = it; saved = false }
+                QuarterRow("بروتين", protein, 2, c.violet) { protein = it; saved = false }
+                QuarterRow("أرز / خبز / معكرونة", carbs, 3, c.saffron) { carbs = it; saved = false }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Toggle("مقلي", fried, Modifier.weight(1f)) { fried = it; saved = false }
-                    Toggle("عصير / غازي", drink, Modifier.weight(1f)) { drink = it; saved = false }
+                    Toggle("عصير / مشروب غازي", drink, Modifier.weight(1f)) { drink = it; saved = false }
                 }
             }
         }
         item {
-            Column(Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), c.oasis).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("خطوتك الجاية", style = Type.label.copy(color = c.oasis))
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.primaryTint).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("خطوتك القادمة", style = Type.label.copy(color = c.primary))
                 Text(r.tips.first(), style = Type.body.copy(color = c.ink, fontWeight = FontWeight.Medium))
                 r.tips.drop(1).forEach { Text("• $it", style = Type.small.copy(color = c.inkSoft)) }
             }
         }
         item {
             if (!saved) SButton("سجّل الصحن", { store.logPlate(r.score); saved = true }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
-            else Text("انسجل. كل صحن مرتب خطوة.", style = Type.body.copy(color = c.oasis))
+            else Text("سُجّل. كل صحن متوازن خطوة.", style = Type.body.copy(color = c.oasis))
         }
     }
 }
 
-/** الصحن كدائرة بأرباع ملونة: خضار ثم بروتين ثم نشويات، والباقي فاضي. */
+/** الصحن بخط الحبر: أرباع ملونة مزاحة قليلاً عن الخط، والباقي فارغ. */
 @Composable
 private fun PlateDrawing(veg: Int, protein: Int, carbs: Int, modifier: Modifier) {
     val c = Sanad.colors
@@ -131,29 +131,32 @@ private fun PlateDrawing(veg: Int, protein: Int, carbs: Int, modifier: Modifier)
     val k by animateFloatAsState(carbs * 90f, tween(500), label = "k")
     Canvas(modifier) {
         val rim = 10.dp.toPx()
-        drawCircle(Color.White.copy(alpha = 0.10f))
-        drawCircle(Color.White.copy(alpha = 0.18f), style = Stroke(rim / 3))
+        drawCircle(c.surface2)
+        drawCircle(c.ink, radius = size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.8.dp.toPx()))
         val inset = rim
         val tl = Offset(inset, inset)
         val sz = Size(size.width - inset * 2, size.height - inset * 2)
         var start = -90f
-        listOf(v to c.oasis, p to c.rose, k to c.saffron).forEach { (sweep, col) ->
+        listOf(v to c.primary, p to c.violet, k to c.amber).forEach { (sweep, col) ->
             val s = sweep.coerceAtMost(360f - (start + 90f))
-            if (s > 0f) drawArc(col.copy(alpha = 0.85f), start, s, true, tl, sz)
+            if (s > 0f) {
+                drawArc(col.copy(alpha = 0.9f), start, s, true, tl + Offset(2.dp.toPx(), 2.dp.toPx()), sz)
+                drawArc(c.ink, start, s, true, tl, sz, style = Stroke(1.5.dp.toPx()))
+            }
             start += sweep
         }
         // خطوط الأرباع
         val cx = size.width / 2
         val cy = size.height / 2
-        drawLine(c.bg.copy(alpha = 0.6f), Offset(cx, inset), Offset(cx, size.height - inset), 3.dp.toPx())
-        drawLine(c.bg.copy(alpha = 0.6f), Offset(inset, cy), Offset(size.width - inset, cy), 3.dp.toPx())
+        drawLine(c.ink.copy(alpha = 0.25f), Offset(cx, inset), Offset(cx, size.height - inset), 1.dp.toPx())
+        drawLine(c.ink.copy(alpha = 0.25f), Offset(inset, cy), Offset(size.width - inset, cy), 1.dp.toPx())
     }
 }
 
 @Composable
 private fun QuarterRow(label: String, value: Int, max: Int, color: Color, onPick: (Int) -> Unit) {
     val c = Sanad.colors
-    val names = listOf("ماكو", "ربع", "نص", "ثلاث أرباع")
+    val names = listOf("لا شيء", "ربع", "نصف", "ثلاثة أرباع")
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(10.dp).clip(CircleShape).background(color))
@@ -164,9 +167,9 @@ private fun QuarterRow(label: String, value: Int, max: Int, color: Color, onPick
             (0..max).forEach { n ->
                 val sel = n == value
                 Box(
-                    Modifier.weight(1f).height(38.dp).clip(CircleShape)
-                        .background(if (sel) color.copy(alpha = 0.9f) else c.glassTop)
-                        .border(1.dp, if (sel) Color.Transparent else c.line, CircleShape)
+                    Modifier.weight(1f).height(40.dp).clip(RoundedCornerShape(10.dp))
+                        .background(if (sel) color else c.surface)
+                        .border(1.dp, if (sel) color else c.line, RoundedCornerShape(10.dp))
                         .press({ onPick(n) }),
                     contentAlignment = Alignment.Center,
                 ) { Text(names[n], style = Type.small.copy(color = if (sel) c.onGold else c.ink, fontWeight = FontWeight.Medium)) }
@@ -179,9 +182,9 @@ private fun QuarterRow(label: String, value: Int, max: Int, color: Color, onPick
 private fun Toggle(label: String, on: Boolean, modifier: Modifier, onChange: (Boolean) -> Unit) {
     val c = Sanad.colors
     Box(
-        modifier.height(40.dp).clip(CircleShape)
-            .background(if (on) c.rose.copy(alpha = 0.25f) else c.glassTop)
-            .border(1.dp, if (on) c.rose else c.line, CircleShape)
+        modifier.height(44.dp).clip(RoundedCornerShape(12.dp))
+            .background(if (on) Color(0xFFFBEAEA) else c.surface)
+            .border(if (on) 2.dp else 1.dp, if (on) c.rose else c.line, RoundedCornerShape(12.dp))
             .press({ onChange(!on) }),
         contentAlignment = Alignment.Center,
     ) { Text((if (on) "✓ " else "") + label, style = Type.small.copy(color = c.ink)) }

@@ -30,10 +30,10 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
             time = if (isToday) null else TimeBudget.entries[idx % 3],
             meals = if (isToday) listOf(MealEntry("t1", "بيض مسلوق", 155, 13, 0, MealSource.DB)) else listOf(
                 MealEntry("a$idx", "بيض مسلوق", 155, 13, 0, MealSource.DB),
-                MealEntry("b$idx", "تشريب دجاج", 650, 34, 0, MealSource.COACH),
+                MealEntry("b$idx", "مقلوبة دجاج", 650, 32, 0, MealSource.COACH),
                 MealEntry("c$idx", "زبادي يوناني", 100, 17, 0, MealSource.DB),
                 MealEntry("d$idx", "شيش طاووق", 330, 42, 0, MealSource.DB),
-                MealEntry("e$idx", "صمون", 270, 9, 0, MealSource.DB),
+                MealEntry("e$idx", "خبز عربي", 170, 6, 0, MealSource.DB),
             ),
             water = if (isToday) 3 else 6,
             steps = if (isToday) 4200 else 5200 + (idx * 377) % 3800,
@@ -45,11 +45,11 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
     return AppState(
         profile = Profile(
             name = "أبو فهد", sex = Sex.M, age = 38, heightCm = 174.0, startWeightKg = 96.0, goalWeightKg = 84.0,
-            activity = Activity.SEDENTARY, pace = Pace.STEADY, why = "أتحرك بخفة مع عيالي",
+            activity = Activity.SEDENTARY, pace = Pace.STEADY, why = "أتحرك بخفة مع أطفالي",
             barriers = listOf(Barrier.TIME, Barrier.NIGHT, Barrier.SOCIAL),
             ifThens = listOf(
-                IfThen("1", "إذا جاني جوع بعد الساعة ٩", "أشرب شاي أو ماء، وإذا استمر آكل زبادي يوناني"),
-                IfThen("2", "إذا عندي عزيمة", "آكل بروتين خفيف قبلها وآخذ صحن واحد"),
+                IfThen("1", "إذا جعت بعد الساعة ٩", "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
+                IfThen("2", "إذا كانت عندي عزيمة", "آكل بروتيناً خفيفاً قبلها وآخذ صحناً واحداً"),
             ),
             createdAt = today.minusDays(20).toString(),
         ),

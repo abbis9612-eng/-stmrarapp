@@ -58,7 +58,7 @@ class GuardianTest {
         assertEquals(WeighIn.Kind.JUMP, w.kind)
         assertEquals(1.1, w.rawDelta)
         assertTrue(w.causes.any { "رز" in it }, w.causes.toString())
-        assertTrue(w.headline.contains("ماي"))
+        assertTrue(w.headline.contains("ماء"))
         assertTrue((w.headline + w.body).none { it in '0'..'9' }, w.body)
     }
 

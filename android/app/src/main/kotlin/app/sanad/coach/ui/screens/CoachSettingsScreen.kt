@@ -63,12 +63,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 fun coachErrorText(e: Throwable): String = when ((e as? CoachException)?.code) {
-    "limit" -> "خلصت رسائل المدرب الذكي لهاليوم. باچر ترجع، وهسه المدرب المحلي وياك."
-    "auth" -> "المفتاح غير صحيح أو ما عنده صلاحية."
-    "busy" -> "المزوّد مشغول أو تعدّيت حد الاستخدام المجاني. جرّب بعد شوي."
-    "network" -> "ما قدرنا نوصل للمزوّد. تأكد من الإنترنت."
-    "bad_output" -> "المزوّد رجّع رد غير مفهوم. جرّب نموذج ثاني."
-    else -> "صار خطأ من المزوّد: ${e.message?.take(120) ?: "غير معروف"}"
+    "limit" -> "انتهت رسائل المدرب الذكي لهذا اليوم. تعود غداً، والمدرب المحلي معك الآن."
+    "auth" -> "المفتاح غير صحيح أو ليست له صلاحية."
+    "busy" -> "المزوّد مشغول أو تجاوزت حد الاستخدام المجاني. جرّب بعد قليل."
+    "network" -> "لم نستطع الوصول إلى المزوّد. تأكد من الإنترنت."
+    "bad_output" -> "أعاد المزوّد رداً غير مفهوم. جرّب نموذجاً آخر."
+    else -> "حدث خطأ من المزوّد: ${e.message?.take(120) ?: "غير معروف"}"
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -106,15 +106,15 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
         item {
             NightCard {
                 if (settings.cloudAvailable) {
-                    Text("المدرب الذكي شغّال", style = Type.h2.copy(color = c.ink))
-                    Text("سند السحابي مفعّل للكل بدون مفتاح ولا إعداد. إذا تحب تستعمل مفتاحك الخاص بدله، اختاره تحت (اختياري).", style = Type.small.copy(color = c.onNightSoft))
+                    Text("المدرب الذكي يعمل", style = Type.h2.copy(color = c.ink))
+                    Text("سند السحابي مفعّل للجميع بلا مفتاح ولا إعداد. إن أردت استعمال مفتاحك الخاص بدلاً منه، فاختره بالأسفل (اختياري).", style = Type.small.copy(color = c.inkSoft))
                 } else {
                     Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = c.ink))
-                    Text("اختر المزوّد، الصق مفتاح الـ API، واختبر. بدون مفتاح يشتغل المدرب المحلي.", style = Type.small.copy(color = c.onNightSoft))
+                    Text("اختر المزوّد، والصق مفتاح الـ API، واختبر. بلا مفتاح يعمل المدرب المحلي.", style = Type.small.copy(color = c.inkSoft))
                 }
                 if (current != null) {
                     Spacer(Modifier.height(8.dp))
-                    Text("الحالي: ${current!!.label}، ${current!!.model}" + if (current!!.hasKey) " ✓" else " (بدون مفتاح)", style = Type.label.copy(color = c.date))
+                    Text("الحالي: ${current!!.label}، ${current!!.model}" + if (current!!.hasKey) " ✓" else " (بلا مفتاح)", style = Type.label.copy(color = c.saffron))
                 }
             }
         }
@@ -141,9 +141,9 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
                     Modifier.fillMaxWidth().heightIn(min = 54.dp).clip(RoundedCornerShape(16.dp)).background(c.surface).border(1.5.dp, c.line, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    if (key.isEmpty()) Text(if (keyReady) "المفتاح محفوظ — الصق مفتاح جديد لتغييره" else "الصق المفتاح هنا", style = Type.body.copy(color = c.inkSoft))
+                    if (key.isEmpty()) Text(if (keyReady) "المفتاح محفوظ، الصق مفتاحاً جديداً لتغييره" else "الصق المفتاح هنا", style = Type.body.copy(color = c.inkSoft))
                     BasicTextField(
-                        key, { key = it }, singleLine = true, textStyle = Type.body.copy(color = c.ink), cursorBrush = SolidColor(c.sadu),
+                        key, { key = it }, singleLine = true, textStyle = Type.body.copy(color = c.ink), cursorBrush = SolidColor(c.primary),
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth().semantics { contentDescription = "مفتاح الـ API" },
@@ -164,7 +164,7 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
                         busy = true
                         scope.launch {
                             models = withContext(Dispatchers.IO) { runCatching { createCoach(cf).listModels() }.getOrDefault(emptyList()) }
-                            if (models.isEmpty()) status = false to "ما قدرنا نجيب القائمة؛ اكتب اسم النموذج يدوياً."
+                            if (models.isEmpty()) status = false to "لم نستطع جلب القائمة؛ اكتب اسم النموذج يدوياً."
                             busy = false
                         }
                     }, style = BtnStyle.SOFT, small = true, enabled = keyReady && !busy)
@@ -185,8 +185,8 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
                     busy = true; status = null
                     scope.launch {
                         status = withContext(Dispatchers.IO) {
-                            runCatching { createCoach(cf).reply(listOf(Turn(ChatRole.USER, "قل: جاهز. بكلمة وحدة.")), "test") }
-                                .fold({ true to "شغّال ✓ رد المدرب: ${it.text.take(80)}" }, { false to coachErrorText(it) })
+                            runCatching { createCoach(cf).reply(listOf(Turn(ChatRole.USER, "قل: جاهز. بكلمة واحدة.")), "test") }
+                                .fold({ true to "يعمل ✓ رد المدرب: ${it.text.take(80)}" }, { false to coachErrorText(it) })
                         }
                         busy = false
                     }
@@ -194,16 +194,16 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
                 SButton("احفظ", {
                     settings.save(preset, model, base, key.ifBlank { null })
                     key = ""
-                    status = true to "انحفظ. المدرب الذكي صار مفعّل."
+                    status = true to "حُفظ. المدرب الذكي مفعّل الآن."
                 }, Modifier.weight(1f), enabled = keyReady && model.isNotBlank() && (preset.kind == ProviderKind.CLAUDE || base.startsWith("https://")))
             }
         }
         if (current != null) item {
-            SButton("افصل المدرب الذكي", { settings.clear(); status = true to "رجعنا للمدرب المحلي." }, Modifier.fillMaxWidth(), style = BtnStyle.GHOST)
+            SButton("افصل المدرب الذكي", { settings.clear(); status = true to "عدنا إلى المدرب المحلي." }, Modifier.fillMaxWidth(), style = BtnStyle.GHOST)
         }
         item {
             Text(
-                "خصوصيتك: رسائلك وملخص يومك (السعرات، الوزن الاتجاهي، الطاقة) تُرسل للمزوّد اللي تختاره فقط، والمفتاح مشفّر داخل جهازك بـ Android Keystore.",
+                "خصوصيتك: رسائلك وملخص يومك (السعرات، الوزن الاتجاهي، الطاقة) تُرسل إلى المزوّد الذي تختاره فقط، والمفتاح مشفّر داخل جهازك بـ Android Keystore.",
                 style = Type.label.copy(color = c.inkSoft),
             )
         }

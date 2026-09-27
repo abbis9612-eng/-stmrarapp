@@ -87,7 +87,7 @@ import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.data.targets
 import app.sanad.coach.ui.Routes
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.LivingOrb
+import app.sanad.coach.ui.components.Moon
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.burstFrom
@@ -101,6 +101,7 @@ import app.sanad.core.ChatMessage
 import app.sanad.core.ChatRole
 import app.sanad.core.CoachAction
 import app.sanad.core.ar
+import app.sanad.core.skyOf
 import app.sanad.core.offlineReply
 import app.sanad.core.routineById
 import app.sanad.core.ai.Turn
@@ -111,12 +112,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val STARTERS = listOf("كيف كان أسبوعي؟", "تغديت كبسة دجاج ولبن", "عندي عزيمة الليلة", "تعبان اليوم", "ليش وزني ما نزل؟", "يجيني جوع بالليل")
+private val STARTERS = listOf("كيف كان أسبوعي؟", "تغدّيت كبسة دجاج وزبادي", "عندي عزومة الليلة", "أنا متعب اليوم", "لماذا لم ينزل وزني؟", "أجوع في الليل")
 
 @Composable
-fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: NavHostController, initialQuestion: String?) {
+fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: NavHostController, initialQuestion: String?, openCamera: Boolean = false) {
     val c = Sanad.colors
     val p = state.profile ?: return
+    val sky = skyOf(state.days, AppStore.today(), p.createdAt)
     var text by rememberSaveable { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var hint by remember { mutableStateOf<String?>(null) }
@@ -138,7 +140,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             val ai = settings.coach()
             if (photo != null && ai == null) {
                 delay(900)
-                store.pushChat(ChatRole.COACH, "حلو الصحن! عشان أتعرف على الأكل من الصورة وأحسب سعراته، فعّل المدرب الذكي من الإعدادات (Gemini مجاني). وإلى ذاك الوقت قول لي شنو بالصحن وأحسبه لك.", offline = true)
+                store.pushChat(ChatRole.COACH, "صحن جميل! لأتعرّف على الأكل من الصورة وأحسب سعراته، فعّل المدرب الذكي من الإعدادات. وإلى ذلك الحين أخبرني بما في الصحن وأحسبه لك.", offline = true)
             } else if (ai != null) {
                 val history = s.chat.takeLast(16).map { Turn(it.role, it.text) }
                 val ctx = coachContext(s, t, AppStore.today(), LocalTime.now().toString().take(5))
@@ -180,20 +182,25 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             val saved = withContext(Dispatchers.IO) {
                 runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() }?.let(store::saveMealPhoto) }.getOrNull()
             }
-            if (saved != null) send("صوّرت وجبتي", saved) else hint = "ما قدرت أفتح الصورة. جرّب صورة ثانية."
+            if (saved != null) send("صوّرت وجبتي", saved) else hint = "تعذّر فتح الصورة. جرّب صورة أخرى."
         }
     }
 
     LaunchedEffect(initialQuestion) { initialQuestion?.let { if (it.isNotBlank()) send(it) } }
+    // «صوّر صحنك» من زر التسجيل: نفتح اختيار الصورة مباشرة مرة وحدة
+    var cameraAsked by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(openCamera) {
+        if (openCamera && !cameraAsked) { cameraAsked = true; picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+    }
     LaunchedEffect(state.chat.size, busy) { if (state.chat.isNotEmpty()) list.animateScrollToItem(state.chat.size + 1) }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        // الرأس: الكرة الحيّة تتكلم لمن يرد سند
+        // الرأس: قمر سند يتمايل وهو يرد
         Row(
             Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = top + 14.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            LivingOrb(48.dp, speaking = busy)
+            Moon(48.dp, phase = sky.phase, speaking = busy)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("سند", style = Type.h2.copy(color = c.ink))
@@ -207,7 +214,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
                 }
             }
             Box(
-                Modifier.size(44.dp).clip(CircleShape).background(c.glass2).press({ nav.navigate(Routes.COACH_SETTINGS) }).semantics { contentDescription = "إعدادات المدرب الذكي" },
+                Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(c.surface2).press({ nav.navigate(Routes.COACH_SETTINGS) }).semantics { contentDescription = "إعدادات المدرب الذكي" },
                 contentAlignment = Alignment.Center,
             ) { SIcon(Ico.SETTINGS, size = 21.dp) }
         }
@@ -219,7 +226,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Bubble(ChatMessage("hello", ChatRole.COACH, "هلا ${p.name}! أنا سند. قول لي شنو أكلت وأحسبه لك، أو قول شلون طاقتك وأفصّل لك خطوة تناسبك.", 0), store, nav)
+                Bubble(ChatMessage("hello", ChatRole.COACH, "أهلاً ${p.name}! أنا سند. أخبرني بما أكلت وأحسبه لك، أو أخبرني عن طاقتك وأقترح عليك خطوة تناسبك.", 0), store, nav)
             }
             items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav, scanning = busy && m.image != null && m.id == state.chat.lastOrNull()?.id) }
             if (busy) item { Thinking() }
@@ -252,26 +259,26 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
         Row(
             Modifier
                 .navigationBarsPadding()
-                .padding(start = 14.dp, end = 14.dp, bottom = 96.dp)
+                .padding(start = 14.dp, end = 14.dp, bottom = 14.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(26.dp))
-                .background(Color(0xD9161A22))
+                .background(c.surface)
                 .border(1.dp, c.line, RoundedCornerShape(26.dp))
                 .padding(7.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(44.dp).clip(CircleShape).background(c.glass2)
+                Modifier.size(44.dp).clip(CircleShape).background(c.surface2)
                     .press({ picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) })
                     .semantics { contentDescription = "صوّر وجبتك" },
                 contentAlignment = Alignment.Center,
             ) { SIcon(Ico.CAMERA, size = 21.dp) }
             Box(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                if (text.isEmpty()) Text("قول لسند شنو أكلت أو شلونك…", style = Type.body.copy(color = c.faint))
+                if (text.isEmpty()) Text("أخبر سند بما أكلت أو كيف حالك…", style = Type.body.copy(color = c.faint))
                 BasicTextField(
                     text, { text = it },
                     textStyle = Type.body.copy(color = c.ink),
-                    cursorBrush = SolidColor(c.saffron),
+                    cursorBrush = SolidColor(c.primary),
                     maxLines = 4,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(onSend = { send(text) }),
@@ -281,7 +288,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             val typing = text.isNotBlank()
             AnimatedContent(typing, transitionSpec = { (scaleIn(spring(0.5f)) + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "send-mic") { t ->
                 Box(
-                    Modifier.size(44.dp).clip(CircleShape).background(Brush.linearGradient(listOf(c.saffron, c.ember)))
+                    Modifier.size(44.dp).clip(CircleShape).background(c.primary)
                         .press({ if (t) send(text) else listen() })
                         .semantics { contentDescription = if (t) "أرسل" else "تكلّم مع سند" },
                     contentAlignment = Alignment.Center,
@@ -323,7 +330,7 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scan
             Modifier
                 .widthIn(max = 320.dp)
                 .then(
-                    if (mine) Modifier.clip(shape).background(Brush.linearGradient(listOf(Color(0xFF2A3142), Color(0xFF232937))))
+                    if (mine) Modifier.clip(shape).background(c.primaryTint)
                     else Modifier.glass(shape),
                 )
                 .padding(horizontal = 15.dp, vertical = 12.dp),
@@ -348,7 +355,7 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scan
                             Modifier
                                 .burstFrom(point)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(if (done) c.oasis.copy(alpha = 0.15f) else c.ink)
+                                .background(if (done) c.oasis.copy(alpha = 0.12f) else c.primary)
                                 .press({
                                     if (a is CoachAction.StartWorkout) nav.navigate(Routes.player(a.routineId))
                                     else if (!done) { store.apply(a); store.markApplied(m.id, i); confetti.burst(point.center, 30, 0.7f) }
@@ -356,9 +363,9 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scan
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            SIcon(if (a is CoachAction.StartWorkout) Ico.PLAY else if (done) Ico.CHECK else Ico.PLUS, size = 16.dp, tint = if (done) c.oasis else c.bg)
+                            SIcon(if (a is CoachAction.StartWorkout) Ico.PLAY else if (done) Ico.CHECK else Ico.PLUS, size = 16.dp, tint = if (done) c.oasis else c.onPrimary)
                             Spacer(Modifier.width(6.dp))
-                            Text(if (done) "انسجلت" else label(a), style = Type.label.copy(color = if (done) c.oasis else c.bg, fontWeight = FontWeight.SemiBold))
+                            Text(if (done) "تم التسجيل" else label(a), style = Type.label.copy(color = if (done) c.oasis else c.onPrimary, fontWeight = FontWeight.SemiBold))
                         }
                     }
                 }
@@ -375,7 +382,7 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scan
 private fun Thinking() {
     val c = Sanad.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
-        LivingOrb(26.dp, speaking = true, glow = false)
+        Moon(26.dp, speaking = true)
         Spacer(Modifier.width(10.dp))
         Text("سند يفكر…", style = Type.small.copy(color = c.inkSoft))
     }
@@ -388,7 +395,7 @@ private fun MealPhoto(path: String, scanning: Boolean) {
     val bmp = remember(path) { runCatching { android.graphics.BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull() }
     val t = rememberInfiniteTransition(label = "scan")
     val y by t.animateFloat(-0.3f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Reverse), label = "scan-y")
-    Box(Modifier.size(width = 230.dp, height = 190.dp).clip(RoundedCornerShape(18.dp)).background(Color(0xFF2A241E))) {
+    Box(Modifier.size(width = 230.dp, height = 190.dp).clip(RoundedCornerShape(18.dp)).background(c.surface2)) {
         if (bmp != null) Image(bmp, "صورة الوجبة", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         if (scanning) Canvas(Modifier.fillMaxSize()) {
             val top = size.height * y
@@ -412,7 +419,7 @@ private fun MealEstimate(meals: List<CoachAction.LogMeal>) {
             ar(meals.size) to if (meals.size == 1) "صنف" else "أصناف",
         ).forEach { (v, l) ->
             Column(
-                Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(vertical = 10.dp, horizontal = 4.dp),
+                Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(c.surface2).padding(vertical = 10.dp, horizontal = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(v, style = Type.number.copy(fontSize = 22.sp, color = c.ink))

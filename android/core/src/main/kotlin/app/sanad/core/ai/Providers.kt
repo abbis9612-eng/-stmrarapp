@@ -86,7 +86,7 @@ class ClaudeCoach(private val client: AnthropicClient, private val model: String
             throw CoachException("upstream", e.message ?: "service error", e)
         }
         if (res.stopReason().orElse(null) == StopReason.REFUSAL) {
-            return CoachReply("ما أقدر أساعد في هذا الطلب. لو عندك سؤال عن أكلك أو حركتك اليوم، أنا موجود.", emptyList())
+            return CoachReply("لا أستطيع المساعدة في هذا الطلب. إن كان لديك سؤال عن أكلك أو حركتك اليوم، فأنا موجود.", emptyList())
         }
         val text = res.content().mapNotNull { it.text().orElse(null)?.text() }.joinToString("")
         return parseCoachJson(text)

@@ -78,6 +78,12 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.Meter
+import app.sanad.coach.ui.components.Moon
+import app.sanad.core.Sky
+import app.sanad.core.skyOf
+import app.sanad.core.weightChanges
+import app.sanad.core.NIGHTS_PER_MOON
+import androidx.compose.ui.graphics.drawscope.translate
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
 import app.sanad.coach.ui.components.SIcon
@@ -126,12 +132,13 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
     Page {
         item {
             Column(Modifier.rise(rise, 0)) {
-                Eyebrow("تقدّمك")
+                Eyebrow("تقدّمي")
                 Text("الاتجاه أهم من الميزان", style = Type.h1.copy(color = c.ink))
             }
         }
+        item(key = "sky") { SkyCard(skyOf(state.days, day.date, p.createdAt), Modifier.rise(rise, 1)) }
         item {
-            Column(Modifier.fillMaxWidth().rise(rise, 1).glass().padding(start = 18.dp, end = 18.dp, top = 20.dp, bottom = 12.dp)) {
+            Column(Modifier.fillMaxWidth().rise(rise, 2).glass().padding(start = 18.dp, end = 18.dp, top = 20.dp, bottom = 12.dp)) {
                 Eyebrow("وزنك الاتجاهي")
                 val shown = remember { Animatable(p.startWeightKg.toFloat()) }
                 LaunchedEffect(current) { shown.animateTo(current.toFloat(), tween(1400, easing = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f))) }
@@ -140,17 +147,19 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     Spacer(Modifier.width(8.dp))
                     Text("كغ", style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 10.dp))
                     Spacer(Modifier.width(10.dp))
-                    if (lost > 0) Box(Modifier.padding(bottom = 12.dp).clip(CircleShape).background(c.oasis.copy(alpha = 0.12f)).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                        Text("نزلت ${ar(lost)} كغ", style = Type.label.copy(color = c.oasis))
+                    if (lost > 0) Box(Modifier.padding(bottom = 12.dp).clip(RoundedCornerShape(8.dp)).background(c.primaryTint).padding(horizontal = 10.dp, vertical = 4.dp)) {
+                        Text("نزلت ${ar(lost)} كغ", style = Type.label.copy(color = c.primary))
                     }
                 }
                 Spacer(Modifier.height(6.dp))
-                if (trend.size >= 2) TrendChart(trend.takeLast(60))
-                else Text("سجّل وزنك مرتين على الأقل عشان يطلع مسارك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(vertical = 18.dp))
+                if (trend.size >= 2) {
+                    TrendChart(trend.takeLast(60))
+                    WeightChangeTable(trend)
+                } else Text("سجّل وزنك مرتين على الأقل ليظهر مسارك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(vertical = 18.dp))
             }
         }
         item {
-            Row(Modifier.rise(rise, 2), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.rise(rise, 3), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Stat(ar(toGo), "كغ للهدف", Modifier.weight(1f))
                 Stat(if (toGo > 0) ar(weeks) else "وصلت", if (toGo > 0) "أسبوع تقريباً" else "الهدف", Modifier.weight(1f))
                 Stat(ar(workouts), "تمرين", Modifier.weight(1f))
@@ -158,16 +167,16 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         if (reachedGoal(p, state.days)) item(key = "goal-reached") {
             Column(
-                Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), c.oasis).padding(18.dp),
+                Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.oasis).padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text("وصلت هدفك 🎉", style = Type.h1.copy(color = c.ink))
-                Text("اتجاه وزنك وصل ${ar(p.goalWeightKg)} كغ. الحين تبدأ المهارة الثانية: الحفاظ. هدفك يصير بقد حرقك، وخطواتك تزيد ألف.", style = Type.body.copy(color = c.ink))
+                Text("اتجاه وزنك وصل إلى ${ar(p.goalWeightKg)} كغ. الآن تبدأ المهارة الثانية: الحفاظ. يصبح هدفك بقدر حرقك، وتزيد خطواتك ألفاً.", style = Type.body.copy(color = c.ink))
                 SButton("ابدأ وضع الحفاظ", { store.setMaintain(true) }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)
             }
         }
         maintenanceStatus(p, state.days)?.let { m -> item(key = "maintain") { MaintenanceCard(m) { store.setMaintain(false) } } }
-        item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 3)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
+        item { WeekReviewCard(weeklyReview(p, state.days, t, day.date), Modifier.rise(rise, 4)) { nav.navigate(Routes.coach("كيف كان أسبوعي؟")) } }
         item(key = "partner") {
             val review = weeklyReview(p, state.days, t, day.date)
             PartnerCard(p.partner, p.partnerSeesWeight, onSave = store::setPartner) {
@@ -177,7 +186,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         sleepBank(state.days, day.date)?.let { b -> item(key = "sleep-bank") { SleepBankCard(b) } }
         item(key = "journey") { JourneyCard(state.lessonsRead.size) }
         item {
-            SCard(Modifier.rise(rise, 4)) {
+            SCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("خريطة الاستمرار", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
                     Text("٥ أسابيع", style = Type.small.copy(color = c.inkSoft))
@@ -187,22 +196,22 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
         item {
-            SCard(Modifier.rise(rise, 5)) {
+            SCard {
                 Text("إنجازاتك", style = Type.h2.copy(color = c.ink))
                 Spacer(Modifier.height(14.dp))
                 val proteinDays = state.days.values.count { it.protein >= t.protein * 0.9 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Medal("أول ٧ أيام", thread.best >= 7, c.saffron, c.ember, Ico.STAR, Modifier.weight(1f))
-                    Medal("أول كيلو", lost >= 1, c.oasis, Color(0xFF1FB093), Ico.SCALE, Modifier.weight(1f))
-                    Medal("١٠ تمارين", workouts >= 10, Color(0xFF8FB0FF), Color(0xFF4B74F0), Ico.MOVE, Modifier.weight(1f))
-                    Medal("بطل البروتين", proteinDays >= 5, Color(0xFFFF8DA3), c.rose, Ico.EAT, Modifier.weight(1f))
+                    Medal("أول ٧ أيام", thread.best >= 7, c.amber, Ico.STAR, Modifier.weight(1f))
+                    Medal("أول كيلو", lost >= 1, c.oasis, Ico.SCALE, Modifier.weight(1f))
+                    Medal("١٠ تمارين", workouts >= 10, c.sky, Ico.MOVE, Modifier.weight(1f))
+                    Medal("بطل البروتين", proteinDays >= 5, c.violet, Ico.EAT, Modifier.weight(1f))
                 }
             }
         }
         item {
             SCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    SIcon(Ico.SCALE, tint = c.saffron)
+                    SIcon(Ico.SCALE, tint = c.primary)
                     Spacer(Modifier.size(8.dp))
                     Text("وزن اليوم", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
                     day.weightKg?.let { Text("${ar(it)} كغ", style = Type.bodyStrong.copy(color = c.oasis)) }
@@ -213,7 +222,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     val kg = parseNum(w)
                     SButton("احفظ", { store.logWeight(kg!!); w = "" }, enabled = kg != null && kg in 30.0..350.0)
                 }
-                Text("أفضل وقت: الصبح بعد الحمام وقبل الأكل. ٣ مرات بالأسبوع تكفي.", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 8.dp))
+                Text("أفضل وقت: الصباح بعد دورة المياه وقبل الأكل. ٣ مرات في الأسبوع تكفي.", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 8.dp))
             }
         }
         weighInWeather(state, day.date, t)?.let { w -> item(key = "weather-${w.todayKg}") { WeighInCard(w) } }
@@ -223,13 +232,13 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Spacer(Modifier.height(6.dp))
                 val a = t.adaptive
                 if (a != null) {
-                    Text("تعلّم سند من ${ar(a.loggedDays)} يوم مسجل إن حرقك تقريباً ${ar(a.tdee)} سعرة يومياً، فعدّل هدفك إلى ${ar(t.kcal)} سعرة.", style = Type.body.copy(color = c.ink))
+                    Text("تعلّم سند من ${ar(a.loggedDays)} يوماً مسجّلاً أن حرقك نحو ${ar(a.tdee)} سعرة يومياً، فعدّل هدفك إلى ${ar(t.kcal)} سعرة.", style = Type.body.copy(color = c.ink))
                     Spacer(Modifier.height(8.dp))
                     Text("الثقة بالتقدير ${ar((a.confidence * 100).toInt())}٪", style = Type.label.copy(color = c.inkSoft))
                     Spacer(Modifier.height(6.dp))
                     Meter(a.confidence.toFloat(), color = c.oasis, height = 8.dp)
                 } else {
-                    Text("حالياً نستخدم تقدير المعادلة (${ar(t.tdee)} سعرة). بعد ٧ أيام تسجيل أكل و٣ أوزان، سند يحسب حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
+                    Text("نستخدم حالياً تقدير المعادلة (${ar(t.tdee)} سعرة). بعد ٧ أيام من تسجيل الأكل و٣ أوزان، يحسب سند حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
                 }
             }
         }
@@ -254,7 +263,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("آخذ إبر أو حبوب التنحيف", style = Type.h2.copy(color = c.ink))
-                        Text("مثل أوزمبك ومونجارو (GLP-1): يرفع البروتين والماي ويقدّم تمارين القوة لحماية عضلك.", style = Type.small.copy(color = c.inkSoft))
+                        Text("مثل أوزمبيك ومونجارو (GLP-1): يرفع البروتين والماء ويقدّم تمارين القوة لحماية عضلاتك.", style = Type.small.copy(color = c.inkSoft))
                     }
                     Switch(
                         checked = p.glp1,
@@ -271,10 +280,10 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         item {
             SCard {
-                Text("خططك «إذا… فأنا…»", style = Type.h2.copy(color = c.ink))
-                if (p.ifThens.isEmpty()) Text("اطلب من سند يجهز لك خطة لأصعب موقف عندك.", style = Type.small.copy(color = c.inkSoft))
+                Text("خططك «إذا… فإني…»", style = Type.h2.copy(color = c.ink))
+                if (p.ifThens.isEmpty()) Text("اطلب من سند أن يجهّز لك خطة لأصعب موقف عندك.", style = Type.small.copy(color = c.inkSoft))
                 p.ifThens.forEach { r ->
-                    Row(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface2).padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("${r.whenText} ← ${r.thenText}", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f).padding(vertical = 10.dp))
                         Box(Modifier.size(48.dp).press({ store.removeIfThen(r.id) }).semantics { contentDescription = "احذف الخطة" }, contentAlignment = Alignment.Center) {
                             SIcon(Ico.TRASH, size = 20.dp, tint = c.inkSoft)
@@ -332,11 +341,11 @@ private fun TrendChart(points: List<TrendPoint>) {
         var g = ceil(minY)
         while (g <= maxY) {
             val gy = y(g)
-            drawLine(Color.White.copy(alpha = 0.06f), Offset(pad, gy), Offset(size.width - pad, gy), 1.dp.toPx())
+            drawLine(c.line, Offset(pad, gy), Offset(size.width - pad, gy), 1.dp.toPx())
             drawLabel(measurer, ar(g.toInt()), Offset(pad, gy - 16.dp.toPx()), label)
             g += step
         }
-        points.forEach { drawCircle(Color.White.copy(alpha = 0.26f), 2.dp.toPx(), Offset(x(it.date), y(it.kg))) }
+        points.forEach { drawCircle(c.faint.copy(alpha = 0.45f), 2.dp.toPx(), Offset(x(it.date), y(it.kg))) }
         val line = Path()
         points.forEachIndexed { i, pt ->
             val px = x(pt.date); val py = y(pt.trend)
@@ -351,18 +360,94 @@ private fun TrendChart(points: List<TrendPoint>) {
         }
         val reveal = size.width - size.width * draw.value
         clipRect(left = reveal) {
-            drawPath(area, Brush.verticalGradient(listOf(c.oasis.copy(alpha = 0.28f), Color.Transparent), startY = pad, endY = bottom))
-            drawPath(line, Brush.horizontalGradient(listOf(c.oasis, c.saffron)), style = Stroke(3.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            drawPath(area, c.primaryTint)
+            drawPath(line, c.primary, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
         if (draw.value > 0.97f) {
             val last = points.last()
             val e = Offset(x(last.date), y(last.trend))
-            drawCircle(c.oasis.copy(alpha = 0.2f), 10.dp.toPx(), e)
-            drawCircle(c.bg, 6.5.dp.toPx(), e)
-            drawCircle(c.oasis, 5.dp.toPx(), e)
+            drawCircle(c.surface, 6.5.dp.toPx(), e)
+            drawCircle(c.primary, 6.5.dp.toPx(), e, style = Stroke(2.5.dp.toPx()))
         }
         drawLabel(measurer, if (weeksBack >= 1) "قبل ${ar(weeksBack)} أسابيع" else "البداية", Offset(size.width - pad, size.height - 16.dp.toPx()), label, alignEnd = true)
         drawLabel(measurer, "اليوم", Offset(pad, size.height - 16.dp.toPx()), label)
+    }
+}
+
+/** جدول التغيّر: ٧ و١٤ و٣٠ يوماً ومنذ البداية، من الوزن الاتجاهي لا من قراءة يوم واحد. */
+@Composable
+private fun WeightChangeTable(trend: List<TrendPoint>) {
+    val c = Sanad.colors
+    Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        weightChanges(trend).forEach { ch ->
+            val kg = ch.kg
+            Column(
+                Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(c.surface2).padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    when { kg == null -> "—"; kg < 0 -> "${ar(abs(kg))}−"; kg > 0 -> "${ar(kg)}+"; else -> "٠" },
+                    style = Type.bodyStrong.copy(color = when { kg == null -> c.faint; kg < 0 -> c.primary; kg > 0 -> c.saffron; else -> c.ink }),
+                )
+                Text(ch.label, style = Type.label.copy(fontSize = 11.sp, color = c.inkSoft))
+            }
+        }
+    }
+}
+
+/**
+ * سماء سند: القمر يكبر ليلة مع كل يوم تسجّل فيه، والنجوم للأسابيع الكاملة.
+ * بطاقة زرقاء صلبة؛ الشيء الوحيد الغامق في التطبيق حتى يبرز.
+ */
+@Composable
+private fun SkyCard(sky: Sky, modifier: Modifier) {
+    val c = Sanad.colors
+    val starLit = c.moonLight
+    val starOff = Color(0xFF4A5E7E)
+    val soft = Color(0xFFC9D3E0)
+    Column(
+        modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.nightSky).padding(18.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("سماؤك", style = Type.label.copy(color = soft))
+                Text(
+                    if (sky.nights == 0 && sky.fullMoons > 0) "اكتمل بدرك!" else "الليلة ${ar(sky.nights)} من ${ar(NIGHTS_PER_MOON)}",
+                    style = Type.h2.copy(color = Color.White),
+                )
+                Text("كل يوم تسجّل فيه يضيف ليلة لقمرك.", style = Type.small.copy(color = soft))
+            }
+            Moon(96.dp, phase = sky.phase, night = true, description = "قمرك: ليلة ${sky.nights} من $NIGHTS_PER_MOON")
+        }
+        // النجوم: أسبوع كامل بلا يومين فارغين متتاليين = نجمة. نعرض ٨ خانات حتى يبان المكان الفاضي
+        val slots = max(8, sky.stars)
+        Canvas(Modifier.fillMaxWidth().height(22.dp)) {
+            val gap = size.width / slots
+            repeat(slots) { i ->
+                val cx = size.width - gap * (i + 0.5f)
+                val cy = size.height / 2
+                val r = size.height * 0.42f
+                val k = r * 0.3f
+                val star = Path().apply {
+                    moveTo(cx, cy - r); lineTo(cx + k, cy - k); lineTo(cx + r, cy); lineTo(cx + k, cy + k)
+                    lineTo(cx, cy + r); lineTo(cx - k, cy + k); lineTo(cx - r, cy); lineTo(cx - k, cy - k); close()
+                }
+                if (i < sky.stars) drawPath(star, starLit) else drawPath(star, starOff, style = Stroke(1.2.dp.toPx()))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(ar(sky.fullMoons) to "بدر مكتمل", ar(sky.stars) to "نجمة", ar(sky.daysWithSanad) to "يوماً مع سند").forEach { (v, l) ->
+                Column(
+                    Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(c.nightSky2).padding(vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(v, style = Type.number.copy(fontSize = 20.sp, color = Color.White))
+                    Text(l, style = Type.label.copy(fontSize = 11.sp, color = soft))
+                }
+            }
+        }
     }
 }
 
@@ -391,19 +476,19 @@ private fun WeekReviewCard(r: WeeklyReview, modifier: Modifier, onAsk: () -> Uni
             MiniStat(if (change != null) "${ar(abs(change))}${if (change <= 0) "-" else "+"}" else "—", "كغ اتجاه", Modifier.weight(1f), if (r.pacing == Pacing.ON_TRACK) c.oasis else c.ink)
         }
         Spacer(Modifier.height(12.dp))
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.saffron.copy(alpha = 0.10f)).padding(12.dp)) {
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.amberTint).padding(12.dp)) {
             SIcon(Ico.STAR, size = 20.dp, tint = c.saffron)
             Spacer(Modifier.width(10.dp))
             Text(r.win, style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
         }
         Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.oasis.copy(alpha = 0.10f)).padding(12.dp)) {
-            SIcon(Ico.SPARK, size = 20.dp, tint = c.oasis)
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.primaryTint).padding(12.dp)) {
+            SIcon(Ico.SPARK, size = 20.dp, tint = c.primary)
             Spacer(Modifier.width(10.dp))
             Text(r.focusText, style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
         }
         Spacer(Modifier.height(12.dp))
-        SButton("ناقشها مع المدرب", onAsk, Modifier.fillMaxWidth(), style = BtnStyle.SOFT)
+        SButton("ناقشها مع سند", onAsk, Modifier.fillMaxWidth(), style = BtnStyle.SOFT)
     }
 }
 
@@ -411,7 +496,7 @@ private fun WeekReviewCard(r: WeeklyReview, modifier: Modifier, onAsk: () -> Uni
 private fun MiniStat(value: String, label: String, modifier: Modifier, color: Color = Sanad.colors.ink) {
     val c = Sanad.colors
     Column(
-        modifier.clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.05f)).padding(vertical = 10.dp, horizontal = 6.dp),
+        modifier.clip(RoundedCornerShape(14.dp)).background(c.surface2).padding(vertical = 10.dp, horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(value, style = Type.number.copy(fontSize = 22.sp, color = color))
@@ -419,7 +504,7 @@ private fun MiniStat(value: String, label: String, modifier: Modifier, color: Co
     }
 }
 
-/** ٣٥ يوم: كل مربع يتوهّج حسب كمية الإنجاز. الأقدم يمين الصف الأول. */
+/** ٣٥ يوماً: كل مربع يمتلئ حسب كمية الإنجاز. الأقدم يمين الصف الأول. */
 @Composable
 private fun Heatmap(state: AppState, today: String) {
     val c = Sanad.colors
@@ -440,14 +525,14 @@ private fun Heatmap(state: AppState, today: String) {
                     val s = remember { Animatable(0f) }
                     LaunchedEffect(Unit) { kotlinx.coroutines.delay(200L + i * 18L); s.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = 300f)) }
                     val color = when (level) {
-                        3 -> c.oasis
-                        2 -> c.oasis.copy(alpha = 0.55f)
-                        1 -> c.oasis.copy(alpha = 0.28f)
-                        else -> Color.White.copy(alpha = 0.06f)
+                        3 -> c.primary
+                        2 -> c.primary.copy(alpha = 0.55f)
+                        1 -> c.primary.copy(alpha = 0.25f)
+                        else -> c.surface2
                     }
                     Box(
                         Modifier.weight(1f).aspectRatio(1f).graphicsLayer { scaleX = s.value; scaleY = s.value }
-                            .clip(RoundedCornerShape(8.dp)).background(color),
+                            .clip(RoundedCornerShape(6.dp)).background(color),
                     )
                 }
             }
@@ -455,14 +540,14 @@ private fun Heatmap(state: AppState, today: String) {
     }
 }
 
-/** وسام سداسي؛ يدور لمن تلمسه. المقفول باهت. */
+/** وسام سداسي بخط الحبر ولون مزاح؛ يدور حين تلمسه. المقفول رمادي. */
 @Composable
-private fun Medal(name: String, earned: Boolean, a: Color, b: Color, icon: Ico, modifier: Modifier) {
+private fun Medal(name: String, earned: Boolean, fill: Color, icon: Ico, modifier: Modifier) {
     val c = Sanad.colors
     var turns by remember { mutableFloatStateOf(0f) }
     val rot by animateFloatAsState(turns, spring(dampingRatio = 0.55f, stiffness = 120f), label = "medal")
     Column(
-        modifier.graphicsLayer { alpha = if (earned) 1f else 0.4f }.press({ turns += 360f })
+        modifier.graphicsLayer { alpha = if (earned) 1f else 0.55f }.press({ turns += 360f })
             .semantics { contentDescription = if (earned) "وسام: $name" else "وسام مقفول: $name" },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -475,17 +560,18 @@ private fun Medal(name: String, earned: Boolean, a: Color, b: Color, icon: Ico, 
                         lineTo(w * 0.5f, h - inset); lineTo(inset, h * 0.73f); lineTo(inset, h * 0.27f); close()
                     }
                 }
-                drawPath(hex(2.dp.toPx()), if (earned) Brush.linearGradient(listOf(a, b)) else Brush.linearGradient(listOf(Color(0xFF9AA3B2), Color(0xFF5E6776))))
-                drawPath(hex(7.dp.toPx()), Color(0x590A0D12))
+                val o = 3.dp.toPx()
+                translate(o, o) { drawPath(hex(4.dp.toPx()), if (earned) fill else c.surface2) }
+                drawPath(hex(4.dp.toPx()), c.ink, style = Stroke(1.8.dp.toPx(), join = StrokeJoin.Round))
             }
-            SIcon(icon, size = 24.dp, tint = Color.White)
+            SIcon(icon, size = 24.dp, tint = if (earned) c.ink else c.faint)
         }
         Spacer(Modifier.height(6.dp))
         Text(name, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp), textAlign = TextAlign.Center)
     }
 }
 
-/** طقس الميزان: يفسّر رقم اليوم حتى ما تترك الميزان بعد قفزة. */
+/** طقس الميزان: يفسّر رقم اليوم حتى لا تترك الميزان بعد قفزة. */
 @Composable
 private fun WeighInCard(w: WeighIn) {
     val c = Sanad.colors
@@ -495,7 +581,7 @@ private fun WeighInCard(w: WeighIn) {
         else -> c.sky
     }
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), tint).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("طقس الميزان", style = Type.label.copy(color = tint))
@@ -510,7 +596,7 @@ private fun SleepBankCard(b: SleepBank) {
     val c = Sanad.colors
     val tint = if (b.debt < 0.5) c.oasis else if (b.debt < 3) c.sky else c.saffron
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp)).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -552,23 +638,23 @@ private fun JourneyCard(read: Int) {
     val total = LESSONS.size
     val week = (read / 7 + 1).coerceAtMost(12)
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp)).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("رحلة ١٢ أسبوع", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("رحلة ١٢ أسبوعاً", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
             Text("${ar(read)} من ${ar(total)} درس", style = Type.small.copy(color = c.inkSoft))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             (0 until 12).forEach { i ->
                 val f = ((read - i * 7) / 7f).coerceIn(0f, 1f)
-                Box(Modifier.weight(1f).height(10.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.08f))) {
+                Box(Modifier.weight(1f).height(10.dp).clip(CircleShape).background(c.surface2)) {
                     Box(Modifier.fillMaxWidth(f).fillMaxHeight().clip(CircleShape).background(c.sky))
                 }
             }
         }
         Text(
-            if (read >= total) "خلصت الرحلة كاملة. العادات صارت مالتك."
+            if (read >= total) "أنهيت الرحلة كاملة. العادات صارت عاداتك."
             else "الأسبوع ${ar(week)}: ${WEEK_THEMES[week - 1]}",
             style = Type.small.copy(color = c.sky),
         )
@@ -585,27 +671,27 @@ private fun PartnerCard(partner: String, seesWeight: Boolean, onSave: (String, B
     SCard {
         Text("شريك المتابعة", style = Type.h2.copy(color = c.ink))
         if (partner.isBlank()) {
-            Text("اللي عندهم شخص يتابع وياهم يستمرون أكثر. اختار صديق أو واحد من أهلك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(top = 4.dp))
+            Text("من يتابعه شخص قريب يستمر أكثر. اختر صديقاً أو أحداً من أهلك.", style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(10.dp))
-            SField(name, { name = it }, "اسمه (مثلاً: أخوي حسن)", Modifier.fillMaxWidth())
+            SField(name, { name = it }, "الاسم (مثلاً: أخي حسن)", Modifier.fillMaxWidth())
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("يشوف اتجاه وزني", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
+                Text("يرى اتجاه وزني", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
                 Switch(
                     checked = weight, onCheckedChange = { weight = it },
                     colors = SwitchDefaults.colors(checkedTrackColor = c.oasis, checkedThumbColor = c.bg, uncheckedTrackColor = c.glass2, uncheckedBorderColor = c.line),
-                    modifier = Modifier.semantics { contentDescription = "الشريك يشوف اتجاه الوزن" },
+                    modifier = Modifier.semantics { contentDescription = "الشريك يرى اتجاه الوزن" },
                 )
             }
             SButton("احفظ الشريك", { onSave(name, weight) }, Modifier.fillMaxWidth().padding(top = 6.dp), style = BtnStyle.SOFT, enabled = name.isNotBlank())
         } else {
             Text(
-                "$partner يستلم تقريرك الأسبوعي" + if (seesWeight) " (مع اتجاه الوزن)." else " (بدون وزن).",
+                "$partner يستلم تقريرك الأسبوعي" + if (seesWeight) " (مع اتجاه الوزن)." else " (من دون الوزن).",
                 style = Type.small.copy(color = c.inkSoft), modifier = Modifier.padding(top = 4.dp),
             )
             Spacer(Modifier.height(10.dp))
-            SButton("ارسل تقرير الأسبوع لـ$partner", {
+            SButton("أرسل تقرير الأسبوع إلى $partner", {
                 val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, report()) }
-                context.startActivity(Intent.createChooser(send, "ارسل التقرير"))
+                context.startActivity(Intent.createChooser(send, "أرسل التقرير"))
             }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.NEXT)
             Text(
                 "غيّر الشريك", style = Type.small.copy(color = c.inkSoft),
@@ -621,7 +707,7 @@ private fun MaintenanceCard(m: MaintenanceStatus, onBackToLoss: () -> Unit) {
     val c = Sanad.colors
     val tint = when (m.zone) { Zone.GREEN -> c.oasis; Zone.AMBER -> c.saffron; Zone.RED -> c.rose }
     Column(
-        Modifier.fillMaxWidth().glass(RoundedCornerShape(26.dp), tint).padding(18.dp),
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), tint).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text("وضع الحفاظ", style = Type.label.copy(color = tint))
@@ -652,6 +738,6 @@ private fun MaintenanceCard(m: MaintenanceStatus, onBackToLoss: () -> Unit) {
             Text("حد الأمان ${ar(m.guardrailKg)} كغ", style = Type.small.copy(color = c.inkSoft))
         }
         Text(m.advice, style = Type.body.copy(color = c.ink))
-        SButton(if (m.zone == Zone.RED) "رجّعني لوضع النزول" else "رجوع لوضع النزول", onBackToLoss, Modifier.fillMaxWidth(), style = if (m.zone == Zone.RED) BtnStyle.GOLD else BtnStyle.GHOST, small = true)
+        SButton(if (m.zone == Zone.RED) "أعدني إلى وضع النزول" else "العودة إلى وضع النزول", onBackToLoss, Modifier.fillMaxWidth(), style = if (m.zone == Zone.RED) BtnStyle.GOLD else BtnStyle.GHOST, small = true)
     }
 }

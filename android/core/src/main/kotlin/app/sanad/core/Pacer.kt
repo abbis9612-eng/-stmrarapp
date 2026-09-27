@@ -13,9 +13,9 @@ const val PACER_TOTAL_SEC = 20 * 60
 
 private val ROTATION = listOf(
     CueKind.BITE to "لقمة صغيرة",
-    CueKind.CHEW to "نزّل الملعقة وامضغ على مهلك",
-    CueKind.SIP to "رشفة ماي",
-    CueKind.TALK to "سولف، ولا تستعجل",
+    CueKind.CHEW to "ضع الملعقة وامضغ على مهل",
+    CueKind.SIP to "رشفة ماء",
+    CueKind.TALK to "تحدّث قليلاً، ولا تستعجل",
 )
 
 fun pacerCues(totalSec: Int = PACER_TOTAL_SEC, every: Int = 40): List<PacerCue> {
@@ -31,8 +31,8 @@ fun pacerCues(totalSec: Int = PACER_TOTAL_SEC, every: Int = 40): List<PacerCue> 
         }
         t += every
     }
-    cues += PacerCue(half, CueKind.CHECK, "وقفة: شبعان كم؟")
-    cues += PacerCue(totalSec, CueKind.END, "خلصت العشرين دقيقة")
+    cues += PacerCue(half, CueKind.CHECK, "وقفة: كم شبعك؟")
+    cues += PacerCue(totalSec, CueKind.END, "انتهت العشرون دقيقة")
     return cues.sortedBy { it.atSec }
 }
 
@@ -42,8 +42,8 @@ fun cueAt(cues: List<PacerCue>, elapsedSec: Int): PacerCue =
 
 /** مقياس الشبع ١ (جوعان) → ٥ (متروس). */
 fun fullnessAdvice(level: Int, elapsedSec: Int): String = when {
-    level >= 4 && elapsedSec < PACER_TOTAL_SEC -> "هذا الشبع الحقيقي. جرّب توقف هنا، وخلّ الباقي لبعدين — ماكو شي يضيع."
-    level >= 4 -> "ممتاز، وصلت للشبع وأنت على مهلك."
-    level == 3 -> "مرتاح؟ كمّل على نفس الهدوء، ويمكن تشبع قبل ما يخلص الصحن."
-    else -> "بعدك جوعان — عادي. كمّل على مهلك، وخلّ البروتين والخضار أولاً."
+    level >= 4 && elapsedSec < PACER_TOTAL_SEC -> "هذا هو الشبع الحقيقي. جرّب أن توقف هنا، واترك الباقي لوقت لاحق، فلن يضيع شيء."
+    level >= 4 -> "ممتاز، وصلت إلى الشبع وأنت على مهل."
+    level == 3 -> "مرتاح؟ أكمل بالهدوء نفسه، وقد تشبع قبل أن ينتهي الصحن."
+    else -> "ما زلت جائعاً؟ هذا عادي. أكمل على مهل، وابدأ بالبروتين والخضار."
 }
