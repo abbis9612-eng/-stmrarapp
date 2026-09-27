@@ -40,3 +40,11 @@ fun normalizeArabic(s: String): String = s
     .replace('گ', 'ك').replace('چ', 'ج').replace('پ', 'ب').replace('ڤ', 'ف')
     .trim()
     .lowercase()
+
+/** عدد الأيام بصيغة عربية صحيحة: يوم واحد، يومان، ٣ أيام، ١١ يوماً. */
+fun arDays(n: Int): String = when {
+    n == 1 -> "يوم واحد"
+    n == 2 -> "يومان"
+    n % 100 in 3..10 -> "${ar(n)} أيام"
+    else -> "${ar(n)} يوماً"
+}

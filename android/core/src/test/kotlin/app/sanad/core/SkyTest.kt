@@ -90,4 +90,12 @@ class SkyTest {
         assertEquals(null, weightChanges(short)[2].kg)
         assertEquals(null, weightChanges(listOf(short[0]))[3].kg)
     }
+
+    @Test fun dayCountsUseCorrectArabicPlural() {
+        assertEquals("يوم واحد", arDays(1))
+        assertEquals("يومان", arDays(2))
+        assertEquals("٨ أيام", arDays(8))
+        assertEquals("٢١ يوماً", arDays(21))
+        assertEquals("٠ يوماً", arDays(0))
+    }
 }

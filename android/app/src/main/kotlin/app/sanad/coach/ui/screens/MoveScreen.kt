@@ -233,8 +233,9 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
                 Spacer(Modifier.height(8.dp))
                 BodyMap(e.muscles.take(2), e.muscles.drop(2), Modifier.fillMaxWidth().height(250.dp))
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.SpaceAround) {
-                    Text("الأمام", style = Type.label.copy(color = c.inkSoft))
+                    // الرسم لا ينعكس مع الاتجاه: الأمام يسار والخلف يمين، والصف العربي يبدأ من اليمين
                     Text("الخلف", style = Type.label.copy(color = c.inkSoft))
+                    Text("الأمام", style = Type.label.copy(color = c.inkSoft))
                 }
             }
         }
@@ -365,7 +366,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                 Row(Modifier.weight(1f).height(5.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     r.moves.forEachIndexed { i, m ->
                         val f = when { finished || i < idx -> 1f; i == idx -> frac; else -> 0f }
-                        Box(Modifier.weight(m.seconds.toFloat()).fillMaxHeight().clip(CircleShape).background(c.surface2)) {
+                        Box(Modifier.weight(m.seconds.toFloat()).fillMaxHeight().clip(CircleShape).background(c.line)) {
                             Box(Modifier.fillMaxWidth(f).fillMaxHeight().background(c.primary))
                         }
                     }

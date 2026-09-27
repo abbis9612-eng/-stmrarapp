@@ -121,6 +121,7 @@ import app.sanad.core.occasionBank
 import app.sanad.core.ramadanPlan
 import app.sanad.core.routineById
 import app.sanad.core.skyOf
+import app.sanad.core.arDays
 import app.sanad.core.stepsNote
 import app.sanad.core.welcomeBack
 import java.time.DayOfWeek
@@ -345,12 +346,21 @@ private fun WeekStrip(marks: List<DayMark>, today: String, streak: Int, modifier
                 }
             }
         }
-        Text(
-            "سلسلتك ${ar(streak)} يوم · أخضر ضمن خطتك، أصفر زيادة بسيطة، بنفسجي مناسبة، منقّط لم تسجّل",
-            style = Type.label.copy(color = c.inkSoft, fontSize = 12.sp),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        // مفتاح قصير بنقاط ملوّنة بدل جملة طويلة، والسلسلة وحدها
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                if (streak > 0) "متتالية: ${arDays(streak)}" else "ابدأ سلسلتك اليوم",
+                style = Type.label.copy(color = c.ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.weight(1f),
+            )
+            listOf(c.primary to "ضمن الخطة", c.amber to "زيادة", c.violet to "مناسبة").forEach { (col, l) ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(col))
+                    Spacer(Modifier.width(4.dp))
+                    Text(l, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp))
+                }
+            }
+        }
     }
 }
 
