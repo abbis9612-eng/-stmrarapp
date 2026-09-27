@@ -98,4 +98,15 @@ class SkyTest {
         assertEquals("٢١ يوماً", arDays(21))
         assertEquals("٠ يوماً", arDays(0))
     }
+
+    @Test fun forecastGivesARangeNotADate() {
+        val f = forecast(91.0, 80.0, Pace.STEADY, "2026-09-27")!!
+        assertEquals(0.55, f.fastKgWeek)
+        assertEquals(0.35, f.slowKgWeek)
+        assertEquals(21, f.weeksFast)
+        assertEquals(31, f.weeksSlow)
+        assertTrue(f.earliest < f.latest)
+        assertEquals("2027-02-21", f.earliest)
+        assertEquals(null, forecast(80.0, 85.0, Pace.STEADY, "2026-09-27"))
+    }
 }

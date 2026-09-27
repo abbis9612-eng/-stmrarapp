@@ -74,6 +74,24 @@ import app.sanad.core.SafetyFlag
 import app.sanad.core.Sex
 import androidx.compose.ui.unit.sp
 import app.sanad.core.ar
+import app.sanad.core.Forecast
+import app.sanad.core.forecast
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import java.time.format.TextStyle
+import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.pow
+import kotlin.math.sin
 import app.sanad.core.assessSafety
 import app.sanad.core.bmi
 import app.sanad.core.computeTargets
@@ -102,15 +120,16 @@ private val STARTER_RULES = mapOf(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
+fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit) {
     val c = Sanad.colors
-    var step by rememberSaveable { mutableIntStateOf(0) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var sex by rememberSaveable { mutableStateOf<Sex?>(null) }
-    var age by rememberSaveable { mutableStateOf("") }
-    var height by rememberSaveable { mutableStateOf("") }
-    var weight by rememberSaveable { mutableStateOf("") }
-    var goal by rememberSaveable { mutableStateOf("") }
+    // demo: نسخة المطوّر فقط، تفتح «شاشة الصراحة» ببيانات جاهزة للقطات الآلية
+    var step by rememberSaveable { mutableIntStateOf(if (demo) HONEST_STEP else 0) }
+    var name by rememberSaveable { mutableStateOf(if (demo) "سارة" else "") }
+    var sex by rememberSaveable { mutableStateOf(if (demo) Sex.F else null) }
+    var age by rememberSaveable { mutableStateOf(if (demo) "34" else "") }
+    var height by rememberSaveable { mutableStateOf(if (demo) "162" else "") }
+    var weight by rememberSaveable { mutableStateOf(if (demo) "91" else "") }
+    var goal by rememberSaveable { mutableStateOf(if (demo) "80" else "") }
     var pace by rememberSaveable { mutableStateOf(Pace.STEADY) }
     var activity by rememberSaveable { mutableStateOf(Activity.SEDENTARY) }
     var why by rememberSaveable { mutableStateOf("") }
@@ -134,7 +153,8 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
     ) else null
     val safety = profile?.let { assessSafety(a, w, h, flags) }
     val targets = profile?.let { computeTargets(it, w) }
-    val canNext = listOf(true, basicsOk, goalOk, true, true, profile != null && safety?.block != true)[step]
+    val canNext = listOf(true, basicsOk, goalOk, true, true, true, profile != null && safety?.block != true)[step]
+    val section = STEP_SECTION[step]
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     Column(Modifier.fillMaxSize().imePadding().padding(top = top).navigationBarsPadding()) {
@@ -149,9 +169,9 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     SECTIONS.forEachIndexed { i, label ->
                         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(Modifier.fillMaxWidth().height(5.dp).clip(CircleShape).background(if (i < step) c.primary else c.line))
+                            Box(Modifier.fillMaxWidth().height(5.dp).clip(CircleShape).background(if (i <= section) c.primary else c.line))
                             Spacer(Modifier.height(4.dp))
-                            Text(label, style = Type.label.copy(fontSize = 11.sp, color = if (i == step - 1) c.ink else c.faint))
+                            Text(label, style = Type.label.copy(fontSize = 11.sp, color = if (i == section) c.ink else c.faint))
                         }
                     }
                 }
@@ -210,7 +230,8 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                             }
                         }
                     }
-                    3 -> {
+                    HONEST_STEP -> forecast(w, if (goalOk) g else milestone, pace, LocalDate.now().toString())?.let { HonestForecast(it) }
+                    4 -> {
                         Text("لماذا هذه المرة مختلفة؟", style = Type.h1.copy(color = c.ink))
                         Text("سببك الشخصي هو ما يعيدك حين يذهب الحماس. سيذكّرك سند به في الأيام الصعبة.", style = Type.small.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -223,7 +244,7 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
                         }
                         if (barriers.isNotEmpty()) Text("سنجهّز لك خطة «إذا… فإني…» لكل عائق، وهي من أقوى أدوات تغيير السلوك.", style = Type.small.copy(color = c.primary))
                     }
-                    4 -> {
+                    5 -> {
                         Text("سلامتك أولاً", style = Type.h1.copy(color = c.ink))
                         Text("اختر ما ينطبق عليك (أو تجاوز). سنعدّل الخطة بناءً عليه.", style = Type.small.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -256,14 +277,118 @@ fun OnboardingScreen(store: AppStore, onDone: () -> Unit) {
         Box(Modifier.padding(16.dp)) {
             when (step) {
                 0 -> SButton("لنبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
-                5 -> SButton("ابدأ ليلتي الأولى", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
-                else -> SButton(if (step == 4) "اعرض خطتي" else "التالي", { step++ }, Modifier.fillMaxWidth(), enabled = canNext)
+                6 -> SButton("ابدأ ليلتي الأولى", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
+                else -> SButton(
+                    when (step) { 5 -> "اعرض خطتي"; HONEST_STEP -> "مفهوم، أكمل"; else -> "التالي" },
+                    { step++ }, Modifier.fillMaxWidth(), enabled = canNext,
+                )
             }
         }
     }
 }
 
 private val SECTIONS = listOf("أنت", "هدفك", "عوائقك", "سلامتك", "قمرك")
+
+/** بعد الهدف مباشرة: متى تصل تقريباً، بصراحة. */
+private const val HONEST_STEP = 3
+
+/** القسم الظاهر في الشريط لكل خطوة (الترحيب بلا قسم، والصراحة جزء من «هدفك»). */
+private val STEP_SECTION = listOf(-1, 0, 1, 1, 2, 3, 4)
+
+private val AR_DIGITS = "٠١٢٣٤٥٦٧٨٩"
+private fun arYear(y: Int) = y.toString().map { AR_DIGITS[it - '0'] }.joinToString("")
+private fun monthAr(d: LocalDate) = d.month.getDisplayName(TextStyle.FULL, Locale("ar"))
+
+/** «بين فبراير وأبريل ٢٠٢٧»، أو بسنتين إذا اختلفت السنة. */
+private fun rangeText(a: LocalDate, b: LocalDate): String = when {
+    a.year == b.year && a.month == b.month -> "في ${monthAr(a)} ${arYear(a.year)}"
+    a.year == b.year -> "بين ${monthAr(a)} و${monthAr(b)} ${arYear(b.year)}"
+    else -> "بين ${monthAr(a)} ${arYear(a.year)} و${monthAr(b)} ${arYear(b.year)}"
+}
+
+/**
+ * شاشة الصراحة: النزول ليس خطاً مستقيماً. مسار متوقّع يتموّج داخل شريط التذبذب الطبيعي،
+ * ومنطقة الوصول مدى زمني لا تاريخ واحد. الأحدث يمين (قراءة عربية).
+ */
+@Composable
+private fun HonestForecast(f: Forecast) {
+    val c = Sanad.colors
+    val today = LocalDate.now()
+    val earliest = LocalDate.parse(f.earliest)
+    val latest = LocalDate.parse(f.latest)
+    val draw = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { draw.animateTo(1f, tween(1600, easing = FastOutSlowInEasing)) }
+    Text("بصراحة", style = Type.label.copy(color = c.sky, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold))
+    Text("النزول ليس خطاً مستقيماً", style = Type.h1.copy(color = c.ink))
+    Text(
+        "بعض الأسابيع يثبت فيها الميزان أو يصعد قليلاً: ماء، ملح، قلة نوم. سند ينظر إلى الاتجاه، لا إلى رقم اليوم.",
+        style = Type.body.copy(color = c.inkSoft),
+    )
+    Column(
+        Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp)).padding(16.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "من ${ar(f.startKg)} إلى ${ar(f.goalKg)} كغ، ${rangeText(earliest, latest)}"
+            },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Text("الآن ${ar(f.startKg)}", style = Type.bodyStrong.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("${ar(f.goalKg)} كغ", style = Type.bodyStrong.copy(color = c.saffron))
+        }
+        val band = Color(0xFFDCE8F3)
+        val goalZone = c.amberTint
+        Canvas(Modifier.fillMaxWidth().height(170.dp)) {
+            val pad = 10.dp.toPx()
+            val bandKg = 0.9
+            val top = f.startKg + bandKg + 0.3
+            val bottom = f.goalKg - bandKg - 0.3
+            fun y(kg: Double) = pad + ((top - kg) / (top - bottom)).toFloat() * (size.height - 2 * pad)
+            // t=0 اليوم يميناً، t=1 أبطأ وصول يساراً
+            fun x(t: Float) = size.width - pad - t * (size.width - 2 * pad)
+            val tFast = f.weeksFast.toFloat() / f.weeksSlow
+            val tMid = (tFast + 1f) / 2f
+            fun trend(t: Float): Double {
+                val u = (t / tMid).coerceIn(0f, 1f).toDouble()
+                return f.startKg - (f.startKg - f.goalKg) * (1 - (1 - u).pow(1.3))
+            }
+            val n = 90
+            // شريط التذبذب الطبيعي حول الاتجاه
+            val area = Path().apply {
+                for (i in 0..n) { val t = tMid * i / n; if (i == 0) moveTo(x(t), y(trend(t) + bandKg)) else lineTo(x(t), y(trend(t) + bandKg)) }
+                for (i in n downTo 0) { val t = tMid * i / n; lineTo(x(t), y(trend(t) - bandKg)) }
+                close()
+            }
+            drawPath(area, band)
+            // منطقة الوصول: من أسرع أسبوع إلى أبطأه
+            drawRoundRect(
+                goalZone, Offset(x(1f), y(f.goalKg + bandKg * 0.8)), Size(x(tFast) - x(1f), y(f.goalKg - bandKg * 0.8) - y(f.goalKg + bandKg * 0.8)),
+                CornerRadius(10.dp.toPx()),
+            )
+            drawLine(c.faint.copy(alpha = 0.6f), Offset(pad, y(f.goalKg)), Offset(size.width - pad, y(f.goalKg)), 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)))
+            // المسار الحقيقي يتموّج: أسابيع تثبت وأسابيع تنزل
+            val shown = (n * draw.value).toInt()
+            val line = Path()
+            for (i in 0..shown) {
+                val t = tMid * i / n
+                val wig = 0.45 * sin(t / tMid * 7.0 * PI) * (1 - 0.4 * t / tMid)
+                val px = x(t); val py = y(trend(t) + wig)
+                if (i == 0) line.moveTo(px, py) else line.lineTo(px, py)
+            }
+            drawPath(line, c.primary, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            val start = Offset(x(0f), y(f.startKg))
+            drawCircle(c.surface, 7.dp.toPx(), start)
+            drawCircle(c.primary, 7.dp.toPx(), start, style = Stroke(3.dp.toPx()))
+        }
+        Row(Modifier.fillMaxWidth()) {
+            Text("${monthAr(today)} ${arYear(today.year)}", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.weight(1f))
+            Text(rangeText(earliest, latest), style = Type.label.copy(color = c.saffron, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold))
+        }
+    }
+    Text(
+        "تقدير على نزول ${ar(f.slowKgWeek, 2)}–${ar(f.fastKgWeek, 2)} كغ في الأسبوع. الشريط الأزرق هو المدى الطبيعي للتذبذب، والمنطقة الصفراء هي وقت الوصول المتوقَّع.",
+        style = Type.small.copy(color = c.faint),
+    )
+}
 
 /** «هلالك الأول»: القمر يولد أمامك، وكل يوم تسجّله يضيف له ليلة. */
 @Composable

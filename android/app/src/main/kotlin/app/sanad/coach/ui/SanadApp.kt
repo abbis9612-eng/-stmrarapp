@@ -146,7 +146,7 @@ class Celebration { var streak by mutableStateOf<Int?>(null) }
 val LocalCelebration = staticCompositionLocalOf { Celebration() }
 
 @Composable
-fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, skipIntro: Boolean = false) {
+fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, skipIntro: Boolean = false, onboardDemo: Boolean = false) {
     val state by store.state.collectAsStateWithLifecycle()
     val nav = rememberNavController()
     var introDone by rememberSaveable { mutableStateOf(skipIntro) }
@@ -177,7 +177,7 @@ fun SanadApp(store: AppStore, coach: CoachSettings, startRoute: String? = null, 
                 popExitTransition = { fadeOut(tween(180)) + slideOutVertically(tween(260)) { it / 24 } },
             ) {
                 composable(Routes.START) {
-                    OnboardingScreen(store) { nav.navigate(Routes.TODAY) { popUpTo(Routes.START) { inclusive = true } } }
+                    OnboardingScreen(store, demo = onboardDemo) { nav.navigate(Routes.TODAY) { popUpTo(Routes.START) { inclusive = true } } }
                 }
                 composable(Routes.TODAY) { TodayScreen(store, state, nav) }
                 composable(Routes.EAT) { EatScreen(store, state, nav) }

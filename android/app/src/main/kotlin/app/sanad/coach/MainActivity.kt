@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
         // نسخة المطوّر فقط: بيانات تجريبية ومسار بدء للقطات الشاشة الآلية في CI
         var startRoute: String? = null
         var skipIntro = false
+        var onboardDemo = false
         if (BuildConfig.DEBUG) {
             intent?.let {
                 if (it.getBooleanExtra("demo", false)) Graph.store.replaceAll(demoState())
@@ -79,6 +80,8 @@ class MainActivity : ComponentActivity() {
                     app.sanad.coach.notify.Reminders.ensureChannel(this)
                     app.sanad.coach.notify.Reminders.show(this, r?.id ?: "test", r?.title ?: "سند", r?.body ?: "تنبيه تجريبي")
                 }
+                // شاشة الصراحة في التعريف ببيانات جاهزة
+                if (it.getBooleanExtra("onboardDemo", false)) { Graph.store.reset(); onboardDemo = true }
                 startRoute = it.getStringExtra("route")
                 skipIntro = it.getBooleanExtra("skipIntro", false)
             }
@@ -86,7 +89,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SanadTheme {
-                SanadApp(Graph.store, Graph.coach, startRoute = startRoute, skipIntro = skipIntro || savedInstanceState != null)
+                SanadApp(Graph.store, Graph.coach, startRoute = startRoute, skipIntro = skipIntro || savedInstanceState != null, onboardDemo = onboardDemo)
             }
         }
     }

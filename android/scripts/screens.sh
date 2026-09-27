@@ -130,6 +130,8 @@ adb shell input keyevent KEYCODE_BACK; sleep 1
 # التعريف: الأقسام المسمّاة
 shot 22-onboarding-step1 4 --ez fresh true --ez skipIntro true
 tap_text "لنبدأ — ٣ دقائق"; cap 23-onboarding-basics 2
+# شاشة الصراحة: مدى الوصول بدل تاريخ واحد
+shot 23b-onboarding-honest 6 --ez skipIntro true --ez onboardDemo true
 
 # وضع رمضان (آخر شي لأنه يبقى مفعّل)
 shot 30-ramadan-today 7 --ez demo true --ez skipIntro true --es checkin HIGH --ez ramadan true
