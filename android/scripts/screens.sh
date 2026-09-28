@@ -98,7 +98,7 @@ scroll_to "قرأته، سأجرّبه اليوم" 47-lesson-card
 tap_text "قرأته، سأجرّبه اليوم"; cap 48-lesson-read 2
 
 shot 49-progress-audit 8 --ez demo true --ez skipIntro true --es route progress
-scroll_to "متى تصل؟" 49b-progress-forecast
+scroll_to "الأسابيع الثابتة جزء من الطريق" 49b-progress-forecast
 scroll_to "طقس الميزان" 50-weigh-in-weather
 scroll_to "آخذ إبر أو حبوب التنحيف" 51-glp1-off
 tap_text "وضع أدوية التنحيف"; cap 52-glp1-on 2
