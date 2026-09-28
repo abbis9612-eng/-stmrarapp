@@ -139,16 +139,20 @@ class CoreTest {
         val r = offlineReply("فطرت بيضتين وشاي كرك", AppState(profile = profile), t, "2026-09-10")
         val meals = r.actions.filterIsInstance<CoachAction.LogMeal>()
         assertEquals(305, meals.sumOf { it.kcal })
-        assertContains(r.text, "٣٠٥")
+        assertContains(r.text, "305")
         val tired = offlineReply("اليوم تعبان مرة", AppState(profile = profile), t, "2026-09-10")
         assertEquals(CoachAction.StartWorkout("reset-2"), tired.actions.single())
     }
 
-    @Test fun arabicNumbers() {
-        assertEquals("١٬٥٠٠", ar(1500))
-        assertEquals("٨٧٫٥", ar(87.5))
-        assertEquals("٠", ar(0))
+    @Test fun westernNumbersAndArabicInput() {
+        assertEquals("1,500", ar(1500))
+        assertEquals("87.5", ar(87.5))
+        assertEquals("0", ar(0))
         assertEquals(87.5, parseNum("٨٧٫٥"))
         assertEquals(92.0, parseNum("92"))
+        // المستخدم قد يكتب بالأرقام العربية: البحث والتحليل يفهمانها
+        assertTrue(parseMealText("فطرت ٢ بيض").isNotEmpty())
+        assertEquals("-1.2", ar(-1.2))
+        assertEquals("\u2066−1.2\u2069", arSigned(-1.2))
     }
 }

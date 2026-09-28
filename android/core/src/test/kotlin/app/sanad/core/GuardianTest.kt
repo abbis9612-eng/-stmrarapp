@@ -12,7 +12,7 @@ class GuardianTest {
         name = "علي", sex = Sex.M, age = 35, heightCm = 175.0, startWeightKg = 100.0, goalWeightKg = 85.0,
         activity = Activity.SEDENTARY, pace = Pace.STEADY, createdAt = "2026-09-01",
         barriers = listOf(Barrier.NIGHT),
-        ifThens = listOf(IfThen("a", "إذا جاني جوع بعد الساعة ٩", "أشرب شاي أو ماء"), IfThen("b", "إذا عندي عزيمة", "صحن واحد")),
+        ifThens = listOf(IfThen("a", "إذا جاني جوع بعد الساعة 9", "أشرب شاي أو ماء"), IfThen("b", "إذا عندي عزيمة", "صحن واحد")),
     )
     private val t = computeTargets(p, 100.0)
     private fun day(date: String, kcal: Int = 0, meal: String = "x", weight: Double? = null, energy: Energy? = null, sleep: Double? = null, done: List<String> = emptyList()) =
@@ -59,7 +59,7 @@ class GuardianTest {
         assertEquals(1.1, w.rawDelta)
         assertTrue(w.causes.any { "رز" in it }, w.causes.toString())
         assertTrue(w.headline.contains("ماء"))
-        assertTrue((w.headline + w.body).none { it in '0'..'9' }, w.body)
+        assertTrue((w.headline + w.body).none { it in '٠'..'٩' }, w.body)
     }
 
     @Test fun firstWeighInAndNoWeightCases() {
@@ -96,7 +96,7 @@ class GuardianTest {
         val morning = assertNotNull(nextReminder(s, t, LocalDateTime.of(2026, 9, 22, 7, 0)))
         assertEquals("morning", morning.id)
         assertEquals(9, morning.at.hour)
-        // بعد ١١ الليل: التنبيه الجاي الصبح مو الحين
+        // بعد 11 الليل: التنبيه الجاي الصبح مو الحين
         val late = assertNotNull(nextReminder(s, t, LocalDateTime.of(2026, 9, 22, 23, 30)))
         assertTrue(late.at.hour in 8..22 && late.at.toLocalDate().toString() == "2026-09-23")
         // سجّل طاقة وأكل: ما نسأله الصبح ولا الغدا

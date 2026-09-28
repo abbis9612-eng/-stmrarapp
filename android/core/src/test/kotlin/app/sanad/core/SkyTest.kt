@@ -59,7 +59,7 @@ class SkyTest {
     }
 
     @Test fun occasionBankCapsPerDayAndTotal() {
-        // كل يوم ٥٠٠ تحت الخطة، لكن اليوم يضيف ١٥٠ بس، والمجموع ما يتجاوز ٥٠٠
+        // كل يوم 500 تحت الخطة، لكن اليوم يضيف 150 بس، والمجموع ما يتجاوز 500
         val days = daysFrom("2026-09-20", 6).mapValues { (d, _) -> DayLog(d, meals = listOf(meal(1000))) }
         assertEquals(BANK_CAP, occasionBank(days, "2026-09-26", 1500).saved)
         val two = mapOf(logged("2026-09-24", 1400), logged("2026-09-25", 1200))
@@ -83,7 +83,7 @@ class SkyTest {
         val ch = weightChanges(t)
         assertEquals(-0.7, ch[0].kg)
         assertEquals(-1.4, ch[1].kg)
-        // ٢٠ يوم بيانات فقط: الـ٣٠ يوم تساوي من البداية
+        // 20 يوم بيانات فقط: الـ30 يوم تساوي من البداية
         assertEquals(-2.0, ch[2].kg)
         assertEquals(-2.0, ch[3].kg)
         val short = listOf(TrendPoint("2026-09-25", 80.0, 80.0), TrendPoint("2026-09-26", 79.8, 79.9))
@@ -94,9 +94,9 @@ class SkyTest {
     @Test fun dayCountsUseCorrectArabicPlural() {
         assertEquals("يوم واحد", arDays(1))
         assertEquals("يومان", arDays(2))
-        assertEquals("٨ أيام", arDays(8))
-        assertEquals("٢١ يوماً", arDays(21))
-        assertEquals("٠ يوماً", arDays(0))
+        assertEquals("8 أيام", arDays(8))
+        assertEquals("21 يوماً", arDays(21))
+        assertEquals("0 يوماً", arDays(0))
     }
 
     @Test fun forecastGivesARangeNotADate() {

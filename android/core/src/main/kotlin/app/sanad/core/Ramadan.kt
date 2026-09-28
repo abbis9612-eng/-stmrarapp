@@ -54,13 +54,13 @@ internal fun ramadanMissions(energy: Energy, time: TimeBudget, t: Targets): List
         )
         time == TimeBudget.TEN -> Mission(
             "move", MissionKind.MOVE,
-            if (energy == Energy.HIGH) "١٠ دقائق قوة بعد الفطور بساعة" else "١٠ دقائق حركة بلا قفز بعد الفطور",
+            if (energy == Energy.HIGH) "10 دقائق قوة بعد الفطور بساعة" else "10 دقائق حركة بلا قفز بعد الفطور",
             "بعد أن يأخذ جسمك الأكل والماء. القوة تحمي عضلاتك في الصيام.",
             if (energy == Energy.HIGH) "strength-10" else "low-impact-10",
         )
         else -> Mission(
             "move", MissionKind.MOVE,
-            if (energy == Energy.HIGH) "٢٠ دقيقة قوة بعد التراويح" else "٢٠ دقيقة مشي بعد الفطور",
+            if (energy == Energy.HIGH) "20 دقيقة قوة بعد التراويح" else "20 دقيقة مشي بعد الفطور",
             if (energy == Energy.HIGH) "جلسة كاملة وأنت مفطر ومرتوٍ." else "المشي بعد الفطور يهدّئ السكر ويساعد الهضم.",
             if (energy == Energy.HIGH) "strength-20" else "walk-20",
         )

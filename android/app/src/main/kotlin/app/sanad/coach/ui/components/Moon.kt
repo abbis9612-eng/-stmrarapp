@@ -36,7 +36,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 /**
- * الجزء المضيء من القمر عند طور [phase] (٠ محاق، ٠٫٥ تربيع، ١ بدر).
+ * الجزء المضيء من القمر عند طور [phase] (0 محاق، 0.5 تربيع، 1 بدر).
  * يضيء من اليمين (قمر متزايد): نصف دائرة يمين + منحنى الفاصل.
  */
 fun moonLitPath(phase: Float, center: Offset, r: Float): Path? {
@@ -121,7 +121,7 @@ fun Wordmark(fontSize: TextUnit, modifier: Modifier = Modifier, color: Color = S
 
 /**
  * علامة «تحرّك»: سهمان للأمام (من شدّة الاسم) وأمام كل سهم أصابع قدم، على مربع ليموني.
- * [progress] من ٠ إلى ١ يُدخل السهمين من اليمين لليسار (للأمام في العربي).
+ * [progress] من 0 إلى 1 يُدخل السهمين من اليمين لليسار (للأمام في العربي).
  */
 @Composable
 fun BrandMark(size: Dp, modifier: Modifier = Modifier, progress: Float = 1f, tile: Boolean = true) {

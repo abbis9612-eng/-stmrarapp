@@ -1,6 +1,9 @@
 package app.sanad.coach.ui.screens
 
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.border
+import app.sanad.coach.ui.theme.Palette
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.content.Intent
 import app.sanad.core.reachedGoal
 import app.sanad.core.maintenanceStatus
@@ -102,6 +105,7 @@ import app.sanad.core.weighInWeather
 import app.sanad.core.WeighIn
 import app.sanad.core.addDays
 import app.sanad.core.ar
+import app.sanad.core.arSigned
 import app.sanad.core.computeThread
 import app.sanad.core.isCounted
 import app.sanad.core.parseNum
@@ -212,7 +216,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
             SCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("خريطة الاستمرار", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
-                    Text("٥ أسابيع", style = Type.small.copy(color = c.inkSoft))
+                    Text("5 أسابيع", style = Type.small.copy(color = c.inkSoft))
                 }
                 Spacer(Modifier.height(12.dp))
                 Heatmap(state, day.date)
@@ -224,9 +228,9 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Spacer(Modifier.height(14.dp))
                 val proteinDays = state.days.values.count { it.protein >= t.protein * 0.9 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Medal("أول ٧ أيام", thread.best >= 7, c.amber, Ico.STAR, Modifier.weight(1f))
+                    Medal("أول 7 أيام", thread.best >= 7, c.amber, Ico.STAR, Modifier.weight(1f))
                     Medal("أول كيلو", lost >= 1, c.oasis, Ico.SCALE, Modifier.weight(1f))
-                    Medal("١٠ تمارين", workouts >= 10, c.sky, Ico.MOVE, Modifier.weight(1f))
+                    Medal("10 تمارين", workouts >= 10, c.sky, Ico.MOVE, Modifier.weight(1f))
                     Medal("بطل البروتين", proteinDays >= 5, c.violet, Ico.EAT, Modifier.weight(1f))
                 }
             }
@@ -245,7 +249,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     val kg = parseNum(w)
                     SButton("احفظ", { store.logWeight(kg!!); w = "" }, enabled = kg != null && kg in 30.0..350.0)
                 }
-                Text("أفضل وقت: الصباح بعد دورة المياه وقبل الأكل. ٣ مرات في الأسبوع تكفي.", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 8.dp))
+                Text("أفضل وقت: الصباح بعد دورة المياه وقبل الأكل. 3 مرات في الأسبوع تكفي.", style = Type.label.copy(color = c.inkSoft), modifier = Modifier.padding(top = 8.dp))
             }
         }
         weighInWeather(state, day.date, t)?.let { w -> item(key = "weather-${w.todayKg}") { WeighInCard(w) } }
@@ -257,11 +261,11 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 if (a != null) {
                     Text("تعلّم سند من ${ar(a.loggedDays)} يوماً مسجّلاً أن حرقك نحو ${ar(a.tdee)} سعرة يومياً، فعدّل هدفك إلى ${ar(t.kcal)} سعرة.", style = Type.body.copy(color = c.ink))
                     Spacer(Modifier.height(8.dp))
-                    Text("الثقة بالتقدير ${ar((a.confidence * 100).toInt())}٪", style = Type.label.copy(color = c.inkSoft))
+                    Text("الثقة بالتقدير ${ar((a.confidence * 100).toInt())}%", style = Type.label.copy(color = c.inkSoft))
                     Spacer(Modifier.height(6.dp))
                     Meter(a.confidence.toFloat(), color = c.oasis, height = 8.dp)
                 } else {
-                    Text("نستخدم حالياً تقدير المعادلة (${ar(t.tdee)} سعرة). بعد ٧ أيام من تسجيل الأكل و٣ أوزان، يحسب سند حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
+                    Text("نستخدم حالياً تقدير المعادلة (${ar(t.tdee)} سعرة). بعد 7 أيام من تسجيل الأكل و3 أوزان، يحسب سند حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
                 }
             }
         }
@@ -315,6 +319,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 }
             }
         }
+        item { AppearanceCard() }
         item {
             SCard {
                 Text("بياناتك", style = Type.h2.copy(color = c.ink))
@@ -359,7 +364,7 @@ private fun TrendChart(points: List<TrendPoint>) {
         fun x(date: String) = size.width - pad - (LocalDate.parse(date).toEpochDay() - d0).toFloat() / (d1 - d0) * (size.width - 2 * pad)
         fun y(kg: Double) = pad + ((maxY - kg) / (maxY - minY)).toFloat() * (bottom - pad)
         val label = Type.label.copy(color = c.faint, fontSize = 10.sp)
-        // خطوط الشبكة: ٣ قيم صحيحة ضمن المدى
+        // خطوط الشبكة: 3 قيم صحيحة ضمن المدى
         val step = max(1.0, ((maxY - minY) / 3).let { kotlin.math.round(it) })
         var g = ceil(minY)
         while (g <= maxY) {
@@ -397,7 +402,7 @@ private fun TrendChart(points: List<TrendPoint>) {
     }
 }
 
-/** جدول التغيّر: ٧ و١٤ و٣٠ يوماً ومنذ البداية، من الوزن الاتجاهي لا من قراءة يوم واحد. */
+/** جدول التغيّر: 7 و14 و30 يوماً ومنذ البداية، من الوزن الاتجاهي لا من قراءة يوم واحد. */
 @Composable
 private fun WeightChangeTable(trend: List<TrendPoint>) {
     val c = Sanad.colors
@@ -409,7 +414,7 @@ private fun WeightChangeTable(trend: List<TrendPoint>) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    when { kg == null -> "—"; kg < 0 -> "${ar(abs(kg))}−"; kg > 0 -> "${ar(kg)}+"; else -> "٠" },
+                    if (kg == null) "—" else arSigned(kg),
                     style = Type.bodyStrong.copy(color = when { kg == null -> c.faint; kg < 0 -> c.primary; kg > 0 -> c.saffron; else -> c.ink }),
                 )
                 Text(ch.label, style = Type.label.copy(fontSize = 11.sp, color = c.inkSoft))
@@ -444,7 +449,7 @@ private fun SkyCard(sky: Sky, modifier: Modifier) {
             }
             Moon(96.dp, phase = sky.phase, night = true, description = "قمرك: ليلة ${sky.nights} من $NIGHTS_PER_MOON")
         }
-        // النجوم: أسبوع كامل بلا يومين فارغين متتاليين = نجمة. نعرض ٨ خانات حتى يبان المكان الفاضي
+        // النجوم: أسبوع كامل بلا يومين فارغين متتاليين = نجمة. نعرض 8 خانات حتى يبان المكان الفاضي
         val slots = max(8, sky.stars)
         Canvas(Modifier.fillMaxWidth().height(22.dp)) {
             val gap = size.width / slots
@@ -489,14 +494,14 @@ private fun WeekReviewCard(r: WeeklyReview, modifier: Modifier, onAsk: () -> Uni
     SCard(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("مراجعة الأسبوع", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
-            Text("آخر ٧ أيام", style = Type.small.copy(color = c.inkSoft))
+            Text("آخر 7 أيام", style = Type.small.copy(color = c.inkSoft))
         }
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            MiniStat("${ar(r.activeDays)}/٧", "أيام حضور", Modifier.weight(1f))
+            MiniStat("${ar(r.activeDays)}/7", "أيام حضور", Modifier.weight(1f))
             MiniStat(ar(r.workouts), "تمارين", Modifier.weight(1f))
             val change = r.trendChangeKg
-            MiniStat(if (change != null) "${ar(abs(change))}${if (change <= 0) "-" else "+"}" else "—", "كغ اتجاه", Modifier.weight(1f), if (r.pacing == Pacing.ON_TRACK) c.oasis else c.ink)
+            MiniStat(if (change != null) arSigned(change) else "—", "كغ اتجاه", Modifier.weight(1f), if (r.pacing == Pacing.ON_TRACK) c.oasis else c.ink)
         }
         Spacer(Modifier.height(12.dp))
         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.amberTint).padding(12.dp)) {
@@ -527,7 +532,7 @@ private fun MiniStat(value: String, label: String, modifier: Modifier, color: Co
     }
 }
 
-/** ٣٥ يوماً: كل مربع يمتلئ حسب كمية الإنجاز. الأقدم يمين الصف الأول. */
+/** 35 يوماً: كل مربع يمتلئ حسب كمية الإنجاز. الأقدم يمين الصف الأول. */
 @Composable
 private fun Heatmap(state: AppState, today: String) {
     val c = Sanad.colors
@@ -613,7 +618,7 @@ private fun WeighInCard(w: WeighIn) {
     }
 }
 
-/** بنك النوم: ٧ ليالي كأعمدة، والخط = ٧ ساعات. */
+/** بنك النوم: 7 ليالي كأعمدة، والخط = 7 ساعات. */
 @Composable
 private fun SleepBankCard(b: SleepBank) {
     val c = Sanad.colors
@@ -654,7 +659,7 @@ private fun SleepBankCard(b: SleepBank) {
     }
 }
 
-/** رحلة ١٢ أسبوع: ١٢ نقطة، كل نقطة تمتلي بقد دروس أسبوعها. */
+/** رحلة 12 أسبوع: 12 نقطة، كل نقطة تمتلي بقد دروس أسبوعها. */
 @Composable
 private fun JourneyCard(read: Int) {
     val c = Sanad.colors
@@ -665,7 +670,7 @@ private fun JourneyCard(read: Int) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("رحلة ١٢ أسبوعاً", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+            Text("رحلة 12 أسبوعاً", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
             Text("${ar(read)} من ${ar(total)} درس", style = Type.small.copy(color = c.inkSoft))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -735,7 +740,7 @@ private fun MaintenanceCard(m: MaintenanceStatus, onBackToLoss: () -> Unit) {
     ) {
         Text("وضع الحفاظ", style = Type.label.copy(color = tint))
         Text(m.headline, style = Type.h2.copy(color = c.ink))
-        // المقياس: من (الهدف - ١) إلى (حد الأمان + ١)
+        // المقياس: من (الهدف - 1) إلى (حد الأمان + 1)
         val lo = m.goalKg - 1
         val hi = m.guardrailKg + 1
         val pos = ((m.trendKg - lo) / (hi - lo)).toFloat().coerceIn(0f, 1f)
@@ -762,5 +767,58 @@ private fun MaintenanceCard(m: MaintenanceStatus, onBackToLoss: () -> Unit) {
         }
         Text(m.advice, style = Type.body.copy(color = c.ink))
         SButton(if (m.zone == Zone.RED) "أعدني إلى وضع النزول" else "العودة إلى وضع النزول", onBackToLoss, Modifier.fillMaxWidth(), style = if (m.zone == Zone.RED) BtnStyle.GOLD else BtnStyle.GHOST, small = true)
+    }
+}
+
+/** «المظهر»: أربعة نماذج ألوان، «ضوء» هو الافتراضي والباقي اختياري. */
+@Composable
+private fun AppearanceCard() {
+    val c = Sanad.colors
+    val current by app.sanad.coach.Graph.appearance.palette.collectAsStateWithLifecycle()
+    SCard {
+        Text("المظهر", style = Type.h2.copy(color = c.ink))
+        Text("اختر الألوان التي تريحك. يمكنك تغييرها في أي وقت.", style = Type.small.copy(color = c.inkSoft))
+        Spacer(Modifier.height(12.dp))
+        Palette.entries.chunked(2).forEach { row ->
+            Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                row.forEach { p ->
+                    val sel = p == current
+                    val pc = p.colors
+                    Column(
+                        Modifier.weight(1f).clip(RoundedCornerShape(18.dp))
+                            .border(if (sel) 2.dp else 1.dp, if (sel) c.ink else c.line, RoundedCornerShape(18.dp))
+                            .press({ app.sanad.coach.Graph.appearance.set(p) })
+                            .semantics { contentDescription = "نموذج ${p.label}" + if (sel) "، مختار" else "" }
+                            .padding(8.dp),
+                    ) {
+                        // معاينة مصغّرة: الخلفية، بطاقة الخطوة، وزر الإجراء
+                        Column(
+                            Modifier.fillMaxWidth().height(72.dp).clip(RoundedCornerShape(12.dp)).background(pc.bg)
+                                .border(1.dp, pc.line, RoundedCornerShape(12.dp)).padding(7.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp),
+                        ) {
+                            Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(8.dp)).background(pc.hero).padding(6.dp)) {
+                                Box(Modifier.size(width = 34.dp, height = 7.dp).clip(CircleShape).background(pc.onHero.copy(alpha = 0.85f)))
+                                Box(Modifier.align(Alignment.BottomStart).size(width = 22.dp, height = 8.dp).clip(CircleShape).background(pc.heroBtn))
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.weight(1f).height(12.dp).clip(RoundedCornerShape(4.dp)).background(pc.surface))
+                                Box(Modifier.size(12.dp).clip(CircleShape).background(pc.act))
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(p.label + if (p == Palette.LIGHT) " · الأساسي" else "", style = Type.bodyStrong.copy(color = c.ink))
+                                Text(p.note, style = Type.label.copy(color = c.inkSoft))
+                            }
+                            if (sel) Box(Modifier.size(22.dp).clip(CircleShape).background(c.ink), contentAlignment = Alignment.Center) {
+                                SIcon(Ico.CHECK, size = 14.dp, tint = c.surface)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

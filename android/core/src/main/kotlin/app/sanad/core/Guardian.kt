@@ -36,7 +36,7 @@ private val SOCIAL_WORDS = Regex("(عزيمه|عزومه|وليمه|مناسبه
 private val HEAVY_WORDS = Regex("(رز|كبسه|مندي|برياني|شاورما|بيتزا|برگر|برجر|مقلي|كنافه|بقلاوه|حلو|قيمه|تشريب|دولمه|باچه|پاچه)")
 
 /**
- * درجة خطر من ٠ إلى ١٠٠. القواعد مستوحاة من أدبيات JITAI والزلّات الغذائية:
+ * درجة خطر من 0 إلى 100. القواعد مستوحاة من أدبيات JITAI والزلّات الغذائية:
  * الليل، نهاية الأسبوع، التعب، قلة النوم، الغياب، زيادة الوزن، الأكل العالي مبكراً، والمناسبات.
  */
 fun lapseRisk(state: AppState, t: Targets, now: LocalDateTime): Risk {
@@ -75,7 +75,7 @@ fun lapseRisk(state: AppState, t: Targets, now: LocalDateTime): Risk {
     fun find(vararg words: String) = plans.firstOrNull { r -> words.any { w -> w in normalizeArabic(r.whenText) } }
     val plan = when {
         "social" in ids -> find("عزيمه", "عزومه", "مناسبه")
-        "night" in ids || "night-barrier" in ids -> find("الليل", "٩", "بالليل")
+        "night" in ids || "night-barrier" in ids -> find("الليل", "9", "٩", "بالليل")
         "tired" in ids || "sleep" in ids -> find("تعبان", "صحيت", "متعب", "استيقظت")
         else -> null
     } ?: plans.firstOrNull()
@@ -128,12 +128,12 @@ fun weighInWeather(state: AppState, today: String, t: Targets?): WeighIn? {
     val causes = mutableListOf<String>()
     val y = state.days[addDays(today, -1)]
     if (y != null) {
-        if (y.meals.any { HEAVY_WORDS.containsMatchIn(normalizeArabic(it.name)) }) causes += "أكل أمس فيه رز أو ملح: كل غرام كربوهيدرات يحبس ٣–٤ غرامات ماء"
+        if (y.meals.any { HEAVY_WORDS.containsMatchIn(normalizeArabic(it.name)) }) causes += "أكل أمس فيه رز أو ملح: كل غرام كربوهيدرات يحبس 3–4 غرامات ماء"
         if (t != null && y.intake > t.kcal * 1.15) causes += "أكلت أمس أكثر من هدفك؛ جزء كبير من القفزة أكل في المعدة وماء"
         if (y.water in 1..3) causes += "شربت ماءً قليلاً أمس؛ فيحبس الجسم ماءً أكثر"
     }
     d.sleepHours?.let { if (it < 6.5) causes += "نومك قليل؛ هرمونات التوتر تحبس الماء" }
-    if (state.profile?.sex == Sex.F) causes += "إن اقتربت الدورة، فمن الطبيعي أن يزيد ١–٣ كغ ماءً ثم يعود"
+    if (state.profile?.sex == Sex.F) causes += "إن اقتربت الدورة، فمن الطبيعي أن يزيد 1–3 كغ ماءً ثم يعود"
     if (prevDay != null && daysBetween(prevDay.date, today) >= 7) causes += "لم تزن نفسك منذ أسبوع؛ الفرق فيه ماء وأكل لا دهون فقط"
 
     val kind = when {
@@ -149,8 +149,8 @@ fun weighInWeather(state: AppState, today: String, t: Targets?): WeighIn? {
         else -> "الاتجاه ثابت تقريباً؛ هذا طبيعي في بعض الفترات، أكمل."
     }
     val (headline, body) = when (kind) {
-        WeighIn.Kind.FIRST -> "حُفظت أول قراءة" to "من الآن نرسم خطك الاتجاهي. زن نفسك صباحاً بعد دورة المياه وقبل الأكل، و٣ مرات في الأسبوع تكفي."
-        WeighIn.Kind.JUMP -> "قفزة ${ar(raw!!)} كغ… غالباً ماء لا دهون" to ((if (causes.isNotEmpty()) causes.take(2).joinToString("\n") + "\n" else "زيادة كيلو دهون تحتاج ~٧٧٠٠ سعرة إضافية، وهذا لا يحدث في يوم.\n") + trendLine)
+        WeighIn.Kind.FIRST -> "حُفظت أول قراءة" to "من الآن نرسم خطك الاتجاهي. زن نفسك صباحاً بعد دورة المياه وقبل الأكل، و3 مرات في الأسبوع تكفي."
+        WeighIn.Kind.JUMP -> "قفزة ${ar(raw!!)} كغ… غالباً ماء لا دهون" to ((if (causes.isNotEmpty()) causes.take(2).joinToString("\n") + "\n" else "زيادة كيلو دهون تحتاج ~7700 سعرة إضافية، وهذا لا يحدث في يوم.\n") + trendLine)
         WeighIn.Kind.DROP -> "نزلت ${ar(abs(raw!!))} كغ عن آخر مرة" to "جميل، لكننا لا نفرح برقم اليوم ولا نحزن منه. $trendLine"
         WeighIn.Kind.STEADY -> "ثابت تقريباً" to trendLine
     }
@@ -202,7 +202,7 @@ fun lapseRecovery(kind: LapseKind, t: Targets): Recovery {
             listOf(
                 "لا تعوّض بالجوع غداً، فهذا يعيدك إلى الدائرة نفسها.",
                 "الوجبة القادمة عادية: ابدأ ببروتين (~${ar(proteinMeal)} غ) وخضار.",
-                "الآن: كوب ماء و١٠ دقائق مشي خفيف إن استطعت.",
+                "الآن: كوب ماء و10 دقائق مشي خفيف إن استطعت.",
             ),
             reframe,
         )
@@ -251,7 +251,7 @@ data class Reminder(val at: LocalDateTime, val id: String, val title: String, va
 /**
  * التنبيه الجاي فقط (نجدول واحد بكل مرة ونعيد الحساب بعده).
  * لطيف ومبني على اللحظة: الصبح سؤال طاقة، الظهر تسجيل، المسا رادار، الليل نوم، والغائب ترحيب.
- * بدون تنبيهات بين ١١ الليل و٨ الصبح.
+ * بدون تنبيهات بين 11 الليل و8 الصبح.
  */
 fun nextReminder(state: AppState, t: Targets, now: LocalDateTime): Reminder? {
     val p = state.profile ?: return null
@@ -275,12 +275,12 @@ fun nextReminder(state: AppState, t: Targets, now: LocalDateTime): Reminder? {
         }
         val risk = lapseRisk(state, t, at(date, 20, 45))
         if (risk.level != RiskLevel.LOW) {
-            val plan = risk.plan?.let { "${it.whenText} ← ${it.thenText}" } ?: "جرّب ٣ دقائق تهدئة قبل أن تفتح الثلاجة."
+            val plan = risk.plan?.let { "${it.whenText} ← ${it.thenText}" } ?: "جرّب 3 دقائق تهدئة قبل أن تفتح الثلاجة."
             candidates += Reminder(at(date, 20, 45), "radar", "لحظة حساسة قادمة", plan)
         }
         // النوم: بس لما يكون اليوم متعب أو النوم قليل (ما نزعج كل ليلة)
         if (d?.energy == Energy.LOW || (d?.sleepHours ?: 7.0) < 6.5) {
-            candidates += Reminder(at(date, 22, 30), "sleep", "النوم جزء من الخطة", "النوم أبكر بنصف ساعة يقلل أكل الغد نحو ٢٧٠ سعرة. تصبح على خير.")
+            candidates += Reminder(at(date, 22, 30), "sleep", "النوم جزء من الخطة", "النوم أبكر بنصف ساعة يقلل أكل الغد نحو 270 سعرة. تصبح على خير.")
         }
     }
     return candidates.filter { it.at.isAfter(now) && it.at.hour in 8..22 }.minByOrNull { it.at }

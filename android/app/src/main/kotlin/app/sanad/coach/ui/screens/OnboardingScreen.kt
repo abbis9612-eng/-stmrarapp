@@ -114,9 +114,9 @@ private val FLAGS = listOf(
 private val STARTER_RULES = mapOf(
     Barrier.TIME to ("إذا لم يكن عندي وقت" to "أتمرن دقيقتين فقط وأسجّل وجبة واحدة"),
     Barrier.ENERGY to ("إذا استيقظت متعباً" to "أختار طاقة منخفضة وأكتفي بخطة الحد الأدنى"),
-    Barrier.NIGHT to ("إذا جعت بعد الساعة ٩" to "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
+    Barrier.NIGHT to ("إذا جعت بعد الساعة 9" to "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
     Barrier.SOCIAL to ("إذا كانت عندي عزيمة" to "آكل بروتيناً خفيفاً قبلها وآخذ صحناً واحداً"),
-    Barrier.STRESS to ("إذا تضايقت واشتهيت الأكل" to "أمشي ٥ دقائق أو أكلّم سند قبل أن آكل"),
+    Barrier.STRESS to ("إذا تضايقت واشتهيت الأكل" to "أمشي 5 دقائق أو أكلّم سند قبل أن آكل"),
     Barrier.SWEETS to ("إذا اشتهيت الحلو" to "آخذ قطعة صغيرة بعد وجبة فيها بروتين وأسجّلها"),
 )
 
@@ -206,7 +206,7 @@ fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit)
                     }
                     2 -> {
                         Text("إلى أين تريد أن تصل؟", style = Type.h1.copy(color = c.ink))
-                        Note("نزول ٥–١٠٪ من وزنك يحسّن السكر والضغط والمفاصل بوضوح. أول محطة مقترحة: ${ar(milestone)} كغ.")
+                        Note("نزول 5–10% من وزنك يحسّن السكر والضغط والمفاصل بوضوح. أول محطة مقترحة: ${ar(milestone)} كغ.")
                         NumBox("الوزن المستهدف", goal, { goal = it }, "كغ", Modifier.fillMaxWidth())
                         if (goal.isBlank()) SButton("اعتمد المحطة المقترحة", { goal = milestone.toInt().toString() }, style = BtnStyle.SOFT, small = true)
                         else if (!goalOk) Note(if (g >= w) "يجب أن يكون الهدف أقل من وزنك الحالي." else "أقل وزن صحي لطولك تقريباً ${ar(minGoal)} كغ.", alert = true)
@@ -278,7 +278,7 @@ fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit)
         }
         Box(Modifier.padding(16.dp)) {
             when (step) {
-                0 -> SButton("لنبدأ — ٣ دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
+                0 -> SButton("لنبدأ — 3 دقائق", { step = 1 }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.SPARK)
                 6 -> SButton("ابدأ ليلتي الأولى", { profile?.let { store.saveProfile(it); onDone() } }, Modifier.fillMaxWidth(), enabled = canNext, style = BtnStyle.GOLD)
                 else -> SButton(
                     when (step) { 5 -> "اعرض خطتي"; HONEST_STEP -> "مفهوم، أكمل"; else -> "التالي" },
@@ -331,7 +331,7 @@ private fun FirstCrescent() {
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
             Text("هلالك الأول", style = Type.h2.copy(color = Color.White))
-            Text("كل يوم تسجّل فيه يضيف ليلة. بعد ٣٠ ليلة يكتمل بدرك.", style = Type.small.copy(color = Color(0xFFC9D3E0)))
+            Text("كل يوم تسجّل فيه يضيف ليلة. بعد 30 ليلة يكتمل بدرك.", style = Type.small.copy(color = Color(0xFFC9D3E0)))
         }
     }
 }

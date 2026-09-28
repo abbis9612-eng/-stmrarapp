@@ -168,7 +168,7 @@ fun NightCard(modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(2
 fun HeroCard(modifier: Modifier = Modifier, pad: Dp = 20.dp, content: @Composable ColumnScope.() -> Unit) {
     val c = Sanad.colors
     Column(
-        modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.primary).padding(pad),
+        modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.hero).padding(pad),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         content = content,
     )
@@ -210,13 +210,13 @@ fun SButton(
     val c = Sanad.colors
     val shape = RoundedCornerShape(if (small) 12.dp else 14.dp)
     val fg = when (style) {
-        BtnStyle.PRIMARY, BtnStyle.GOLD -> c.onPrimary
+        BtnStyle.PRIMARY, BtnStyle.GOLD -> c.onAct
         BtnStyle.SOFT, BtnStyle.GHOST -> c.ink
     }
     val alpha by animateFloatAsState(if (enabled) 1f else 0.4f, tween(200), label = "btn-alpha")
     val bg: Modifier = when (style) {
         // GOLD بقى اسماً قديماً؛ صار نفس الفعل الأساسي (لون صلب، بلا تدرج ولا ظل)
-        BtnStyle.PRIMARY, BtnStyle.GOLD -> Modifier.background(c.primary.copy(alpha = alpha), shape)
+        BtnStyle.PRIMARY, BtnStyle.GOLD -> Modifier.background(c.act.copy(alpha = alpha), shape)
         BtnStyle.SOFT -> Modifier.background(c.surface, shape).border(1.dp, c.line, shape)
         BtnStyle.GHOST -> Modifier.border(BorderStroke(1.5.dp, c.ink.copy(alpha = 0.8f * alpha)), shape)
     }
@@ -241,19 +241,19 @@ fun SButton(
 @Composable
 fun SChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = Sanad.colors
-    val bg by animateColorAsState(if (selected) c.primaryTint else c.surface, tween(200), label = "chip")
+    val bg by animateColorAsState(if (selected) c.sel else c.surface, tween(200), label = "chip")
     val shape = RoundedCornerShape(12.dp)
     Box(
         modifier
             .heightIn(min = 44.dp)
             .clip(shape)
             .background(bg)
-            .border(if (selected) 2.dp else 1.dp, if (selected) c.primary else c.line, shape)
+            .border(1.dp, if (selected) c.sel else c.line, shape)
             .press(onClick)
             .semantics { this.selected = selected }
             .padding(horizontal = 15.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, style = Type.small.copy(color = c.ink, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium)) }
+    ) { Text(text, style = Type.small.copy(color = if (selected) c.onSel else c.ink, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium)) }
 }
 
 @Composable
@@ -280,7 +280,7 @@ fun Meter(progress: Float, modifier: Modifier = Modifier, color: Color = Sanad.c
 /** بطارية الطاقة (للتسجيل الأول). */
 @Composable
 fun Battery(level: Int, modifier: Modifier = Modifier, color: Color = Sanad.colors.ink) {
-    Row(modifier.clearAndSetSemantics { contentDescription = "مستوى $level من ٣" }, verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier.clearAndSetSemantics { contentDescription = "مستوى $level من 3" }, verticalAlignment = Alignment.CenterVertically) {
         Row(
             Modifier.width(34.dp).height(20.dp).border(1.6.dp, color, RoundedCornerShape(6.dp)).padding(3.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp),

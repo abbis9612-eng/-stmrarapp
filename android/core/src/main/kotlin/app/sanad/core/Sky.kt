@@ -2,11 +2,11 @@ package app.sanad.core
 
 /**
  * سماء سند: رمز التقدّم بدل الأوسمة.
- * كل يوم مُسجّل = ليلة يكبر فيها القمر. كل ٣٠ ليلة = بدر يُحفظ.
+ * كل يوم مُسجّل = ليلة يكبر فيها القمر. كل 30 ليلة = بدر يُحفظ.
  * كل أسبوع كامل بلا يومين فارغين متتاليين = نجمة.
  */
 data class Sky(
-    /** ليالي القمر الحالي (٠–٢٩) */
+    /** ليالي القمر الحالي (0–29) */
     val nights: Int,
     val fullMoons: Int,
     val stars: Int,
@@ -39,7 +39,7 @@ fun skyOf(days: Map<String, DayLog>, today: String, firstDay: String?): Sky {
 /** حالة يوم في شريط الأسبوع أعلى «اليوم». */
 enum class DayMark { ON_PLAN, OVER, OCCASION, EMPTY, TODAY, BEFORE }
 
-/** «فوقها شوية» تبدأ بعد ١٠٠ سعرة زيادة؛ الفرق الأصغر ضمن الخطة. */
+/** «فوقها شوية» تبدأ بعد 100 سعرة زيادة؛ الفرق الأصغر ضمن الخطة. */
 const val OVER_MARGIN = 100
 
 fun dayMarks(days: Map<String, DayLog>, today: String, kcalTarget: Int, firstDay: String?, count: Int = 7): List<DayMark> =
@@ -58,7 +58,7 @@ fun dayMarks(days: Map<String, DayLog>, today: String, kcalTarget: Int, firstDay
 
 /**
  * رصيد المناسبات: ما يبقى تحت خطتك في الأيام الماضية يُجمع لعزومة قادمة، بلا ذنب.
- * حتى لا يكافئ الجوع: كل يوم يضيف ١٥٠ كحد أقصى، والمجموع ٥٠٠. يبدأ العدّ بعد آخر مناسبة.
+ * حتى لا يكافئ الجوع: كل يوم يضيف 150 كحد أقصى، والمجموع 500. يبدأ العدّ بعد آخر مناسبة.
  */
 data class OccasionBank(val saved: Int, val cap: Int = BANK_CAP)
 
@@ -76,7 +76,7 @@ fun occasionBank(days: Map<String, DayLog>, today: String, kcalTarget: Int): Occ
     return OccasionBank(saved.coerceAtMost(BANK_CAP))
 }
 
-/** تغيّر الوزن الاتجاهي خلال فترة: جدول ٧/١٤/٣٠ يوم/منذ البداية في «تقدّمي». */
+/** تغيّر الوزن الاتجاهي خلال فترة: جدول 7/14/30 يوم/منذ البداية في «تقدّمي». */
 data class WeightChange(val label: String, val days: Int?, val kg: Double?)
 
 fun weightChanges(trend: List<TrendPoint>): List<WeightChange> {
@@ -93,9 +93,9 @@ fun weightChanges(trend: List<TrendPoint>): List<WeightChange> {
         return Math.round((last.trend - from.trend) * 10) / 10.0
     }
     return listOf(
-        WeightChange("٧ أيام", 7, change(7)),
-        WeightChange("١٤ يوماً", 14, change(14)),
-        WeightChange("٣٠ يوماً", 30, change(30)),
+        WeightChange("7 أيام", 7, change(7)),
+        WeightChange("14 يوماً", 14, change(14)),
+        WeightChange("30 يوماً", 30, change(30)),
         WeightChange("منذ البداية", null, change(null)),
     )
 }

@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import app.sanad.coach.ui.BottomBarSpace
 
-/** قالب صفحة موحّد: هوامش ١٨، مسافات ١٦، ومساحة فوق شريط التنقل العائم. */
+/** قالب صفحة موحّد: هوامش 18، مسافات 16، ومساحة فوق شريط التنقل العائم. */
 @Composable
 fun Page(state: LazyListState = rememberLazyListState(), bottom: Boolean = true, content: LazyListScope.() -> Unit) {
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()

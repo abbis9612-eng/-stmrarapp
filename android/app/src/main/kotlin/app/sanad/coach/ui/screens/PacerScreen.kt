@@ -73,7 +73,7 @@ import app.sanad.core.fullnessAdvice
 import app.sanad.core.pacerCues
 import kotlinx.coroutines.delay
 
-/** مؤقت الأكل على مهل: ٢٠ دقيقة، إيقاع لقمات هادئ، وسؤال شبع بالنص. */
+/** مؤقت الأكل على مهل: 20 دقيقة، إيقاع لقمات هادئ، وسؤال شبع بالنص. */
 @Composable
 fun PacerScreen(store: AppStore, nav: NavHostController) {
     val c = Sanad.colors
@@ -125,7 +125,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Eyebrow("كُل على مهل")
-                    Text("٢٠ دقيقة للشبع", style = Type.h2.copy(color = c.ink))
+                    Text("20 دقيقة للشبع", style = Type.h2.copy(color = c.ink))
                 }
             }
 
@@ -142,7 +142,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                 Moon(170.dp, phase = 0.08f + 0.92f * frac, breathe = true, kick = kick)
             }
             Text(
-                "${ar(left / 60)}:${ar(left % 60).padStart(2, '٠')}",
+                "${ar(left / 60)}:${ar(left % 60).padStart(2, '0')}",
                 style = Type.number.copy(fontSize = 40.sp, color = c.ink),
                 modifier = Modifier.semantics { contentDescription = "باقي ${left / 60} دقيقة" },
             )
@@ -155,7 +155,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                     Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), c.oasis).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text("كم شبعك من ٥؟", style = Type.h3.copy(color = c.ink))
+                    Text("كم شبعك من 5؟", style = Type.h3.copy(color = c.ink))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         (1..5).forEach { n ->
                             Box(
@@ -165,7 +165,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                             ) { Text(ar(n), style = Type.bodyStrong.copy(color = c.ink)) }
                         }
                     }
-                    Text("١ جائع · ٣ مرتاح · ٥ ممتلئ جداً", style = Type.label.copy(color = c.inkSoft))
+                    Text("1 جائع · 3 مرتاح · 5 ممتلئ جداً", style = Type.label.copy(color = c.inkSoft))
                 }
             } else if (fullness > 0) {
                 Text(fullnessAdvice(fullness, elapsed), style = Type.body.copy(color = c.oasis), textAlign = TextAlign.Center)
@@ -192,7 +192,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                 Text("أكلت على مهل ${ar(minutes)} دقيقة", style = Type.h1.copy(color = c.ink), textAlign = TextAlign.Center)
                 Text(
                     if (elapsed >= 15 * 60) "هكذا يصل الشبع قبل أن تمتلئ زيادة. كرّرها في العشاء."
-                    else "حتى الإبطاء القليل يفرق. في المرة القادمة جرّب ١٥ دقيقة.",
+                    else "حتى الإبطاء القليل يفرق. في المرة القادمة جرّب 15 دقيقة.",
                     style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center,
                 )
                 SButton("سجّلها وعُد", { store.logSlowMeal(); nav.popBackStack() }, Modifier.fillMaxWidth(), style = BtnStyle.GOLD, icon = Ico.CHECK)

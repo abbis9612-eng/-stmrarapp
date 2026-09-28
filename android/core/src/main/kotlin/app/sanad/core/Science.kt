@@ -35,8 +35,8 @@ fun referenceWeight(weightKg: Double, heightCm: Double): Double {
 }
 
 /**
- * ١٫٢–١٫٦ غ/كغ أثناء النزول للحفاظ على العضل؛ نستهدف ١٫٥ من الوزن المرجعي،
- * و١٫٦ مع أدوية GLP-1 لأن جزء أكبر من النزول ممكن يكون عضل والشهية قليلة.
+ * 1.2–1.6 غ/كغ أثناء النزول للحفاظ على العضل؛ نستهدف 1.5 من الوزن المرجعي،
+ * و1.6 مع أدوية GLP-1 لأن جزء أكبر من النزول ممكن يكون عضل والشهية قليلة.
  */
 fun proteinTarget(weightKg: Double, heightCm: Double, glp1: Boolean = false): Int =
     roundTo((if (glp1) 1.6 else 1.5) * referenceWeight(weightKg, heightCm), 5)
@@ -76,7 +76,7 @@ data class TrendPoint(val date: String, val kg: Double, val trend: Double)
 
 fun daysBetween(a: String, b: String): Long = ChronoUnit.DAYS.between(LocalDate.parse(a), LocalDate.parse(b))
 
-/** EMA بمعامل ٠٫١ يومياً؛ الفجوة الأطول تعطي القراءة الجديدة وزناً أكبر. */
+/** EMA بمعامل 0.1 يومياً؛ الفجوة الأطول تعطي القراءة الجديدة وزناً أكبر. */
 fun trendWeights(points: List<Pair<String, Double>>, alpha: Double = 0.1): List<TrendPoint> {
     var trend: Double? = null
     var last: String? = null
@@ -100,8 +100,8 @@ fun weightPoints(days: Collection<DayLog>): List<Pair<String, Double>> =
 data class AdaptiveResult(val tdee: Int, val confidence: Double, val loggedDays: Int, val windowDays: Long)
 
 /**
- * نافذة حتى ٢١ يوماً: الحرق ≈ متوسط الأكل − (تغيّر الوزن الاتجاهي × ٧٧٠٠ ÷ الأيام)،
- * ممزوج مع المعادلة حسب كمية البيانات، ومحدود بـ ±٢٥٪.
+ * نافذة حتى 21 يوماً: الحرق ≈ متوسط الأكل − (تغيّر الوزن الاتجاهي × 7700 ÷ الأيام)،
+ * ممزوج مع المعادلة حسب كمية البيانات، ومحدود بـ ±25%.
  */
 fun adaptiveTdee(p: Profile, days: Collection<DayLog>, today: String): AdaptiveResult? {
     val window = days.filter { daysBetween(it.date, today) in 0..20 }.sortedBy { it.date }
@@ -182,18 +182,18 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(
             "move", MissionKind.MOVE, "دقيقتان من الحركة فقط",
-            "٣ تمارين هادئة وأنت في مكانك. الهدف أن تحفظ قمرك، لا أن تتعب.",
+            "3 تمارين هادئة وأنت في مكانك. الهدف أن تحفظ قمرك، لا أن تتعب.",
             if (energy == Energy.LOW) "reset-2" else "wake-2",
         )
         time == TimeBudget.TEN -> Mission(
             "move", MissionKind.MOVE,
-            if (energy == Energy.HIGH) "١٠ دقائق قوة للجسم كله" else "١٠ دقائق حركة بلا قفز",
+            if (energy == Energy.HIGH) "10 دقائق قوة للجسم كله" else "10 دقائق حركة بلا قفز",
             "تمارين بوزن الجسم تحمي عضلاتك وأنت تخسر الوزن.",
             if (energy == Energy.HIGH) "strength-10" else "low-impact-10",
         )
         else -> Mission(
             "move", MissionKind.MOVE,
-            if (energy == Energy.HIGH) "٢٠ دقيقة قوة + مشي" else "٢٠ دقيقة مشي خفيف",
+            if (energy == Energy.HIGH) "20 دقيقة قوة + مشي" else "20 دقيقة مشي خفيف",
             if (energy == Energy.HIGH) "جلسة قوة كاملة؛ أهم استثمار للحفاظ على العضل." else "امشِ بإيقاع مريح. هدف خطواتك ${ar(t.steps)}.",
             if (energy == Energy.HIGH) "strength-20" else "walk-20",
         )
@@ -208,8 +208,8 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     )
     val restore = when {
         energy == Energy.LOW -> Mission("restore", MissionKind.RESTORE, "نم أبكر بنصف ساعة", "قلة النوم ترفع هرمون الجوع وتضعف الإرادة. الليلة استثمار.")
-        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يُغلق الساعة ٩", "بعدها شاي أو ماء فقط. خطتك لجوع الليل جاهزة عند سند.")
-        else -> Mission("restore", MissionKind.RESTORE, "٨ أكواب ماء", "ابدأ بكوب قبل كل وجبة؛ يساعد على الشبع.")
+        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يُغلق الساعة 9", "بعدها شاي أو ماء فقط. خطتك لجوع الليل جاهزة عند سند.")
+        else -> Mission("restore", MissionKind.RESTORE, "8 أكواب ماء", "ابدأ بكوب قبل كل وجبة؛ يساعد على الشبع.")
     }
     return listOf(move, eat, restore)
 }

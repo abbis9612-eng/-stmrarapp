@@ -148,7 +148,7 @@ class AppStore(context: Context) {
         s.copy(chat = (s.chat + ChatMessage(uid(), role, text, System.currentTimeMillis(), actions, offline = offline, image = image)).takeLast(80))
     }
 
-    /** يحفظ صورة الوجبة مضغوطة (أطول ضلع ١٢٨٠) داخل ملفات التطبيق ويرجع مسارها وبياناتها. */
+    /** يحفظ صورة الوجبة مضغوطة (أطول ضلع 1280) داخل ملفات التطبيق ويرجع مسارها وبياناتها. */
     fun saveMealPhoto(bytes: ByteArray): Pair<String, ByteArray>? {
         val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
         android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)

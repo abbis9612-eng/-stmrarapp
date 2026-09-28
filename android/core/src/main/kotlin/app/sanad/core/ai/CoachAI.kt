@@ -61,7 +61,7 @@ fun createCoach(cfg: ProviderConfig): CoachAI = when (cfg.kind) {
     ProviderKind.OPENAI_COMPAT -> OpenAICompatCoach(cfg.baseUrl, cfg.apiKey, cfg.model)
 }
 
-/** آخر ١٦ رسالة تبدأ برسالة مستخدم، والسياق يُلصق بآخر رسالة مستخدم. */
+/** آخر 16 رسالة تبدأ برسالة مستخدم، والسياق يُلصق بآخر رسالة مستخدم. */
 fun prepareTurns(history: List<Turn>, context: String): List<Turn> {
     val recent = history.takeLast(16).dropWhile { it.role != ChatRole.USER }.toMutableList()
     require(recent.isNotEmpty() && recent.last().role == ChatRole.USER) { "last turn must be from the user" }

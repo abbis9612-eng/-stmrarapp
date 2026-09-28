@@ -8,7 +8,7 @@ fun assessSafety(age: Int, weightKg: Double, heightCm: Double, flags: List<Safet
     var block = false
     if (age < 18 || SafetyFlag.UNDER18 in flags) {
         block = true
-        notes += "لمن هم دون ١٨ سنة: الأفضل خطة يشرف عليها طبيب أو أخصائي تغذية، لا عجز في السعرات."
+        notes += "لمن هم دون 18 سنة: الأفضل خطة يشرف عليها طبيب أو أخصائي تغذية، لا عجز في السعرات."
     }
     if (SafetyFlag.PREGNANT in flags) {
         block = true

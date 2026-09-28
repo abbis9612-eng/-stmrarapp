@@ -25,7 +25,7 @@ class LessonsTest {
     }
 
     @Test fun absenceResumesWhereLeft() {
-        // غاب ١٠ أيام بعد درسين: يكمل الثالث، مو العاشر
+        // غاب 10 أيام بعد درسين: يكمل الثالث، مو العاشر
         assertEquals("w1d3", lessonForToday(listOf("w1d1", "w1d2"), "2026-09-01", "2026-09-12", false)?.id)
     }
 

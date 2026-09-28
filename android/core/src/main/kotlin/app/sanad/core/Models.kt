@@ -13,7 +13,7 @@ enum class Activity(val factor: Double, val baseSteps: Int) {
     ACTIVE(1.725, 9000),
 }
 
-/** نسبة النزول الأسبوعي من وزن الجسم. الحد الآمن ~١٪. */
+/** نسبة النزول الأسبوعي من وزن الجسم. الحد الآمن ~1%. */
 @Serializable
 enum class Pace(val weeklyRate: Double) {
     GENTLE(0.0035),
@@ -21,7 +21,7 @@ enum class Pace(val weeklyRate: Double) {
     BRISK(0.009),
 }
 
-/** ١ منخفضة، ٢ متوسطة، ٣ عالية */
+/** 1 منخفضة، 2 متوسطة، 3 عالية */
 @Serializable
 enum class Energy(val level: Int) { LOW(1), MID(2), HIGH(3) }
 
@@ -147,6 +147,6 @@ data class AppState(
     val days: Map<String, DayLog> = emptyMap(),
     val chat: List<ChatMessage> = emptyList(),
     val favorites: List<String> = emptyList(),
-    /** دروس رحلة الـ١٢ أسبوع المقروءة بالترتيب */
+    /** دروس رحلة الـ12 أسبوع المقروءة بالترتيب */
     val lessonsRead: List<String> = emptyList(),
 )

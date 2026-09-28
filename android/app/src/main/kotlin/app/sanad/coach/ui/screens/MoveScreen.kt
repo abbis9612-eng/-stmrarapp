@@ -450,7 +450,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
         AnimatedVisibility(finished, enter = fadeIn(tween(600)), exit = fadeOut()) {
             val weight = store.state.value.latestWeight() ?: 80.0
             val minutes = (r.totalSeconds / 60f).roundToInt().coerceAtLeast(1)
-            // MET ~٤ لتمارين وزن الجسم المعتدلة
+            // MET ~4 لتمارين وزن الجسم المعتدلة
             val kcal = (4.0 * 3.5 * weight / 200.0 * r.totalSeconds / 60.0).roundToInt()
             Column(
                 Modifier.fillMaxSize().background(c.bg).navigationBarsPadding().padding(26.dp),

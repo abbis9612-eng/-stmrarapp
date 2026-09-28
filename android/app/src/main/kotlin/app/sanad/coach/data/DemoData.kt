@@ -16,7 +16,7 @@ import java.time.LocalDate
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-/** بيانات تجريبية واقعية (٣ أسابيع) للقطات الشاشة في نسخة المطوّر فقط. */
+/** بيانات تجريبية واقعية (3 أسابيع) للقطات الشاشة في نسخة المطوّر فقط. */
 fun demoState(today: LocalDate = LocalDate.now()): AppState {
     val skip = setOf(4, 11, 12)
     val days = (20 downTo 0).mapNotNull { back ->
@@ -48,7 +48,7 @@ fun demoState(today: LocalDate = LocalDate.now()): AppState {
             activity = Activity.SEDENTARY, pace = Pace.STEADY, why = "أتحرك بخفة مع أطفالي",
             barriers = listOf(Barrier.TIME, Barrier.NIGHT, Barrier.SOCIAL),
             ifThens = listOf(
-                IfThen("1", "إذا جعت بعد الساعة ٩", "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
+                IfThen("1", "إذا جعت بعد الساعة 9", "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
                 IfThen("2", "إذا كانت عندي عزيمة", "آكل بروتيناً خفيفاً قبلها وآخذ صحناً واحداً"),
             ),
             createdAt = today.minusDays(20).toString(),

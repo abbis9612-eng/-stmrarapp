@@ -26,7 +26,7 @@ class SleepTest {
         assertEquals(3.0, b.debt, 1e-9)
         assertEquals(2, b.shortNights)
         assertEquals(6.5, b.avg, 1e-9)
-        assertTrue("٢٧٠" in b.tip)
+        assertTrue("270" in b.tip)
         assertEquals(7.0, b.nights.last())
     }
 

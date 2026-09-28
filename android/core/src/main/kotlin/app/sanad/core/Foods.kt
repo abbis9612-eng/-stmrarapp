@@ -22,36 +22,36 @@ data class Food(
 
 val FOODS: List<Food> = listOf(
     // عراقي — بالحصص المحلية (ماعون، صمونة، استكان)
-    Food("dolma", "دولمة", "ماعون متوسط (١٠ قطع تقريباً)", 520, 16, FoodCat.IRAQI, listOf("دولمه", "محشي", "يابسة"), false),
+    Food("dolma", "دولمة", "ماعون متوسط (10 قطع تقريباً)", 520, 16, FoodCat.IRAQI, listOf("دولمه", "محشي", "يابسة"), false),
     Food("tashreeb", "تشريب دجاج", "ماعون مع خبز منقوع", 650, 34, FoodCat.IRAQI, listOf("تشريب", "تشريب لحم", "ثريد عراقي"), false),
     Food("qeema", "قيمة", "زبدية بدون تمن", 360, 20, FoodCat.IRAQI, listOf("قيمه", "قيمة نجفية"), false),
     Food("timman-marag", "تمن ومرگة", "ماعون تمن + زبدية مرگة", 620, 20, FoodCat.IRAQI, listOf("تمن ومرق", "تمن ومركة", "مرگة فاصوليا", "مركة فاصوليا", "تمن وفاصوليا", "مرگة باميا", "تمن وباميا"), false),
     Food("timman", "تمن", "ماعون صغير (كوب مطبوخ)", 210, 4, FoodCat.IRAQI, listOf("تمن ابيض", "تمن عنبر"), false),
     Food("baqilla-dihin", "باگلة بالدهن", "ماعون مع خبز وبيضة", 620, 24, FoodCat.IRAQI, listOf("باگلة", "باكلة", "باقلاء بالدهن", "باقلة"), false),
-    Food("masgouf", "مسگوف", "قطعة كبيرة ٣٠٠ غ بدون خبز", 480, 58, FoodCat.IRAQI, listOf("مسكوف", "سمك مسگوف", "شبوط"), true),
+    Food("masgouf", "مسگوف", "قطعة كبيرة 300 غ بدون خبز", 480, 58, FoodCat.IRAQI, listOf("مسكوف", "سمك مسگوف", "شبوط"), true),
     Food("kubba-halab", "كبة حلب", "حبتين", 380, 14, FoodCat.IRAQI, listOf("كبة", "كبه", "كبة تمن"), false),
     Food("kubba-mosul", "كبة موصلية", "قرص", 460, 22, FoodCat.IRAQI, listOf("كبة موصل", "كبة برغل"), false),
     Food("kahi-geymar", "كاهي وگيمر", "قطعة كاهي + ملعقتين گيمر ودبس", 650, 9, FoodCat.IRAQI, listOf("كاهي", "گيمر", "قيمر", "كيمر", "كاهي وقيمر"), false),
     Food("samoon", "صمون", "صمونة وحدة", 270, 9, FoodCat.IRAQI, listOf("صمونة", "صمونه", "صمونات", "صمونتين"), false),
-    Food("kebab-iraqi", "كباب عراقي", "٣ أسياخ بدون صمون", 540, 40, FoodCat.IRAQI, listOf("كباب", "تكة", "تكه", "لفة كباب"), true),
+    Food("kebab-iraqi", "كباب عراقي", "3 أسياخ بدون صمون", 540, 40, FoodCat.IRAQI, listOf("كباب", "تكة", "تكه", "لفة كباب"), true),
     Food("falafel-iraqi", "لفة فلافل بالعمبة", "لفة صمون", 480, 13, FoodCat.IRAQI, listOf("عمبة", "عمبه", "لفة فلافل"), false),
     Food("lablabi", "لبلبي", "كاسة", 250, 12, FoodCat.IRAQI, listOf("لبلبي", "حمص مسلوق"), false),
     Food("pacha", "پاچة", "ماعون (رأس وكراعين) مع خبز", 900, 55, FoodCat.IRAQI, listOf("پاچة", "باچة", "باجة", "پاچه"), false),
-    Food("makhlama", "مخلمة", "٢ بيض مع لحم مفروم", 380, 24, FoodCat.IRAQI, listOf("مخلمه"), true),
+    Food("makhlama", "مخلمة", "2 بيض مع لحم مفروم", 380, 24, FoodCat.IRAQI, listOf("مخلمه"), true),
     Food("shorbat-adas-iraqi", "شوربة عدس بالليمون", "زبدية", 230, 12, FoodCat.IRAQI, emptyList(), false),
-    Food("zalabia", "زلابية", "٣ حبات", 330, 3, FoodCat.IRAQI, listOf("زلابيه", "بقلاوة", "من السما"), false),
+    Food("zalabia", "زلابية", "3 حبات", 330, 3, FoodCat.IRAQI, listOf("زلابيه", "بقلاوة", "من السما"), false),
     Food("chai-iraqi", "استكان چاي", "استكان (ملعقتين شكر)", 35, 0, FoodCat.DRINK, listOf("چاي", "استكان"), false),
     // الشام
     Food("mansaf", "منسف", "صحن متوسط (رز + لحم + جميد)", 850, 45, FoodCat.LEVANT, listOf("منسف لحم"), false),
     Food("maqluba", "مقلوبة دجاج", "صحن متوسط", 650, 32, FoodCat.LEVANT, listOf("مقلوبه", "مقلوبة"), false),
     Food("musakhan", "مسخّن", "رغيف مع ربع دجاجة", 700, 38, FoodCat.LEVANT, listOf("مسخن"), false),
-    Food("warak-enab", "ورق عنب", "١٠ أصابع", 300, 6, FoodCat.LEVANT, listOf("يبرق", "ورق دوالي"), false),
+    Food("warak-enab", "ورق عنب", "10 أصابع", 300, 6, FoodCat.LEVANT, listOf("يبرق", "ورق دوالي"), false),
     Food("fatteh-hummus", "فتة حمص", "صحن صغير", 450, 15, FoodCat.LEVANT, listOf("فتة حمص", "فتة شامية"), false),
     // مصر
     Food("koshari", "كشري", "صحن متوسط", 700, 20, FoodCat.EGYPT, listOf("كشرى", "كشري مصري"), false),
     Food("molokhia", "ملوخية بالدجاج", "زبدية + ربع دجاجة بلا رز", 420, 38, FoodCat.EGYPT, listOf("ملوخيه", "ملوخية"), true),
     Food("fatta-egypt", "فتة باللحم", "صحن متوسط", 750, 35, FoodCat.EGYPT, listOf("فته", "فتة"), false),
-    Food("mahshi-egypt", "محشي كرنب", "٦ أصابع", 320, 7, FoodCat.EGYPT, listOf("محشي كرنب", "محشي ملفوف"), false),
+    Food("mahshi-egypt", "محشي كرنب", "6 أصابع", 320, 7, FoodCat.EGYPT, listOf("محشي كرنب", "محشي ملفوف"), false),
     // المغرب العربي
     Food("couscous", "كسكس باللحم والخضار", "صحن متوسط", 650, 30, FoodCat.MAGHREB, listOf("كسكسي", "كسكسو", "كسكس"), false),
     Food("tagine-chicken", "طاجين دجاج بالزيتون", "صحن بلا خبز", 420, 38, FoodCat.MAGHREB, listOf("طاجين", "طجين"), true),
@@ -70,7 +70,7 @@ val FOODS: List<Food> = listOf(
     Food("margoog", "مرقوق / مطازيز", "صحن متوسط", 480, 22, FoodCat.MAIN, listOf("مطازيز", "مرقوق"), false),
     Food("thareed", "ثريد", "صحن متوسط", 520, 26, FoodCat.MAIN, emptyList(), false),
     Food("machboos-fish", "مجبوس سمك", "صحن متوسط", 600, 38, FoodCat.MAIN, listOf("رز وسمك", "صيادية"), false),
-    Food("grilled-fish", "سمك مشوي", "قطعة ٢٠٠ غ", 280, 44, FoodCat.PROTEIN, listOf("سمك", "هامور", "كنعد", "صافي"), true),
+    Food("grilled-fish", "سمك مشوي", "قطعة 200 غ", 280, 44, FoodCat.PROTEIN, listOf("سمك", "هامور", "كنعد", "صافي"), true),
     Food("shawarma-chicken", "شاورما دجاج", "ساندويتش عادي", 480, 26, FoodCat.MAIN, listOf("شاورما", "شورما"), false),
     Food("shawarma-plate", "صحن شاورما عربي", "صحن مع بطاطس وثوم", 1050, 45, FoodCat.MAIN, listOf("عربي شاورما"), false),
     Food("falafel-sandwich", "ساندويتش فلافل", "ساندويتش", 420, 13, FoodCat.MAIN, listOf("فلافل", "طعمية"), false),
@@ -82,10 +82,10 @@ val FOODS: List<Food> = listOf(
     Food("salad-green", "سلطة خضراء بدون صوص", "صحن كبير", 60, 2, FoodCat.SNACK, listOf("سلطه خضراء", "خضار"), false),
     Food("lentil-soup", "شوربة عدس", "زبدية", 230, 12, FoodCat.MAIN, listOf("شوربه", "عدس"), false),
     Food("oats-soup", "شوربة شوفان", "زبدية", 180, 7, FoodCat.MAIN, emptyList(), false),
-    Food("mixed-grill", "مشاوي مشكلة", "٣ أسياخ بدون خبز", 560, 55, FoodCat.PROTEIN, listOf("مشاوي", "كباب", "شيش طاووق", "تكة"), true),
+    Food("mixed-grill", "مشاوي مشكلة", "3 أسياخ بدون خبز", 560, 55, FoodCat.PROTEIN, listOf("مشاوي", "كباب", "شيش طاووق", "تكة"), true),
     Food("shish-tawook", "شيش طاووق", "سيخين", 330, 42, FoodCat.PROTEIN, listOf("طاووق"), true),
-    Food("chicken-breast", "صدر دجاج مشوي", "١٥٠ غ", 250, 46, FoodCat.PROTEIN, listOf("صدر دجاج", "دجاج مشوي"), true),
-    Food("broasted", "بروستد", "٣ قطع + بطاطس", 1150, 55, FoodCat.MAIN, listOf("دجاج مقلي", "بروست"), false),
+    Food("chicken-breast", "صدر دجاج مشوي", "150 غ", 250, 46, FoodCat.PROTEIN, listOf("صدر دجاج", "دجاج مشوي"), true),
+    Food("broasted", "بروستد", "3 قطع + بطاطس", 1150, 55, FoodCat.MAIN, listOf("دجاج مقلي", "بروست"), false),
     Food("burger", "برجر لحم", "ساندويتش متوسط", 550, 28, FoodCat.MAIN, listOf("برقر", "همبرجر"), false),
     Food("pizza", "بيتزا", "شريحتين متوسطة", 560, 24, FoodCat.MAIN, emptyList(), false),
     Food("fries", "بطاطس مقلية", "حجم وسط", 380, 4, FoodCat.SNACK, listOf("بطاطس", "فرايز"), false),
@@ -95,32 +95,32 @@ val FOODS: List<Food> = listOf(
     Food("tamees", "خبز تميس", "نص رغيف", 290, 9, FoodCat.BREAD, listOf("تميس"), false),
     Food("regag", "خبز رقاق", "رغيفين", 140, 4, FoodCat.BREAD, listOf("رقاق"), false),
     Food("balaleet", "بلاليط", "صحن مع بيض", 450, 13, FoodCat.BREAKFAST, emptyList(), false),
-    Food("chebab", "خبز جباب / فطيرة خليجية", "٢ حبة", 380, 9, FoodCat.BREAKFAST, listOf("جباب", "خمير"), false),
+    Food("chebab", "خبز جباب / فطيرة خليجية", "2 حبة", 380, 9, FoodCat.BREAKFAST, listOf("جباب", "خمير"), false),
     Food("eggs-2", "بيض مسلوق", "حبتين", 155, 13, FoodCat.PROTEIN, listOf("بيض", "بيضتين"), true),
-    Food("shakshuka", "شكشوكة", "٢ بيض", 260, 14, FoodCat.BREAKFAST, listOf("شكشوكه"), false),
+    Food("shakshuka", "شكشوكة", "2 بيض", 260, 14, FoodCat.BREAKFAST, listOf("شكشوكه"), false),
     Food("labneh", "لبنة", "ملعقتين كبار", 110, 6, FoodCat.BREAKFAST, listOf("لبنه"), false),
-    Food("cheese-white", "جبن أبيض", "٣٠ غ", 80, 5, FoodCat.BREAKFAST, listOf("جبن", "جبنة"), false),
+    Food("cheese-white", "جبن أبيض", "30 غ", 80, 5, FoodCat.BREAKFAST, listOf("جبن", "جبنة"), false),
     Food("zaatar-manakish", "مناقيش زعتر", "رغيف", 420, 9, FoodCat.BREAKFAST, listOf("مناقيش", "زعتر"), false),
     Food("cheese-manakish", "مناقيش جبن", "رغيف", 520, 20, FoodCat.BREAKFAST, emptyList(), false),
     Food("oats", "شوفان بالحليب", "زبدية", 300, 12, FoodCat.BREAKFAST, listOf("شوفان"), false),
-    Food("greek-yogurt", "زبادي يوناني", "علبة ١٧٠ غ", 100, 17, FoodCat.PROTEIN, listOf("زبادي", "يوناني"), true),
+    Food("greek-yogurt", "زبادي يوناني", "علبة 170 غ", 100, 17, FoodCat.PROTEIN, listOf("زبادي", "يوناني"), true),
     Food("laban", "لبن (روب)", "كوب", 120, 8, FoodCat.DRINK, listOf("لبن", "روب"), false),
     Food("tuna", "تونة بالماء", "علبة", 120, 26, FoodCat.PROTEIN, listOf("تونه"), true),
     // وجبات خفيفة وحلا
-    Food("dates-3", "تمر", "٣ حبات", 70, 1, FoodCat.FRUIT, listOf("تمرات", "تمره", "رطب"), false),
-    Food("luqaimat", "لقيمات", "٥ حبات", 300, 3, FoodCat.SWEET, listOf("لقيمات", "عوامة"), false),
+    Food("dates-3", "تمر", "3 حبات", 70, 1, FoodCat.FRUIT, listOf("تمرات", "تمره", "رطب"), false),
+    Food("luqaimat", "لقيمات", "5 حبات", 300, 3, FoodCat.SWEET, listOf("لقيمات", "عوامة"), false),
     Food("kunafa", "كنافة", "قطعة", 450, 8, FoodCat.SWEET, listOf("كنافه"), false),
     Food("basbousa", "بسبوسة", "قطعة", 320, 4, FoodCat.SWEET, listOf("هريسة حلا"), false),
     Food("umm-ali", "أم علي", "زبدية صغيرة", 480, 10, FoodCat.SWEET, emptyList(), false),
     Food("kleija", "كليجا", "حبتين", 280, 4, FoodCat.SWEET, listOf("كليجة", "كليچة"), false),
-    Food("samosa", "سمبوسة", "٣ حبات", 330, 9, FoodCat.SNACK, listOf("سمبوسه"), false),
-    Food("chocolate", "شوكولاتة", "لوح صغير ٤٥ غ", 240, 3, FoodCat.SWEET, listOf("شوكلت", "شوكولاته"), false),
-    Food("nuts", "مكسرات", "حفنة ٣٠ غ", 180, 6, FoodCat.SNACK, listOf("لوز", "كاجو", "فستق"), false),
+    Food("samosa", "سمبوسة", "3 حبات", 330, 9, FoodCat.SNACK, listOf("سمبوسه"), false),
+    Food("chocolate", "شوكولاتة", "لوح صغير 45 غ", 240, 3, FoodCat.SWEET, listOf("شوكلت", "شوكولاته"), false),
+    Food("nuts", "مكسرات", "حفنة 30 غ", 180, 6, FoodCat.SNACK, listOf("لوز", "كاجو", "فستق"), false),
     Food("apple", "تفاحة", "حبة", 95, 0, FoodCat.FRUIT, listOf("تفاح"), false),
     Food("banana", "موزة", "حبة", 105, 1, FoodCat.FRUIT, listOf("موز"), false),
     Food("watermelon", "بطيخ / حبحب", "صحن", 85, 2, FoodCat.FRUIT, listOf("حبحب", "بطيخ"), false),
     // مشروبات
-    Food("arabic-coffee", "قهوة عربية", "٣ فناجين", 10, 0, FoodCat.DRINK, listOf("قهوه", "قهوة"), false),
+    Food("arabic-coffee", "قهوة عربية", "3 فناجين", 10, 0, FoodCat.DRINK, listOf("قهوه", "قهوة"), false),
     Food("karak", "شاي كرك", "كوب", 150, 3, FoodCat.DRINK, listOf("كرك"), false),
     Food("tea-sugar", "شاي بسكر", "استكانة (ملعقتين سكر)", 35, 0, FoodCat.DRINK, listOf("شاي", "استكانة"), false),
     Food("latte", "لاتيه", "كوب وسط", 190, 10, FoodCat.DRINK, listOf("لاتي", "كابتشينو"), false),
@@ -155,8 +155,8 @@ data class ParsedFood(val food: Food, val qty: Double)
 private val QUANTITY_WORDS = listOf(
     Regex("(نص|نصف)\\s") to 0.5,
     Regex("(ربع)\\s") to 0.25,
-    Regex("(صحنين|ماعونين|صمونتين|استكانين|حبتين|كوبين|اثنين|٢|2)\\s") to 2.0,
-    Regex("(ثلاث|٣|3)\\s") to 3.0,
+    Regex("(صحنين|ماعونين|صمونتين|استكانين|حبتين|كوبين|اثنين|2|2)\\s") to 2.0,
+    Regex("(ثلاث|3|3)\\s") to 3.0,
 )
 
 /** الأسماء القصيرة (تمن، كبة، شاي) لازم تجي ككلمة، حتى "اتمنى" ما تنحسب تمن. */
@@ -189,8 +189,8 @@ fun parseMealText(text: String): List<ParsedFood> {
 data class UsualMeal(val name: String, val kcal: Int, val protein: Int, val times: Int)
 
 /**
- * "وجباتي المعتادة": أكثر ما سجّله المستخدم آخر ٣٠ يوم (مرتين فأكثر)،
- * بآخر سعرات سجّلها لها. الناس ياكلون نفس ~١٥ أكلة غالباً، فهذا أسرع سجل.
+ * "وجباتي المعتادة": أكثر ما سجّله المستخدم آخر 30 يوم (مرتين فأكثر)،
+ * بآخر سعرات سجّلها لها. الناس ياكلون نفس ~15 أكلة غالباً، فهذا أسرع سجل.
  */
 fun usualMeals(state: AppState, limit: Int = 6): List<UsualMeal> =
     state.days.values.sortedBy { it.date }.takeLast(30).flatMap { it.meals }

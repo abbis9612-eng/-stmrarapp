@@ -2,7 +2,7 @@ package app.sanad.core
 
 /**
  * مكتبة التمارين + رسوم متحركة بإطارات مفتاحية.
- * كل وضعية = ١٢ مفصل في صندوق ١٠٠×١٠٠ (الأرض y=٩٤)، منظر جانبي.
+ * كل وضعية = 12 مفصل في صندوق 100×100 (الأرض y=94)، منظر جانبي.
  * N = الطرف القريب، F = البعيد (يُرسم خلف الجسم).
  */
 enum class Joint { HEAD, NECK, MID, HIP, ELBOW_N, HAND_N, ELBOW_F, HAND_F, KNEE_N, FOOT_N, KNEE_F, FOOT_F }
@@ -189,7 +189,7 @@ val EXERCISES: List<Exercise> = listOf(
     Exercise(
         "pushup", "ضغط", "جسمك خط مستقيم من الرأس للكعب، انزل بصدرك قريب من الأرض.",
         listOf(Muscle.CHEST, Muscle.ARMS, Muscle.CORE),
-        listOf("الورك منخفض أو مرتفع", "المرفق مفتوح إلى الجانب بزاوية ٩٠°"),
+        listOf("الورك منخفض أو مرتفع", "المرفق مفتوح إلى الجانب بزاوية 90°"),
         "wall-pushup", null, true, Prop.MAT, listOf(PUSH_TOP, PUSH_LOW), 1300,
     ),
     Exercise(
@@ -271,7 +271,7 @@ val EXERCISES: List<Exercise> = listOf(
         null, null, true, Prop.NONE, listOf(STAND, HINGE), 2000,
     ),
     Exercise(
-        "breathe", "تنفّس ٤-٦", "شهيق ٤ ثوانٍ مع رفع الذراعين، وزفير ٦ ثوانٍ وأنت تنزلهما.",
+        "breathe", "تنفّس 4-6", "شهيق 4 ثوانٍ مع رفع الذراعين، وزفير 6 ثوانٍ وأنت تنزلهما.",
         listOf(Muscle.MOBILITY),
         emptyList(),
         null, null, true, Prop.NONE, listOf(STAND, ARMS_UP), 4000,
@@ -313,12 +313,12 @@ val ROUTINES: List<Routine> = listOf(
         listOf(Move("chair-squat", 40), Move("wall-pushup", 40), Move("march", 40)),
     ),
     Routine(
-        "night-5", "قبل النوم ٥", 5, 1, "يهدّئ الجوع",
+        "night-5", "قبل النوم 5", 5, 1, "يهدّئ الجوع",
         "حركة لطيفة وتنفّس تقلل رغبة الأكل الليلي وتحسّن النوم.",
         listOf(Move("breathe", 60), Move("cat-cow", 60), Move("child-pose", 60), Move("glute-bridge", 60, "ارفع وانزل مع النفس."), Move("breathe", 60, "وانتهينا، المطبخ مغلق.")),
     ),
     Routine(
-        "low-impact-10", "١٠ دقائق بلا قفز", 10, 2, "لطيف على الركبتين",
+        "low-impact-10", "10 دقائق بلا قفز", 10, 2, "لطيف على الركبتين",
         "حرق وقوة بلا ضغط على المفاصل، مثالي مع الوزن الزائد.",
         listOf(
             Move("march", 60, "إحماء: تنفّس براحة."), Move("chair-squat", 45), rest(15), Move("wall-pushup", 45), rest(15),
@@ -327,7 +327,7 @@ val ROUTINES: List<Routine> = listOf(
         ),
     ),
     Routine(
-        "strength-10", "قوة ١٠ دقائق", 10, 3, "يحمي العضل",
+        "strength-10", "قوة 10 دقائق", 10, 3, "يحمي العضل",
         "تمارين المقاومة أثناء النزول تحافظ على العضل وتمنع هبوط الحرق.",
         listOf(
             Move("squat", 45), rest(15), Move("pushup", 40), rest(20), Move("lunge", 45), rest(15), Move("plank", 30), rest(20),
@@ -336,7 +336,7 @@ val ROUTINES: List<Routine> = listOf(
         ),
     ),
     Routine(
-        "strength-20", "قوة ومشي ٢٠", 20, 3, "الجلسة الكاملة",
+        "strength-20", "قوة ومشي 20", 20, 3, "الجلسة الكاملة",
         "مقاومة + كارديو معتدل: أفضل تركيبة لحرق الدهون مع حماية العضل.",
         listOf(Move("march", 120, "إحماء.")) +
             (1..3).flatMap {
@@ -345,7 +345,7 @@ val ROUTINES: List<Routine> = listOf(
             listOf(Move("walk", 300, "حافظ على إيقاع تستطيع أن تتكلم فيه."), Move("hamstring-stretch", 60)),
     ),
     Routine(
-        "walk-20", "مشي ٢٠ دقيقة", 20, 2, "بعد الأكل أفضل",
+        "walk-20", "مشي 20 دقيقة", 20, 2, "بعد الأكل أفضل",
         "المشي بعد الوجبة يخفّض ارتفاع السكر ويرفع حرقك اليومي بلا إرهاق.",
         listOf(Move("walk", 180, "إحماء بإيقاع هادئ."), Move("walk", 840, "أسرع شوي: تتكلم لكن ما تغني."), Move("walk", 180, "تهدئة.")),
     ),

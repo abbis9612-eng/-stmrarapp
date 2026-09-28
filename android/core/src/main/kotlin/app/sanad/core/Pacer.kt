@@ -1,7 +1,7 @@
 package app.sanad.core
 
 /**
- * مؤقت الأكل على مهل. الشبع يوصل للمخ متأخر (~٢٠ دقيقة)، والأكل البطيء
+ * مؤقت الأكل على مهل. الشبع يوصل للمخ متأخر (~20 دقيقة)، والأكل البطيء
  * يزيد الإحساس بالشبع ويقلل الكمية عند كثيرين. المؤقت يعطي إيقاع لقمات هادئ
  * وسؤال شبع بالنص — بدون حساب ولا حرمان.
  */
@@ -40,7 +40,7 @@ fun pacerCues(totalSec: Int = PACER_TOTAL_SEC, every: Int = 40): List<PacerCue> 
 fun cueAt(cues: List<PacerCue>, elapsedSec: Int): PacerCue =
     cues.lastOrNull { it.atSec <= elapsedSec } ?: cues.first()
 
-/** مقياس الشبع ١ (جوعان) → ٥ (متروس). */
+/** مقياس الشبع 1 (جوعان) → 5 (متروس). */
 fun fullnessAdvice(level: Int, elapsedSec: Int): String = when {
     level >= 4 && elapsedSec < PACER_TOTAL_SEC -> "هذا هو الشبع الحقيقي. جرّب أن توقف هنا، واترك الباقي لوقت لاحق، فلن يضيع شيء."
     level >= 4 -> "ممتاز، وصلت إلى الشبع وأنت على مهل."

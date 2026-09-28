@@ -41,7 +41,7 @@ class ReviewTest {
     }
 
     @Test fun onTrackWeekCelebratesTrend() {
-        // نزول ٠٫٥ كغ على ١٤ يوم من القراءات ≈ على الخطة (~٠٫٥٣ كغ/أسبوع)
+        // نزول 0.5 كغ على 14 يوم من القراءات ≈ على الخطة (~0.53 كغ/أسبوع)
         val all = (0L..13L).map { i -> d(i, 1500, t.protein, weight = 88.0 - (13 - i) * 0.076, workout = if (i % 3 == 0L) 10 else 0) }
         val r = weeklyReview(p, days(*all.toTypedArray()), t, today)
         val change = assertNotNull(r.trendChangeKg)
@@ -73,17 +73,17 @@ class ReviewTest {
         assertEquals(Focus.LOG_FOOD, weeklyReview(p, days(*xs.toTypedArray()), t, today).focus)
     }
 
-    @Test fun reviewTextUsesArabicDigits() {
+    @Test fun reviewTextUsesWesternDigits() {
         val xs = (0L..6L).map { d(it, 1500, t.protein, workout = 10) }
         val r = weeklyReview(p, days(*xs.toTypedArray()), t, today)
-        assertTrue((r.win + r.focusText).none { it in '0'..'9' }, r.win + r.focusText)
+        assertTrue((r.win + r.focusText).none { it in '٠'..'٩' }, r.win + r.focusText)
     }
 
     @Test fun offlineCoachAnswersWeeklyQuestion() {
         val xs = (0L..6L).map { d(it, 1500, 40) }
         val state = AppState(profile = p, days = days(*xs.toTypedArray()))
         val reply = offlineReply("كيف كان أسبوعي؟", state, t, today)
-        assertTrue(reply.text.startsWith("مراجعة آخر ٧ أيام"), reply.text)
+        assertTrue(reply.text.startsWith("مراجعة آخر 7 أيام"), reply.text)
         assertTrue("بروتين" in reply.text, reply.text)
     }
 }

@@ -243,10 +243,10 @@ private fun TabBar(nav: NavHostController, route: String?, onLog: () -> Unit) {
             LEFT_TABS.forEach { t -> TabItem(t, route == t.route, Modifier.weight(1f)) { go(t.route) } }
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Box(
-                    Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)).background(c.primary)
+                    Modifier.size(58.dp).clip(RoundedCornerShape(19.dp)).background(c.brand)
                         .press(onLog).semantics { contentDescription = "سجّل أكلاً أو وزناً أو حركة" },
                     contentAlignment = Alignment.Center,
-                ) { SIcon(Ico.PLUS, size = 26.dp, tint = c.onPrimary) }
+                ) { SIcon(Ico.PLUS, size = 26.dp, tint = androidx.compose.ui.graphics.Color(0xFF15231C)) }
             }
             RIGHT_TABS.forEach { t -> TabItem(t, route == t.route, Modifier.weight(1f)) { go(t.route) } }
         }

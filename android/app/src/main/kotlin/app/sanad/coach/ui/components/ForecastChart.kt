@@ -42,11 +42,10 @@ import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
 
-private const val AR_DIGITS = "٠١٢٣٤٥٦٧٨٩"
-fun arYear(y: Int) = y.toString().map { AR_DIGITS[it - '0'] }.joinToString("")
+fun arYear(y: Int) = y.toString()
 fun monthAr(d: LocalDate): String = d.month.getDisplayName(TextStyle.FULL, Locale("ar"))
 
-/** «بين فبراير وأبريل ٢٠٢٧»، أو بسنتين إذا اختلفت السنة. */
+/** «بين فبراير وأبريل 2027»، أو بسنتين إذا اختلفت السنة. */
 fun rangeText(a: LocalDate, b: LocalDate): String = when {
     a.year == b.year && a.month == b.month -> "في ${monthAr(a)} ${arYear(a.year)}"
     a.year == b.year -> "بين ${monthAr(a)} و${monthAr(b)} ${arYear(b.year)}"

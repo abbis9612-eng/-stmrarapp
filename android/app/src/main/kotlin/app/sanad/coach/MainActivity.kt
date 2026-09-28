@@ -10,6 +10,8 @@ import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.data.demoState
 import app.sanad.coach.ui.SanadApp
 import app.sanad.coach.ui.theme.SanadTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 import app.sanad.core.Energy
 import app.sanad.core.TimeBudget
 
@@ -20,11 +22,14 @@ object Graph {
         private set
     lateinit var steps: app.sanad.coach.data.StepTracker
         private set
+    lateinit var appearance: app.sanad.coach.data.Appearance
+        private set
 
     fun init(context: android.content.Context) {
         if (!::store.isInitialized) store = AppStore(context.applicationContext)
         if (!::coach.isInitialized) coach = CoachSettings(context.applicationContext)
         if (!::steps.isInitialized) steps = app.sanad.coach.data.StepTracker(context.applicationContext, store)
+        if (!::appearance.isInitialized) appearance = app.sanad.coach.data.Appearance(context.applicationContext)
     }
 }
 
@@ -81,6 +86,8 @@ class MainActivity : ComponentActivity() {
                     app.sanad.coach.notify.Reminders.show(this, r?.id ?: "test", r?.title ?: "تحرّك", r?.body ?: "تنبيه تجريبي")
                 }
                 // شاشة الصراحة في التعريف ببيانات جاهزة
+                // لقطات النماذج: --es palette NIGHT
+                it.getStringExtra("palette")?.let { n -> app.sanad.coach.ui.theme.Palette.entries.firstOrNull { p -> p.name == n }?.let(Graph.appearance::set) }
                 if (it.getBooleanExtra("onboardDemo", false)) { Graph.store.reset(); onboardDemo = true }
                 startRoute = it.getStringExtra("route")
                 skipIntro = it.getBooleanExtra("skipIntro", false)
@@ -88,7 +95,8 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            SanadTheme {
+            val palette by Graph.appearance.palette.collectAsStateWithLifecycle()
+            SanadTheme(palette) {
                 SanadApp(Graph.store, Graph.coach, startRoute = startRoute, skipIntro = skipIntro || savedInstanceState != null, onboardDemo = onboardDemo)
             }
         }

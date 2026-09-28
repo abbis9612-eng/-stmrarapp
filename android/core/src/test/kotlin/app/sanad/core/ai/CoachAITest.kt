@@ -17,7 +17,7 @@ class CoachAITest {
     @Test fun parsesStrictJsonAndDropsInvalidActions() {
         val r = parseCoachJson(
             """```json
-            {"reply":"حسبتها ٧٠٠ سعرة","actions":[
+            {"reply":"حسبتها 700 سعرة","actions":[
               {"type":"log_meal","name":"مندي دجاج","kcal":700,"protein":40},
               {"type":"log_meal","name":"خطأ","kcal":99999,"protein":1},
               {"type":"start_workout","routineId":"not-a-routine"},
@@ -26,7 +26,7 @@ class CoachAITest {
             ]}
             ```""",
         )
-        assertEquals("حسبتها ٧٠٠ سعرة", r.text)
+        assertEquals("حسبتها 700 سعرة", r.text)
         assertEquals(listOf(CoachAction.LogMeal("مندي دجاج", 700, 40), CoachAction.LogWater(2)), r.actions)
     }
 

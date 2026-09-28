@@ -5,17 +5,27 @@ import kotlin.math.roundToLong
 
 private const val ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩"
 
-/** أرقام عربية مشرقية موحّدة في كل التطبيق، مع فاصل آلاف "٬" وفاصلة عشرية "٫". */
+/** أرقام إنجليزية (0-9) في كل التطبيق، مع فاصل آلاف "," وفاصلة عشرية ".". */
 fun ar(x: Number, decimals: Int = 1): String {
     val d = x.toDouble()
     val scale = Math.pow(10.0, decimals.toDouble())
     val rounded = (abs(d) * scale).roundToLong()
     val intPart = rounded / scale.toLong()
     val frac = rounded % scale.toLong()
-    val grouped = intPart.toString().reversed().chunked(3).joinToString("٬").reversed()
-    val body = if (frac == 0L) grouped else grouped + "٫" + frac.toString().padStart(decimals, '0').trimEnd('0')
+    val grouped = intPart.toString().reversed().chunked(3).joinToString(",").reversed()
+    val body = if (frac == 0L) grouped else grouped + "." + frac.toString().padStart(decimals, '0').trimEnd('0')
     val sign = if (d < 0 && rounded != 0L) "-" else ""
-    return sign + body.map { c -> if (c in '0'..'9') ARABIC_DIGITS[c - '0'] else c }.joinToString("")
+    return sign + body
+}
+
+/** رقم بإشارته (+ أو −) داخل عزل من اليسار لليمين، حتى لا تنقلب الإشارة في النص العربي. */
+fun arSigned(x: Double, decimals: Int = 1): String {
+    val s = when {
+        x < 0 && ar(x, decimals) != "0" -> "−" + ar(-x, decimals)
+        x > 0 && ar(x, decimals) != "0" -> "+" + ar(x, decimals)
+        else -> "0"
+    }
+    return "\u2066$s\u2069"
 }
 
 /** يقبل أرقاماً عربية أو لاتينية وفواصل عشرية بالشكلين. */
@@ -37,11 +47,12 @@ fun normalizeArabic(s: String): String = s
     .replace(Regex("[أإآ]"), "ا")
     .replace('ة', 'ه')
     .replace('ى', 'ي')
+    .map { ch -> ARABIC_DIGITS.indexOf(ch).let { i -> if (i >= 0) '0' + i else ch } }.joinToString("")
     .replace('گ', 'ك').replace('چ', 'ج').replace('پ', 'ب').replace('ڤ', 'ف')
     .trim()
     .lowercase()
 
-/** عدد الأيام بصيغة عربية صحيحة: يوم واحد، يومان، ٣ أيام، ١١ يوماً. */
+/** عدد الأيام بصيغة عربية صحيحة: يوم واحد، يومان، 3 أيام، 11 يوماً. */
 fun arDays(n: Int): String = when {
     n == 1 -> "يوم واحد"
     n == 2 -> "يومان"

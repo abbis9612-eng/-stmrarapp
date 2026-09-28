@@ -19,7 +19,7 @@ class PartnerTest {
     @Test fun weightHiddenByDefault() {
         val s = partnerReport(p, r, 14, showWeight = false)
         assertTrue("علي" in s)
-        assertTrue("٧" in s)
+        assertTrue("7" in s)
         assertFalse("كغ" in s)
     }
 
@@ -35,7 +35,7 @@ class PartnerReminderTest {
             activity = Activity.SEDENTARY, pace = Pace.STEADY, createdAt = "2026-09-01", partner = "حسن",
         )
         val t = computeTargets(p, 100.0)
-        // الجمعة ٢٠٢٦-١٠-٠٢، يوم مرتب (طاقة ووجبة) حتى ما تسبقه تنبيهات ثانية
+        // الجمعة 2026-10-02، يوم مرتب (طاقة ووجبة) حتى ما تسبقه تنبيهات ثانية
         val s = AppState(profile = p, days = mapOf("2026-10-02" to DayLog("2026-10-02", energy = Energy.MID, meals = listOf(MealEntry("m", "x", 500, 40, 5, MealSource.QUICK)), done = listOf("eat"))))
         val r = nextReminder(s, t, java.time.LocalDateTime.of(2026, 10, 2, 15, 0))
         kotlin.test.assertEquals("partner", r?.id)

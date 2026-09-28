@@ -34,7 +34,7 @@ import kotlin.math.PI
 
 private fun ease(t: Float) = (1 - cos(t * PI.toFloat())) / 2
 
-/** الوضعية عند لحظة [phase] (٠..عدد الإطارات) مع انتقال ناعم بين الإطارات. */
+/** الوضعية عند لحظة [phase] (0..عدد الإطارات) مع انتقال ناعم بين الإطارات. */
 fun poseAt(frames: List<Pose>, phase: Float): Pose {
     val i = floor(phase).toInt() % frames.size
     val t = ease(phase - floor(phase))

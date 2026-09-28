@@ -23,7 +23,7 @@ fun gatheringPlan(t: Targets, d: DayLog?): GatheringPlan {
     val eaten = d?.intake ?: 0
     val needSnack = (d?.protein ?: 0) < t.protein / 3
     val budget = max(0, t.kcal - eaten - if (needSnack) PRE_SNACK else 0)
-    // نقرّب لأقرب ٥٠ حتى يبان تقدير مو رقم مخبري
+    // نقرّب لأقرب 50 حتى يبان تقدير مو رقم مخبري
     val rounded = ((budget / 50.0).roundToInt() * 50)
     val before = buildList {
         if (needSnack) add("قبلها بساعة: بروتين خفيف (زبادي أو بيضتان) حتى لا تذهب وأنت جائع جداً")
@@ -34,7 +34,7 @@ fun gatheringPlan(t: Targets, d: DayLog?): GatheringPlan {
         "صحن واحد فقط، بلا إعادة",
         "نصفه سلطة وخضار، وربعه لحم أو دجاج أو سمك (بقدر كفّين)، وأرز بقدر قبضتك",
         "الأرز أو الخبز: واحد فقط، لا الاثنان",
-        "محاشي أو ورق عنب؟ ٥–٦ قطع مع زبادي بدل الأرز",
+        "محاشي أو ورق عنب؟ 5–6 قطع مع زبادي بدل الأرز",
         "كُل على مهل: لقمة، ثم ضع الملعقة، وتحدّث",
     )
     val after = listOf(

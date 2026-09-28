@@ -42,7 +42,7 @@ class StepTracker(private val context: Context, private val store: AppStore) : S
         val cur = prefs.getString("date", null)?.let { StepCursor(it, prefs.getLong("last", 0), prefs.getInt("today", 0)) }
         val next = advanceSteps(cur, reading, AppStore.today())
         prefs.edit().putString("date", next.date).putLong("last", next.last).putInt("today", next.today).apply()
-        // نكتب للحالة كل ~٢٠ خطوة حتى ما نحفظ الملف مع كل خطوة
+        // نكتب للحالة كل ~20 خطوة حتى ما نحفظ الملف مع كل خطوة
         if (written < 0 || next.today < written || next.today - written >= 20) {
             written = next.today
             store.setSteps(next.today)

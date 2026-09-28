@@ -165,7 +165,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     var kick by remember { mutableIntStateOf(0) }
     var lapseOpen by rememberSaveable { mutableStateOf(false) }
 
-    // إذن التنبيهات (أندرويد ١٣+): نطلبه مرة وحدة بعد ما يدخل يومه الأول
+    // إذن التنبيهات (أندرويد 13+): نطلبه مرة وحدة بعد ما يدخل يومه الأول
     val context = LocalContext.current
     val askNotify = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { app.sanad.coach.notify.Reminders.schedule(context) }
     LaunchedEffect(Unit) {
@@ -277,7 +277,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
             val doneCount = day.done.count { it in setOf("move", "eat", "restore") }
             Row(Modifier.padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(if (p.ramadan) "خطتك الرمضانية اليوم" else planTitle(e), style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
-                Text("${ar(doneCount)} من ٣", style = Type.small.copy(color = c.inkSoft))
+                Text("${ar(doneCount)} من 3", style = Type.small.copy(color = c.inkSoft))
             }
         }
         item {
@@ -302,7 +302,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     }
 }
 
-/** الوقت المتاح للحركة يتبع الطاقة: متعب دقيقتين، عادي ١٠، نشيط ٢٠. */
+/** الوقت المتاح للحركة يتبع الطاقة: متعب دقيقتين، عادي 10، نشيط 20. */
 private fun timeFor(e: Energy) = when (e) {
     Energy.LOW -> TimeBudget.TWO
     Energy.MID -> TimeBudget.TEN
@@ -323,7 +323,7 @@ private fun coachNote(d: DayLog, t: Targets): String {
         d.protein < t.protein * 0.35 && d.intake > t.kcal * 0.4 -> "بروتينك قليل حتى الآن. اجعل وجبتك القادمة فيها دجاج أو سمك أو بيض."
         left > 250 -> "متبقٍ لك ${ar(left)} سعرة. صحن متوازن: نصفه خضار، وربعه بروتين، وربعه أرز أو خبز."
         left >= 0 -> "أنت قريب من خطتك اليوم. عشاء خفيف ومشية قصيرة بعده ويكتمل يومك."
-        else -> "تجاوزت خطتك قليلاً، وهذا يحدث. مشية ١٥ دقيقة بعد الأكل تساعد، وغداً يوم جديد."
+        else -> "تجاوزت خطتك قليلاً، وهذا يحدث. مشية 15 دقيقة بعد الأكل تساعد، وغداً يوم جديد."
     }
 }
 
@@ -340,7 +340,7 @@ private fun WeekStrip(marks: List<DayMark>, today: String, streak: Int, modifier
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         if (mark == DayMark.TODAY) "اليوم" else DAY_LETTER.getValue(date.dayOfWeek),
-                        style = Type.label.copy(color = if (mark == DayMark.TODAY) c.primary else c.inkSoft, fontSize = 12.sp, fontWeight = if (mark == DayMark.TODAY) FontWeight.Bold else FontWeight.Medium),
+                        style = Type.label.copy(color = if (mark == DayMark.TODAY) c.ink else c.inkSoft, fontSize = 12.sp, fontWeight = if (mark == DayMark.TODAY) FontWeight.Bold else FontWeight.Medium),
                     )
                     DayRing(mark, ar(date.dayOfMonth))
                 }
@@ -353,7 +353,7 @@ private fun WeekStrip(marks: List<DayMark>, today: String, streak: Int, modifier
                 style = Type.label.copy(color = c.ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.weight(1f),
             )
-            listOf(c.primary to "ضمن الخطة", c.amber to "زيادة", c.violet to "مناسبة").forEach { (col, l) ->
+            listOf(c.oasis to "ضمن الخطة", c.amber to "زيادة", c.violet to "مناسبة").forEach { (col, l) ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(8.dp).clip(CircleShape).background(col))
                     Spacer(Modifier.width(4.dp))
@@ -381,8 +381,8 @@ private fun DayRing(mark: DayMark, number: String) {
             val sw = 3.dp.toPx()
             val r = this.size.minDimension / 2 - sw / 2
             when (mark) {
-                DayMark.TODAY -> drawCircle(c.primary, this.size.minDimension / 2)
-                DayMark.ON_PLAN -> drawCircle(c.primary, r, style = Stroke(sw))
+                DayMark.TODAY -> drawCircle(c.sel, this.size.minDimension / 2)
+                DayMark.ON_PLAN -> drawCircle(c.oasis, r, style = Stroke(sw))
                 DayMark.OVER -> drawCircle(c.amber, r, style = Stroke(sw))
                 DayMark.OCCASION -> { drawCircle(c.violet, r, style = Stroke(sw)); drawCircle(c.violet, r - sw * 1.6f, style = Stroke(sw * 0.45f)) }
                 DayMark.EMPTY -> drawCircle(c.faint, r, style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))))
@@ -393,7 +393,7 @@ private fun DayRing(mark: DayMark, number: String) {
             number,
             style = Type.label.copy(
                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                color = when (mark) { DayMark.TODAY -> c.onPrimary; DayMark.EMPTY, DayMark.BEFORE -> c.inkSoft; else -> c.ink },
+                color = when (mark) { DayMark.TODAY -> c.onSel; DayMark.EMPTY, DayMark.BEFORE -> c.inkSoft; else -> c.ink },
             ),
         )
     }
@@ -410,18 +410,19 @@ private fun EnergyPicker(energy: Energy, modifier: Modifier, onPick: (Energy) ->
         Row(Modifier.fillMaxWidth().semantics { contentDescription = "طاقتي اليوم" }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             labels.forEach { (en, label) ->
                 val sel = energy == en
-                val bg by animateColorAsState(if (sel) c.primaryTint else c.surface, label = "e-bg")
+                val bg by animateColorAsState(if (sel) c.sel else c.surface, label = "e-bg")
+                val fg = if (sel) c.onSel else c.ink
                 Row(
-                    Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(14.dp)).background(bg)
-                        .border(if (sel) 2.dp else 1.dp, if (sel) c.primary else c.line, RoundedCornerShape(14.dp))
+                    Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(15.dp)).background(bg)
+                        .border(1.dp, if (sel) c.sel else c.line, RoundedCornerShape(15.dp))
                         .press({ if (!sel) onPick(en) }, role = Role.RadioButton)
                         .semantics { selected = sel; stateDescription = if (sel) "مختار" else "" },
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    app.sanad.coach.ui.components.Battery(en.level, Modifier.graphicsLayer { scaleX = 0.72f; scaleY = 0.72f }, color = c.ink)
+                    app.sanad.coach.ui.components.Battery(en.level, Modifier.graphicsLayer { scaleX = 0.72f; scaleY = 0.72f }, color = fg)
                     Spacer(Modifier.width(4.dp))
-                    Text(label, style = Type.body.copy(color = c.ink, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal))
+                    Text(label, style = Type.body.copy(color = fg, fontWeight = FontWeight.Bold))
                 }
             }
         }
@@ -443,23 +444,23 @@ private fun NextStep(m: Mission, modifier: Modifier, onStart: () -> Unit, onSwap
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     "خطوتك التالية" + (minutes?.let { " · ${ar(it)} دقائق" } ?: ""),
-                    style = Type.label.copy(color = c.onPrimary.copy(alpha = 0.85f), fontWeight = FontWeight.SemiBold),
+                    style = Type.label.copy(color = c.heroAccent, fontWeight = FontWeight.Bold),
                 )
-                Text(m.title, style = Type.h1.copy(color = c.onPrimary, fontSize = 26.sp))
-                Text(m.detail, style = Type.body.copy(color = c.onPrimary.copy(alpha = 0.92f)))
+                Text(m.title, style = Type.h1.copy(color = c.onHero, fontSize = 25.sp))
+                Text(m.detail, style = Type.body.copy(color = c.heroSoft, fontSize = 14.sp))
             }
             Spacer(Modifier.width(8.dp))
-            InkFigureSquat(Modifier.size(width = 70.dp, height = 90.dp), c.onPrimary, c.amber)
+            InkFigureSquat(Modifier.size(width = 70.dp, height = 90.dp), c.onHero, c.heroAccent)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(
-                Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(14.dp)).background(c.onPrimary).press(onStart),
+                Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(15.dp)).background(c.heroBtn).press(onStart),
                 contentAlignment = Alignment.Center,
-            ) { Text(if (m.routineId != null) "ابدأ الآن" else "تم", style = Type.h3.copy(color = c.primary, fontWeight = FontWeight.Bold, fontSize = 17.sp)) }
+            ) { Text(if (m.routineId != null) "ابدأ الآن" else "تم", style = Type.h3.copy(color = c.onHeroBtn, fontWeight = FontWeight.Bold, fontSize = 17.sp)) }
             if (m.kind == MissionKind.MOVE) Box(
-                Modifier.width(96.dp).height(52.dp).clip(RoundedCornerShape(14.dp)).border(1.5.dp, c.onPrimary.copy(alpha = 0.6f), RoundedCornerShape(14.dp)).press(onSwap),
+                Modifier.width(96.dp).height(52.dp).clip(RoundedCornerShape(15.dp)).border(1.5.dp, c.onHero.copy(alpha = 0.45f), RoundedCornerShape(15.dp)).press(onSwap),
                 contentAlignment = Alignment.Center,
-            ) { Text("غيّرها", style = Type.body.copy(color = c.onPrimary)) }
+            ) { Text("غيّرها", style = Type.body.copy(color = c.onHero)) }
         }
     }
 }
@@ -512,7 +513,7 @@ private fun NumbersCard(
                 style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 4.dp),
             )
         }
-        Meter(day.intake / t.kcal.toFloat(), height = 12.dp, color = if (left >= 0) c.primary else c.amber)
+        Meter(day.intake / t.kcal.toFloat(), height = 12.dp, color = if (left >= 0) c.brand else c.amber)
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MiniStat("بروتين", ar(day.protein), " / ${ar(t.protein)}غ", day.protein / t.protein.toFloat(), c.oasis, Modifier.weight(1f).fillMaxHeight())
             Column(
@@ -625,7 +626,7 @@ private fun PlanRow(m: Mission, done: Boolean, last: Boolean, onToggle: () -> Un
                     .semantics { contentDescription = if (done) "إلغاء: ${m.title}" else "تم: ${m.title}" },
             ) {
                 val r = size.minDimension / 2
-                if (done) drawCircle(c.primary, r) else drawCircle(c.faint, r - 1.dp.toPx(), style = Stroke(2.dp.toPx()))
+                if (done) drawCircle(c.brand, r) else drawCircle(c.faint, r - 1.dp.toPx(), style = Stroke(2.dp.toPx()))
                 if (tick > 0f) {
                     val p1 = Offset(size.width * 0.28f, size.height * 0.52f)
                     val p2 = Offset(size.width * 0.44f, size.height * 0.68f)
@@ -633,11 +634,12 @@ private fun PlanRow(m: Mission, done: Boolean, last: Boolean, onToggle: () -> Un
                     val k1 = (tick * 2f).coerceAtMost(1f)
                     val k2 = ((tick - 0.5f) * 2f).coerceIn(0f, 1f)
                     val sw = 3.dp.toPx()
-                    drawLine(c.onPrimary, p1, p1 + (p2 - p1) * k1, sw, StrokeCap.Round)
-                    if (k2 > 0f) drawLine(c.onPrimary, p2, p2 + (p3 - p2) * k2, sw, StrokeCap.Round)
+                    val tickInk = Color(0xFF15231C)
+                    drawLine(tickInk, p1, p1 + (p2 - p1) * k1, sw, StrokeCap.Round)
+                    if (k2 > 0f) drawLine(tickInk, p2, p2 + (p3 - p2) * k2, sw, StrokeCap.Round)
                 }
             }
-            if (!last) Box(Modifier.width(2.dp).weight(1f).background(if (done) c.primary else c.line))
+            if (!last) Box(Modifier.width(2.dp).weight(1f).background(if (done) c.oasis else c.line))
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f).padding(bottom = if (last) 0.dp else 18.dp)) {
@@ -712,7 +714,7 @@ private fun GatheringCard(g: GatheringPlan, onCancel: () -> Unit, onPacer: () ->
     }
 }
 
-/** درس اليوم من رحلة الـ١٢ أسبوعاً: دقيقة قراءة وخطوة واحدة. */
+/** درس اليوم من رحلة الـ12 أسبوعاً: دقيقة قراءة وخطوة واحدة. */
 @Composable
 private fun LessonCard(l: Lesson, onRead: () -> Unit) {
     val c = Sanad.colors
@@ -739,7 +741,7 @@ private fun LessonCard(l: Lesson, onRead: () -> Unit) {
 @Composable
 private fun SleepAsk(onPick: (Double) -> Unit) {
     val c = Sanad.colors
-    val opts = listOf(5.0 to "٥ أو أقل", 6.0 to "٦", 7.0 to "٧", 8.0 to "٨", 9.0 to "٩+")
+    val opts = listOf(5.0 to "5 أو أقل", 6.0 to "6", 7.0 to "7", 8.0 to "8", 9.0 to "9+")
     Column(
         Modifier.fillMaxWidth().glass().padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -809,7 +811,7 @@ private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SButton("أداة ٣ دقائق", onTool, Modifier.weight(1f), small = true, icon = Ico.PLAY)
+            SButton("أداة 3 دقائق", onTool, Modifier.weight(1f), small = true, icon = Ico.PLAY)
             SButton("تعثّرت", onLapse, style = BtnStyle.SOFT, small = true)
         }
     }

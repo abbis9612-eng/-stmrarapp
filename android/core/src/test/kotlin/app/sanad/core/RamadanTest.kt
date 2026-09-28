@@ -45,6 +45,6 @@ class RamadanTest {
         assertTrue(r.text.startsWith("خطتك الرمضانية"), r.text)
         val off = offlineReply("شنو آكل بالسحور؟", state.copy(profile = p.copy(ramadan = false)), t, "2026-09-21")
         assertTrue("فعّل وضع رمضان" in off.text, off.text)
-        assertTrue((r.text).none { it in '0'..'9' }, r.text)
+        assertTrue((r.text).none { it in '٠'..'٩' }, r.text)
     }
 }

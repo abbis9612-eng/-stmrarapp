@@ -43,7 +43,7 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
         val remaining = left - kcal
         val tip = when {
             gap > 30 -> "بقي عليك نحو ${ar(gap)} غ بروتين؛ اجعل وجبتك القادمة تبدأ ببروتين (زبادي، بيض، تونة)."
-            remaining < 0 -> "تجاوزت هدف اليوم قليلاً، ولا بأس أبداً. لا تعوّض بالحرمان؛ غداً نعود إلى الخطة، والليلة امشِ ١٠ دقائق بعد الأكل."
+            remaining < 0 -> "تجاوزت هدف اليوم قليلاً، ولا بأس أبداً. لا تعوّض بالحرمان؛ غداً نعود إلى الخطة، والليلة امشِ 10 دقائق بعد الأكل."
             else -> "يبقى لك نحو ${ar(remaining)} سعرة اليوم. 👌"
         }
         return CoachReply("حسبتها تقريبياً: ${ar(kcal)} سعرة و${ar(prot)} غ بروتين. $tip", actions)
@@ -57,10 +57,10 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
     }
     if (Regex("(الليل|بالليل|قبل النوم|سهر).*(جوع|اكل|جوعان|اشتهي)|(جوع|جوعان|اشتهي).*(الليل|بالليل)").containsMatchIn(q)) {
         return CoachReply(
-            "جوع الليل غالباً تعب أو ملل أكثر منه جوع حقيقي. جرّب ٥ دقائق تهدئة، وإن بقيت جائعاً: زبادي أو شاي بلا سكر.",
+            "جوع الليل غالباً تعب أو ملل أكثر منه جوع حقيقي. جرّب 5 دقائق تهدئة، وإن بقيت جائعاً: زبادي أو شاي بلا سكر.",
             listOf(
                 CoachAction.StartWorkout("night-5"),
-                CoachAction.AddIfThen("إذا جعت بعد الساعة ٩", "أشرب كوب ماء أو شاي، وإن استمر الجوع آكل زبادي"),
+                CoachAction.AddIfThen("إذا جعت بعد الساعة 9", "أشرب كوب ماء أو شاي، وإن استمر الجوع آكل زبادي"),
             ),
         )
     }
@@ -92,7 +92,7 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
     }
     if (profile != null && Regex("(اسبوعي|الاسبوع|مراجعه|تقييمي|كيف ماشي|كيف حالي)").containsMatchIn(q)) {
         val r = weeklyReview(profile, state.days, t, today)
-        return CoachReply("مراجعة آخر ٧ أيام: حضرت ${ar(r.activeDays)} من ٧، وتمرّنت ${ar(r.workouts)} مرات.\n${r.win}\n${r.focusText}", emptyList())
+        return CoachReply("مراجعة آخر 7 أيام: حضرت ${ar(r.activeDays)} من 7، وتمرّنت ${ar(r.workouts)} مرات.\n${r.win}\n${r.focusText}", emptyList())
     }
     if (Regex("(حلا|حلويات|الحلو|سكر|شوكولا|ابي حلو|اريد حلو)").containsMatchIn(q)) {
         return CoachReply("لا يوجد أكل ممنوع. خذ حصة صغيرة واستمتع بها بعد وجبة فيها بروتين، لا على جوع. وسجّلها بلا لوم.", emptyList())

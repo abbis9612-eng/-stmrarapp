@@ -130,9 +130,18 @@ tap_text "سجّل أكلاً أو وزناً أو حركة"; cap 21-log-sheet-o
 adb shell input keyevent KEYCODE_BACK; sleep 1
 # التعريف: الأقسام المسمّاة
 shot 22-onboarding-step1 4 --ez fresh true --ez skipIntro true
-tap_text "لنبدأ — ٣ دقائق"; cap 23-onboarding-basics 2
+tap_text "لنبدأ — 3 دقائق"; cap 23-onboarding-basics 2
 # شاشة الصراحة: مدى الوصول بدل تاريخ واحد
 shot 23b-onboarding-honest 6 --ez skipIntro true --ez onboardDemo true
+
+# نماذج الألوان: «المظهر» في تقدّمي، ثم «اليوم» بكل نموذج، ونرجع لـ«ضوء»
+shot 64-appearance 8 --ez demo true --ez skipIntro true --es route progress
+scroll_to "اختر الألوان التي تريحك" 64b-appearance-card
+for P in NIGHT ENERGY CLEAN; do
+  shot "65-today-$P" 7 --ez demo true --ez skipIntro true --es checkin HIGH --es palette $P
+done
+shot 65-progress-NIGHT 7 --ez demo true --ez skipIntro true --es route progress --es palette NIGHT
+shot 65-today-LIGHT 7 --ez demo true --ez skipIntro true --es checkin HIGH --es palette LIGHT
 
 # وضع رمضان (آخر شي لأنه يبقى مفعّل)
 shot 30-ramadan-today 7 --ez demo true --ez skipIntro true --es checkin HIGH --ez ramadan true

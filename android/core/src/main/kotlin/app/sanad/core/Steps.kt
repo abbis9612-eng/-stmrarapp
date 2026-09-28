@@ -14,10 +14,10 @@ fun advanceSteps(cur: StepCursor?, reading: Long, date: String): StepCursor {
     return StepCursor(date, reading, (base + delta).coerceAtMost(100_000L).toInt())
 }
 
-/** ~٧٠٠٠ خطوة باليوم مرتبطة بانخفاض واضح بالوفيات والأمراض (مراجعات ٢٠٢٣–٢٠٢٥). */
+/** ~7000 خطوة باليوم مرتبطة بانخفاض واضح بالوفيات والأمراض (مراجعات 2023–2025). */
 fun stepsNote(steps: Int, target: Int): String = when {
     steps >= target -> "وصلت هدفك. كل خطوة إضافية مكسب، لا واجب."
-    steps >= target * 0.6 -> "باقي ${ar(target - steps)} خطوة، ومشي ١٥ دقيقة بعد الأكل يكفي."
-    steps > 0 -> "مشي ١٠ دقائق بعد الوجبة يخفض سكر الدم ويقرّبك من الهدف."
+    steps >= target * 0.6 -> "باقي ${ar(target - steps)} خطوة، ومشي 15 دقيقة بعد الأكل يكفي."
+    steps > 0 -> "مشي 10 دقائق بعد الوجبة يخفض سكر الدم ويقرّبك من الهدف."
     else -> "امشِ وهاتفك في جيبك، والعدّاد يحسب وحده."
 }
