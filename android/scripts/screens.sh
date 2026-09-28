@@ -6,6 +6,8 @@ mkdir -p "$OUT"
 adb install -r "$APK"
 # نمنح إذن التنبيهات مسبقاً حتى نافذة الإذن ما تغطي اللقطات
 adb shell pm grant app.sanad.coach android.permission.POST_NOTIFICATIONS || true
+# نخفي نوافذ «التطبيق لا يستجيب» من المحاكي نفسه (مثل Pixel Launcher) حتى لا تغطي اللقطات
+adb shell settings put global hide_error_dialogs 1 || true
 PKG=app.sanad.coach/.MainActivity
 
 shot() {
