@@ -95,6 +95,8 @@ enum class Ico(val d: String, val filled: Boolean = false) {
     REPEAT("M4 12a8 8 0 0 1 14-5.3L20 9 M20 4v5h-5 M20 12a8 8 0 0 1-14 5.3L4 15 M4 20v-5h5"),
     PEOPLE("M8 8.5a2.6 2.6 0 1 0 0 .01 M16 8.5a2.6 2.6 0 1 0 0 .01 M3.5 18c0-3 2-4.5 4.5-4.5s4.5 1.5 4.5 4.5 M11.5 18c0-3 2-4.5 4.5-4.5s4.5 1.5 4.5 4.5"),
     LOCK("M5 10h14v10H5z M8 10V7a4 4 0 0 1 8 0v3"),
+    PENCIL("M4 20l1-4L16 5l3 3L8 19z M14 7l3 3"),
+    CLOCK("M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z M12 8v4.5l3 2"),
 }
 
 private val iconCache = HashMap<Ico, ImageVector>()

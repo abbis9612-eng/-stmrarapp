@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -142,7 +143,6 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Text("الاتجاه أهم من الميزان", style = Type.h1.copy(color = c.ink))
             }
         }
-        item(key = "sky") { SkyCard(skyOf(state.days, day.date, p.createdAt), Modifier.rise(rise, 1)) }
         item {
             Column(Modifier.fillMaxWidth().rise(rise, 2).glass().padding(start = 18.dp, end = 18.dp, top = 20.dp, bottom = 12.dp)) {
                 Eyebrow("وزنك الاتجاهي")
@@ -153,8 +153,8 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     Spacer(Modifier.width(8.dp))
                     Text("كغ", style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 10.dp))
                     Spacer(Modifier.width(10.dp))
-                    if (lost > 0) Box(Modifier.padding(bottom = 12.dp).clip(RoundedCornerShape(8.dp)).background(c.primaryTint).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                        Text("نزلت ${ar(lost)} كغ", style = Type.label.copy(color = c.primary))
+                    if (lost > 0) Box(Modifier.padding(bottom = 12.dp).clip(RoundedCornerShape(9.dp)).background(c.brand).padding(horizontal = 10.dp, vertical = 4.dp)) {
+                        Text("نزلت ${ar(lost)} كغ", style = Type.label.copy(color = Color(0xFF15231C), fontWeight = FontWeight.Bold))
                     }
                 }
                 Spacer(Modifier.height(6.dp))
@@ -192,6 +192,8 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 }
             }
         }
+        // «مسيرتك» بعد الوزن و«متى تصل؟»: الصفحة عن الاتجاه أولاً، والحلقة ظاهرة أصلاً في «اليوم»
+        item(key = "sky") { SkyCard(skyOf(state.days, day.date, p.createdAt), Modifier) }
         if (reachedGoal(p, state.days)) item(key = "goal-reached") {
             Column(
                 Modifier.fillMaxWidth().glass(RoundedCornerShape(22.dp), c.oasis).padding(18.dp),
@@ -415,7 +417,7 @@ private fun WeightChangeTable(trend: List<TrendPoint>) {
             ) {
                 Text(
                     if (kg == null) "—" else arSigned(kg),
-                    style = Type.bodyStrong.copy(color = when { kg == null -> c.faint; kg < 0 -> c.primary; kg > 0 -> c.saffron; else -> c.ink }),
+                    style = Type.bodyStrong.copy(color = when { kg == null -> c.faint; kg < 0 -> c.oasis; kg > 0 -> c.saffron; else -> c.ink }),
                 )
                 Text(ch.label, style = Type.label.copy(fontSize = 11.sp, color = c.inkSoft))
             }

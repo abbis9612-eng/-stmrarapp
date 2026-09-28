@@ -134,13 +134,16 @@ fun MoveScreen(state: AppState, nav: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 featured.exercises.firstOrNull()?.let {
-                    ExerciseFigure(it, Modifier.size(120.dp).stage(c.amberTint))
+                    ExerciseFigure(it, Modifier.size(120.dp).stage(c.primaryTint))
                     Spacer(Modifier.width(14.dp))
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Badge("مقترح لك اليوم", gold = true)
+                    Box(Modifier.clip(RoundedCornerShape(9.dp)).background(c.brand).padding(horizontal = 10.dp, vertical = 3.dp)) {
+                        Text("مقترح لك اليوم", style = Type.label.copy(color = Color(0xFF15231C), fontWeight = FontWeight.Bold))
+                    }
                     Text(featured.title, style = Type.h2.copy(color = c.ink))
                     Text(featured.why, style = Type.small.copy(color = c.inkSoft))
+                    SButton("ابدأ", { nav.navigate(Routes.player(featured.id)) }, small = true, icon = Ico.PLAY)
                 }
             }
         }

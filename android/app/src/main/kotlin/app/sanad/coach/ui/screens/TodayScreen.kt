@@ -51,6 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
@@ -191,12 +194,12 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     }
 
     Page {
-        // الرأس: التاريخ، التحية بخط اليد، المدرب، وأيقونة التقدّم
+        // الرأس: التاريخ، التحية، المدرب، وأيقونة التقدّم
         item {
             Row(Modifier.rise(rise, 0), verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f)) {
                     Eyebrow(arabicDate(LocalDate.parse(todayKey)))
-                    Text("${greeting()} يا ${p.name}", style = Type.handTitle.copy(color = c.ink, fontSize = 30.sp))
+                    Text("${greeting()} يا ${p.name}", style = Type.h1.copy(color = c.ink, fontSize = 28.sp))
                 }
                 Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
@@ -450,13 +453,19 @@ private fun NextStep(m: Mission, modifier: Modifier, onStart: () -> Unit, onSwap
                 Text(m.detail, style = Type.body.copy(color = c.heroSoft, fontSize = 14.sp))
             }
             Spacer(Modifier.width(8.dp))
-            InkFigureSquat(Modifier.size(width = 70.dp, height = 90.dp), c.onHero, c.heroAccent)
+            val figure = if (c.hero == c.brand) c.onHero else c.brand
+            InkFigureSquat(Modifier.size(width = 70.dp, height = 90.dp), figure, figure)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(
                 Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(15.dp)).background(c.heroBtn).press(onStart),
                 contentAlignment = Alignment.Center,
-            ) { Text(if (m.routineId != null) "ابدأ الآن" else "تم", style = Type.h3.copy(color = c.onHeroBtn, fontWeight = FontWeight.Bold, fontSize = 17.sp)) }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (m.routineId != null) SIcon(Ico.PLAY, size = 16.dp, tint = c.onHeroBtn)
+                    Text(if (m.routineId != null) "ابدأ الآن" else "تم", style = Type.h3.copy(color = c.onHeroBtn, fontWeight = FontWeight.Bold, fontSize = 17.sp))
+                }
+            }
             if (m.kind == MissionKind.MOVE) Box(
                 Modifier.width(96.dp).height(52.dp).clip(RoundedCornerShape(15.dp)).border(1.5.dp, c.onHero.copy(alpha = 0.45f), RoundedCornerShape(15.dp)).press(onSwap),
                 contentAlignment = Alignment.Center,
@@ -504,65 +513,74 @@ private fun NumbersCard(
 ) {
     val c = Sanad.colors
     val left by animateIntAsState(t.kcal - day.intake, tween(900), label = "left")
+    val eaten by animateFloatAsState((day.intake / t.kcal.toFloat()).coerceIn(0f, 1f), tween(1100), label = "eaten")
     Column(modifier.fillMaxWidth().glass().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(Modifier.fillMaxWidth().press(onOpen, haptic = false), verticalAlignment = Alignment.Bottom) {
-            Text(ar(if (left >= 0) left else -left), style = Type.hero.copy(fontSize = 40.sp, color = if (left >= 0) c.ink else c.saffron))
-            Spacer(Modifier.width(8.dp))
-            Text(
-                if (left >= 0) "سعرة متبقية من ${ar(t.kcal)}" else "فوق خطتك اليوم",
-                style = Type.body.copy(color = c.inkSoft), modifier = Modifier.padding(bottom = 4.dp),
-            )
-        }
-        Meter(day.intake / t.kcal.toFloat(), height = 12.dp, color = if (left >= 0) c.brand else c.amber)
-        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            MiniStat("بروتين", ar(day.protein), " / ${ar(t.protein)}غ", day.protein / t.protein.toFloat(), c.oasis, Modifier.weight(1f).fillMaxHeight())
-            Column(
-                Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(c.bg).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // حلقة السعرات: الرقم بالنص، والحلقة تمتلئ بما أكلت
+            Box(
+                Modifier.size(132.dp).press(onOpen, haptic = false)
+                    .semantics(mergeDescendants = true) {},
+                contentAlignment = Alignment.Center,
             ) {
-                Text("ماء", style = Type.label.copy(color = c.inkSoft))
-                Text(
-                    "${ar(day.water)} / ${ar(t.water)}",
-                    style = Type.number.copy(fontSize = 18.sp, color = c.ink),
-                    modifier = Modifier.semantics { contentDescription = "ماء ${ar(day.water)} من ${ar(t.water)} أكواب" },
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(
-                        Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(9.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(9.dp))
-                            .press({ onWater(-1) }).semantics { contentDescription = "قلّل كوب ماء" },
-                        contentAlignment = Alignment.Center,
-                    ) { SIcon(Ico.MINUS, size = 16.dp) }
-                    Box(
-                        Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(9.dp)).background(c.sky)
-                            .press({ onWater(1) }).semantics { contentDescription = "أضف كوب ماء" },
-                        contentAlignment = Alignment.Center,
-                    ) { SIcon(Ico.PLUS, size = 16.dp, tint = c.onPrimary) }
+                Canvas(Modifier.fillMaxSize()) {
+                    val sw = 12.dp.toPx()
+                    val tl = Offset(sw / 2, sw / 2)
+                    val sz = Size(size.width - sw, size.height - sw)
+                    drawArc(c.surface2, 0f, 360f, false, tl, sz, style = Stroke(sw))
+                    if (eaten > 0.005f) drawArc(if (left >= 0) c.brand else c.amber, -90f, 360f * eaten, false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(ar(if (left >= 0) left else -left), style = Type.number.copy(fontSize = 28.sp, color = if (left >= 0) c.ink else c.saffron))
+                    Text(
+                        if (left >= 0) "سعرة متبقية\nمن ${ar(t.kcal)}" else "فوق خطتك\nاليوم",
+                        style = Type.label.copy(color = c.inkSoft, fontSize = 11.5.sp, lineHeight = 15.sp), textAlign = TextAlign.Center,
+                    )
                 }
             }
-            if (stepsNeedPermission) Column(
-                Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(c.bg).press(onEnableSteps).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text("خطوات", style = Type.label.copy(color = c.inkSoft))
-                Text("فعّل العدّاد", style = Type.small.copy(color = c.primary, fontWeight = FontWeight.Bold))
-                Text("بلا إنترنت", style = Type.label.copy(color = c.inkSoft))
-            } else MiniStat("خطوات", ar(day.steps), "", day.steps / t.steps.toFloat(), c.amber, Modifier.weight(1f).fillMaxHeight())
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatBar("بروتين", day.protein / t.protein.toFloat(), c.oasis) {
+                    Text(ar(day.protein), style = Type.number.copy(fontSize = 15.sp, color = c.ink))
+                    Text(" / ${ar(t.protein)} غ", style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp))
+                }
+                StatBar("ماء", day.water / t.water.toFloat(), c.sky) {
+                    Box(
+                        Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(c.surface2)
+                            .press({ onWater(-1) }).semantics { contentDescription = "قلّل كوب ماء" },
+                        contentAlignment = Alignment.Center,
+                    ) { SIcon(Ico.MINUS, size = 14.dp) }
+                    Text(
+                        "${ar(day.water)}/${ar(t.water)}",
+                        style = Type.number.copy(fontSize = 15.sp, color = c.ink),
+                        modifier = Modifier.padding(horizontal = 6.dp).semantics { contentDescription = "ماء ${ar(day.water)} من ${ar(t.water)} أكواب" },
+                    )
+                    Box(
+                        Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(c.sky)
+                            .press({ onWater(1) }).semantics { contentDescription = "أضف كوب ماء" },
+                        contentAlignment = Alignment.Center,
+                    ) { SIcon(Ico.PLUS, size = 14.dp, tint = Color.White) }
+                }
+                if (stepsNeedPermission) StatBar("خطوات", 0f, c.brand, Modifier.press(onEnableSteps)) {
+                    Text("فعّل العدّاد", style = Type.small.copy(color = c.oasis, fontWeight = FontWeight.Bold))
+                } else StatBar("خطوات", day.steps / t.steps.toFloat(), c.brand) {
+                    Text(ar(day.steps), style = Type.number.copy(fontSize = 15.sp, color = c.ink))
+                }
+            }
         }
         if (!stepsNeedPermission && day.steps > 0) Text(stepsNote(day.steps, t.steps), style = Type.small.copy(color = c.inkSoft))
     }
 }
 
+/** سطر رقم صغير: العنوان يمين، القيمة يسار، وتحتهما شريط. */
 @Composable
-private fun MiniStat(label: String, value: String, of: String, progress: Float, color: Color, modifier: Modifier) {
+private fun StatBar(label: String, progress: Float, color: Color, modifier: Modifier = Modifier, value: @Composable RowScope.() -> Unit) {
     val c = Sanad.colors
-    Column(modifier.clip(RoundedCornerShape(14.dp)).background(c.bg).padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = Type.label.copy(color = c.inkSoft))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(value, style = Type.number.copy(fontSize = 18.sp, color = c.ink))
-            if (of.isNotEmpty()) Text(of, style = Type.label.copy(color = c.inkSoft, fontSize = 11.sp), modifier = Modifier.padding(bottom = 2.dp))
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 28.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = Type.small.copy(color = c.inkSoft), modifier = Modifier.weight(1f))
+            Row(verticalAlignment = Alignment.CenterVertically, content = value)
         }
-        Spacer(Modifier.weight(1f))
-        Meter(progress, height = 5.dp, color = color)
+        Meter(progress, height = 7.dp, color = color)
     }
 }
 

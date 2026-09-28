@@ -112,7 +112,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Badge(if (left >= 0) "متبقٍ ${ar(left)} سعرة" else "فوق الخطة ${ar(-left)}")
             }
         }
-        // أسرع طريقة: صورة الصحن، وسند يحسبها بالصحن والرغيف
+        // أسرع طريقة: صورة الصحن، وتحرّك يحسبها بالصحن والرغيف
         item {
             Row(
                 Modifier.fillMaxWidth().glass().padding(18.dp),
@@ -129,9 +129,9 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                QuickTile(Ico.WRITE, "اكتب جملة", Modifier.weight(1f)) { nav.navigate(Routes.COACH) }
+                QuickTile(Ico.PENCIL, "اكتب جملة", Modifier.weight(1f)) { nav.navigate(Routes.COACH) }
                 QuickTile(Ico.EAT, "صحن تحرّك", Modifier.weight(1f)) { nav.navigate(Routes.PLATE) }
-                QuickTile(Ico.PLAY, "كُل على مهل", Modifier.weight(1f)) { nav.navigate(Routes.PACER) }
+                QuickTile(Ico.CLOCK, "كُل على مهل", Modifier.weight(1f)) { nav.navigate(Routes.PACER) }
             }
         }
         val usual = usualMeals(state)
@@ -148,9 +148,9 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
         item { SField(q, { q = it }, "ابحث: كبسة، فول، شاورما، دولمة…", Modifier.fillMaxWidth()) }
         if (q.isBlank()) item {
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FoodCat.entries.forEach { fc -> SChip(fc.label, cat == fc.name, { cat = fc.name }) }
                 SChip("غني بالبروتين", cat == "star", { cat = "star" })
                 SChip("المفضلة", cat == "fav", { cat = "fav" })
-                FoodCat.entries.forEach { fc -> SChip(fc.label, cat == fc.name, { cat = fc.name }) }
             }
         }
         if (results.isEmpty()) item {
@@ -159,11 +159,15 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 style = Type.small.copy(color = c.inkSoft),
             )
         }
-        results.forEach { f ->
-            item(key = "f-${f.id}") {
-                FoodRow(f, open == f.id, f.id in state.favorites, onToggle = { open = if (open == f.id) null else f.id }, onFav = { store.toggleFavorite(f.id) }) { qty ->
-                    store.addMeal(if (qty == 1.0) f.name else "${f.name} ×${ar(qty)}", (f.kcal * qty).roundToInt(), (f.protein * qty).roundToInt(), MealSource.DB)
-                    open = null
+        // كل الأكلات في بطاقة واحدة، و«+» بجنب كل أكلة يسجّل حصة بضغطة
+        if (results.isNotEmpty()) item(key = "foods-$cat-$q") {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(20.dp))) {
+                results.forEachIndexed { i, f ->
+                    if (i > 0) Box(Modifier.padding(horizontal = 16.dp).fillMaxWidth().height(1.dp).background(c.line))
+                    FoodRow(f, open == f.id, f.id in state.favorites, onToggle = { open = if (open == f.id) null else f.id }, onFav = { store.toggleFavorite(f.id) }) { qty ->
+                        store.addMeal(if (qty == 1.0) f.name else "${f.name} ×${ar(qty)}", (f.kcal * qty).roundToInt(), (f.protein * qty).roundToInt(), MealSource.DB)
+                        open = null
+                    }
                 }
             }
         }
@@ -211,15 +215,20 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
 @Composable
 private fun FoodRow(f: Food, open: Boolean, fav: Boolean, onToggle: () -> Unit, onFav: () -> Unit, onAdd: (Double) -> Unit) {
     val c = Sanad.colors
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(16.dp))) {
-        Row(Modifier.press(onToggle).padding(start = 16.dp, end = 4.dp, top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.press(onToggle).padding(start = 16.dp, end = 10.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(f.name, style = Type.bodyStrong.copy(color = c.ink))
-                Text("${f.portion}، ${ar(f.kcal)} سعرة، ${ar(f.protein)} غ بروتين", style = Type.label.copy(color = c.inkSoft))
+                Text("${f.portion} · ${ar(f.kcal)} سعرة · ${ar(f.protein)} غ بروتين", style = Type.label.copy(color = c.inkSoft))
             }
-            Box(Modifier.size(48.dp).press(onFav).semantics { contentDescription = if (fav) "إزالة من المفضلة" else "أضف للمفضلة" }, contentAlignment = Alignment.Center) {
-                SIcon(Ico.STAR, tint = if (fav) c.amber else c.inkSoft)
+            Box(Modifier.size(40.dp).press(onFav).semantics { contentDescription = if (fav) "إزالة من المفضلة" else "أضف للمفضلة" }, contentAlignment = Alignment.Center) {
+                SIcon(Ico.STAR, size = 18.dp, tint = if (fav) c.amber else c.faint)
             }
+            Box(
+                Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(c.surface2).press({ onAdd(1.0) })
+                    .semantics { contentDescription = "سجّل حصة ${f.name}" },
+                contentAlignment = Alignment.Center,
+            ) { SIcon(Ico.PLUS, size = 20.dp) }
         }
         AnimatedVisibility(open, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
             Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp)) {

@@ -73,8 +73,8 @@ fun DrawScope.drawFigure(f: Pose, prop: Prop, c: SanadColors, muscles: List<Musc
     val legsWork = muscles.any { it == Muscle.QUADS || it == Muscle.GLUTES || it == Muscle.HAMSTRINGS || it == Muscle.CALVES }
     val armsWork = muscles.any { it == Muscle.ARMS || it == Muscle.CHEST || it == Muscle.SHOULDERS || it == Muscle.BACK }
     val coreWork = Muscle.CORE in muscles
-    val nearLeg = if (legsWork) c.amber else Color.White
-    val nearArm = if (armsWork) c.amber else Color.White
+    val nearLeg = if (legsWork) c.oasis else Color.White
+    val nearArm = if (armsWork) c.oasis else Color.White
     val farFill = c.surface2
 
     // خط الأرض
@@ -89,7 +89,7 @@ fun DrawScope.drawFigure(f: Pose, prop: Prop, c: SanadColors, muscles: List<Musc
             drawLine(propInk, o(26f, 64f), o(23f, 37f), 2.2f * s, StrokeCap.Round)
         }
         Prop.WALL -> drawRoundRect(c.surface2, o(86f, 5f), Size(6 * s, 89.6f * s), CornerRadius(2f * s))
-        Prop.MAT -> drawRoundRect(c.amberTint, o(6f, 92.4f), Size(88 * s, 2.6f * s), CornerRadius(1.3f * s))
+        Prop.MAT -> drawRoundRect(c.primaryTint, o(6f, 92.4f), Size(88 * s, 2.6f * s), CornerRadius(1.3f * s))
         Prop.NONE -> Unit
     }
 
@@ -120,7 +120,7 @@ fun DrawScope.drawFigure(f: Pose, prop: Prop, c: SanadColors, muscles: List<Musc
         quadraticTo(pt(Joint.MID).x, pt(Joint.MID).y, pt(Joint.HIP).x, pt(Joint.HIP).y)
     }
     drawPath(torso, ink, style = Stroke(11.6f * s, cap = StrokeCap.Round))
-    drawPath(torso, if (coreWork) c.amberTint else Color.White, style = Stroke(9.4f * s, cap = StrokeCap.Round))
+    drawPath(torso, if (coreWork) c.brand else Color.White, style = Stroke(9.4f * s, cap = StrokeCap.Round))
 
     // الأطراف القريبة
     limb(Joint.HIP, Joint.KNEE_N, 6f, nearLeg); limb(Joint.KNEE_N, Joint.FOOT_N, 5.4f, nearLeg)
@@ -194,8 +194,8 @@ private fun DrawScope.drawBody(front: Boolean, left: Float, width: Float, primar
     val shift = 1.6f * s
     zones.forEach { z ->
         val fill = when (z.m) {
-            in primary -> c.amber
-            in secondary -> c.amberTint
+            in primary -> c.oasis
+            in secondary -> c.brand
             else -> null
         }
         val mirrored = z.cx != 60f
