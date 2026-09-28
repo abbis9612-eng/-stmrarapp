@@ -170,7 +170,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar")
-            .putExtra(RecognizerIntent.EXTRA_PROMPT, "تكلّم، سند يسمعك")
+            .putExtra(RecognizerIntent.EXTRA_PROMPT, "تكلّم، المدرب يسمعك")
         try { voice.launch(intent) } catch (_: ActivityNotFoundException) {
             hint = "التعرّف على الصوت غير متوفر بهذا الجهاز. اكتب رسالتك."
         }
@@ -203,7 +203,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             MoveMark(48.dp, progress = sky.phase, speaking = busy)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("سند", style = Type.h2.copy(color = c.ink))
+                Text("مدرّب تحرّك", style = Type.h2.copy(color = c.ink))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(7.dp).clip(CircleShape).background(c.oasis))
                     Spacer(Modifier.width(6.dp))
@@ -226,7 +226,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Bubble(ChatMessage("hello", ChatRole.COACH, "أهلاً ${p.name}! أنا سند. أخبرني بما أكلت وأحسبه لك، أو أخبرني عن طاقتك وأقترح عليك خطوة تناسبك.", 0), store, nav)
+                Bubble(ChatMessage("hello", ChatRole.COACH, "أهلاً ${p.name}! أنا مدرّبك في تحرّك. أخبرني بما أكلت وأحسبه لك، أو أخبرني عن طاقتك وأقترح عليك خطوة تناسبك.", 0), store, nav)
             }
             items(state.chat, key = { it.id }) { m -> Bubble(m, store, nav, scanning = busy && m.image != null && m.id == state.chat.lastOrNull()?.id) }
             if (busy) item { Thinking() }
@@ -274,7 +274,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
                 contentAlignment = Alignment.Center,
             ) { SIcon(Ico.CAMERA, size = 21.dp) }
             Box(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                if (text.isEmpty()) Text("أخبر سند بما أكلت أو كيف حالك…", style = Type.body.copy(color = c.faint))
+                if (text.isEmpty()) Text("أخبر المدرب بما أكلت أو كيف حالك…", style = Type.body.copy(color = c.faint))
                 BasicTextField(
                     text, { text = it },
                     textStyle = Type.body.copy(color = c.ink),
@@ -282,7 +282,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
                     maxLines = 4,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(onSend = { send(text) }),
-                    modifier = Modifier.fillMaxWidth().semantics { contentDescription = "رسالتك لسند" },
+                    modifier = Modifier.fillMaxWidth().semantics { contentDescription = "رسالتك للمدرب" },
                 )
             }
             val typing = text.isNotBlank()
@@ -290,7 +290,7 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
                 Box(
                     Modifier.size(44.dp).clip(CircleShape).background(c.primary)
                         .press({ if (t) send(text) else listen() })
-                        .semantics { contentDescription = if (t) "أرسل" else "تكلّم مع سند" },
+                        .semantics { contentDescription = if (t) "أرسل" else "تكلّم مع المدرب" },
                     contentAlignment = Alignment.Center,
                 ) { SIcon(if (t) Ico.SEND else Ico.MIC, size = 21.dp, tint = c.onGold) }
             }
@@ -384,7 +384,7 @@ private fun Thinking() {
     Row(verticalAlignment = Alignment.CenterVertically) {
         MoveMark(26.dp, speaking = true, ring = false)
         Spacer(Modifier.width(10.dp))
-        Text("سند يفكر…", style = Type.small.copy(color = c.inkSoft))
+        Text("المدرب يفكر…", style = Type.small.copy(color = c.inkSoft))
     }
 }
 

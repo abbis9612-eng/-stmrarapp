@@ -8,7 +8,7 @@ class PlateTest {
     @Test fun idealPlateIsFullScore() {
         val s = plateScore(PlateInput(veg = 2, protein = 1, carbs = 1))
         assertEquals(100, s.score)
-        assertEquals("صحن سند", s.grade)
+        assertEquals("صحن تحرّك", s.grade)
     }
 
     @Test fun riceHeavyNoVegGetsFocusedTips() {

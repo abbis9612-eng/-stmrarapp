@@ -7,7 +7,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /*
- * "سند الحارس": ميزات تمنع الانقطاع قبل أن يحدث.
+ * "حارس تحرّك": ميزات تمنع الانقطاع قبل أن يحدث.
  * - رادار الزلّة: خطر اللحظة من إشارات يعرفها التطبيق (JITAI مبني على قواعد).
  * - طقس الميزان: تفسير قفزة الوزن حتى ما يترك الشخص الوزن بعد زيادة.
  * - الرجوع: استقبال بلا لوم بعد الغياب.
@@ -237,7 +237,7 @@ fun lapseRecovery(kind: LapseKind, t: Targets): Recovery {
             "اليوم لم ينتهِ بعد",
             listOf(
                 "أصغر شيء يُحسب: دقيقتان من الحركة أو تسجيل وجبة واحدة.",
-                "قاعدة سند: يوم فائت لا بأس به، لكن لا تجعله يومين.",
+                "قاعدة تحرّك: يوم فائت لا بأس به، لكن لا تجعله يومين.",
             ),
             reframe,
         )
@@ -266,7 +266,7 @@ fun nextReminder(state: AppState, t: Targets, now: LocalDateTime): Reminder? {
             candidates += Reminder(at(date, 19, 30), "welcome", welcome.headline, "${welcome.mission}.")
         }
         if (d?.energy == null) candidates += Reminder(at(date, 9, 0), "morning", "صباح الخير يا ${p.name}", "كيف طاقتك اليوم؟ لمسة واحدة وتُفصَّل خطتك على قدرك.")
-        if (d == null || d.meals.none { it.at > 0 }) candidates += Reminder(at(date, 14, 30), "lunch", "ماذا تغدّيت؟", "أخبر سند بجملة أو صوّر صحنك، ثوانٍ فقط.")
+        if (d == null || d.meals.none { it.at > 0 }) candidates += Reminder(at(date, 14, 30), "lunch", "ماذا تغدّيت؟", "أخبر المدرب بجملة أو صوّر صحنك، ثوانٍ فقط.")
         if (p.partner.isNotBlank() && date.dayOfWeek == java.time.DayOfWeek.FRIDAY) {
             candidates += Reminder(at(date, 18, 0), "partner", "تقرير الأسبوع جاهز", "أرسله إلى ${p.partner} بلمسة من «تقدّمي». التشجيع يصنع فرقاً.")
         }

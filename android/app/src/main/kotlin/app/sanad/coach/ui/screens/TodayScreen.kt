@@ -201,7 +201,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
                         Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp))
-                            .press({ nav.navigate(Routes.COACH) }).semantics { contentDescription = "تحدّث مع سند" },
+                            .press({ nav.navigate(Routes.COACH) }).semantics { contentDescription = "تحدّث مع المدرب" },
                         contentAlignment = Alignment.Center,
                     ) { SIcon(Ico.COACH, size = 23.dp) }
                     Box(
@@ -800,7 +800,7 @@ private fun RadarCard(r: Risk, onTool: () -> Unit, onLapse: () -> Unit) {
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("رادار سند", style = Type.label.copy(color = tint, fontWeight = FontWeight.Bold))
+                Text("رادار تحرّك", style = Type.label.copy(color = tint, fontWeight = FontWeight.Bold))
                 Text(r.headline, style = Type.h3.copy(color = c.ink, fontWeight = FontWeight.Bold))
             }
         }
@@ -838,7 +838,7 @@ private fun LapseCard(
         }
         AnimatedVisibility(open, enter = fadeIn() + expandVertically()) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("لا حكم هنا. اختر ما حدث، وسند يعطيك الخطوة التالية.", style = Type.small.copy(color = c.inkSoft))
+                Text("لا حكم هنا. اختر ما حدث، وتحرّك يعطيك الخطوة التالية.", style = Type.small.copy(color = c.inkSoft))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     LapseKind.entries.forEach { k ->
                         val sel = kind == k

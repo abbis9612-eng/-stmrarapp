@@ -80,7 +80,7 @@ fun PlateScreen(store: AppStore, nav: NavHostController) {
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Eyebrow("قيّم صحنك بعينك")
-                    Text("صحن سند", style = Type.h1.copy(color = c.ink))
+                    Text("صحن تحرّك", style = Type.h1.copy(color = c.ink))
                 }
             }
         }

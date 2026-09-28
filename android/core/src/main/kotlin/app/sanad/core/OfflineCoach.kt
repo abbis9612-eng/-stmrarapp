@@ -79,7 +79,7 @@ fun offlineReply(text: String, state: AppState, t: Targets, today: String): Coac
         val tr = trendWeights(weightPoints(state.days.values))
         val line = if (tr.size >= 2) " خط اتجاهك: ${ar(tr.first().trend)} ← ${ar(tr.last().trend)} كغ." else ""
         return CoachReply(
-            "الميزان اليومي يتأثر بالماء والملح والنوم، وقد يتحرك كيلو في يوم. نحكم على الاتجاه الأسبوعي لا على القراءة.$line استمر أسبوعين بتسجيل صادق، وسيعدّل سند هدفك تلقائياً.",
+            "الميزان اليومي يتأثر بالماء والملح والنوم، وقد يتحرك كيلو في يوم. نحكم على الاتجاه الأسبوعي لا على القراءة.$line استمر أسبوعين بتسجيل صادق، وسيعدّل تحرّك هدفك تلقائياً.",
             emptyList(),
         )
     }

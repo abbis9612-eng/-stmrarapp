@@ -36,7 +36,7 @@ fun plateScore(p: PlateInput): PlateScore {
         if (p.sweetDrink) add("ماء أو لبن بدل العصير أو المشروب الغازي")
     }
     val grade = when {
-        score >= 85 -> "صحن سند"
+        score >= 85 -> "صحن تحرّك"
         score >= 65 -> "صحن جيد"
         score >= 40 -> "قريب، ينقصه تعديل واحد"
         else -> "نبدأ بخطوة واحدة"

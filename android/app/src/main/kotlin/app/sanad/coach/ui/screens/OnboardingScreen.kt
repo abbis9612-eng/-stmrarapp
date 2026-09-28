@@ -116,7 +116,7 @@ private val STARTER_RULES = mapOf(
     Barrier.ENERGY to ("إذا استيقظت متعباً" to "أختار طاقة منخفضة وأكتفي بخطة الحد الأدنى"),
     Barrier.NIGHT to ("إذا جعت بعد الساعة 9" to "أشرب شاياً أو ماءً، وإن استمر الجوع آكل زبادي"),
     Barrier.SOCIAL to ("إذا كانت عندي عزيمة" to "آكل بروتيناً خفيفاً قبلها وآخذ صحناً واحداً"),
-    Barrier.STRESS to ("إذا تضايقت واشتهيت الأكل" to "أمشي 5 دقائق أو أكلّم سند قبل أن آكل"),
+    Barrier.STRESS to ("إذا تضايقت واشتهيت الأكل" to "أمشي 5 دقائق أو أكلّم المدرب قبل أن آكل"),
     Barrier.SWEETS to ("إذا اشتهيت الحلو" to "آخذ قطعة صغيرة بعد وجبة فيها بروتين وأسجّلها"),
 )
 
@@ -235,7 +235,7 @@ fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit)
                     HONEST_STEP -> forecast(w, if (goalOk) g else milestone, pace, LocalDate.now().toString())?.let { HonestForecast(it) }
                     4 -> {
                         Text("لماذا هذه المرة مختلفة؟", style = Type.h1.copy(color = c.ink))
-                        Text("سببك الشخصي هو ما يعيدك حين يذهب الحماس. سيذكّرك سند به في الأيام الصعبة.", style = Type.small.copy(color = c.inkSoft))
+                        Text("سببك الشخصي هو ما يعيدك حين يذهب الحماس. سيذكّرك تحرّك به في الأيام الصعبة.", style = Type.small.copy(color = c.inkSoft))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             WHY.forEach { x -> SChip(x, why == x, { why = x }) }
                         }
@@ -263,7 +263,7 @@ fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit)
                                 Stat(ar(targets.protein), "غ بروتين", Modifier.weight(1f))
                                 Stat(ar(targets.steps), "خطوة", Modifier.weight(1f))
                             }
-                            Text("حرقك التقديري ${ar(targets.tdee)} سعرة. بعد أسبوعين من التسجيل يتعلّم سند حرقك الحقيقي ويعدّل الهدف تلقائياً." + if (targets.floorApplied) " ثبّتنا الهدف عند الحد الأدنى الآمن." else "", style = Type.small.copy(color = c.inkSoft))
+                            Text("حرقك التقديري ${ar(targets.tdee)} سعرة. بعد أسبوعين من التسجيل يتعلّم تحرّك حرقك الحقيقي ويعدّل الهدف تلقائياً." + if (targets.floorApplied) " ثبّتنا الهدف عند الحد الأدنى الآمن." else "", style = Type.small.copy(color = c.inkSoft))
                             HandNote("قاعدة واحدة فقط: كل صباح أخبرني بطاقتك، فتصغر الخطة أو تكبر على قدرك. يوم التعب يكفيه دقيقتان. المهم ألّا يمرّ يومان فارغان متتاليان.")
                             if (profile.ifThens.isNotEmpty()) SCard {
                                 Text("خططك الجاهزة", style = Type.h3.copy(color = c.ink))
@@ -307,7 +307,7 @@ private fun HonestForecast(f: Forecast) {
     Text("بصراحة", style = Type.label.copy(color = c.sky, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold))
     Text("النزول ليس خطاً مستقيماً", style = Type.h1.copy(color = c.ink))
     Text(
-        "بعض الأسابيع يثبت فيها الميزان أو يصعد قليلاً: ماء، ملح، قلة نوم. سند ينظر إلى الاتجاه، لا إلى رقم اليوم.",
+        "بعض الأسابيع يثبت فيها الميزان أو يصعد قليلاً: ماء، ملح، قلة نوم. تحرّك ينظر إلى الاتجاه، لا إلى رقم اليوم.",
         style = Type.body.copy(color = c.inkSoft),
     )
     ForecastCard(f)
@@ -361,7 +361,7 @@ private fun Welcome() {
     Spacer(Modifier.height(10.dp))
     listOf(
         Triple(Ico.SPARK, "أخبرنا بطاقتك، فتأتي الخطة على قدرها", "متعب؟ دقيقتان تكفيان. نشيط؟ نبني العضل."),
-        Triple(Ico.CAMERA, "صوّر صحنك أو اكتبه بجملة", "«تغدّيت كبسة دجاج وزبادي» وسند يحسبها لك."),
+        Triple(Ico.CAMERA, "صوّر صحنك أو اكتبه بجملة", "«تغدّيت كبسة دجاج وزبادي» وتحرّك يحسبها لك."),
         Triple(Ico.MOVE, "تمارين تراها تتحرك", "كل تمرين برسم متحرك، بلا أدوات، ولطيف على الركبتين."),
         Triple(Ico.FLAME, "كل يوم تسجّله يملأ دائرتك", "يوم واحد فائت لا يمسحها. نعود غداً بلا لوم."),
     ).forEach { (icon, t, s) ->

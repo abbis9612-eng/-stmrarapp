@@ -12,7 +12,7 @@ fun assessSafety(age: Int, weightKg: Double, heightCm: Double, flags: List<Safet
     }
     if (SafetyFlag.PREGNANT in flags) {
         block = true
-        notes += "أثناء الحمل أو الرضاعة لا ننصح بعجز سعرات. سند يساعدك بعادات صحية فقط بعد موافقة طبيبتك."
+        notes += "أثناء الحمل أو الرضاعة لا ننصح بعجز سعرات. تحرّك يساعدك بعادات صحية فقط بعد موافقة طبيبتك."
     }
     if (SafetyFlag.EATING_DISORDER in flags) {
         block = true
@@ -23,7 +23,7 @@ fun assessSafety(age: Int, weightKg: Double, heightCm: Double, flags: List<Safet
         notes += "وزنك ضمن الطبيعي أو أقل؛ التنحيف غير مناسب. ركّز على القوة واللياقة."
     }
     if (SafetyFlag.DIABETES_MEDS in flags) notes += "أدوية السكري قد تحتاج إلى تعديل مع تقليل الأكل، فراجع طبيبك قبل البدء."
-    if (SafetyFlag.GLP1 in flags) notes += "مع إبر GLP-1: البروتين وتمارين المقاومة أهم ما يحمي عضلاتك، وسند يرفع أولويتهما لك."
+    if (SafetyFlag.GLP1 in flags) notes += "مع إبر GLP-1: البروتين وتمارين المقاومة أهم ما يحمي عضلاتك، وتحرّك يرفع أولويتهما لك."
     if (SafetyFlag.HEART in flags) notes += "مع أمراض القلب أو الضغط غير المنضبط: خذ موافقة طبيبك على التمارين، وابدأ بالمشي."
     return SafetyResult(block, notes)
 }

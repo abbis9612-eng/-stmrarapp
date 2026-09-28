@@ -259,13 +259,13 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Spacer(Modifier.height(6.dp))
                 val a = t.adaptive
                 if (a != null) {
-                    Text("تعلّم سند من ${ar(a.loggedDays)} يوماً مسجّلاً أن حرقك نحو ${ar(a.tdee)} سعرة يومياً، فعدّل هدفك إلى ${ar(t.kcal)} سعرة.", style = Type.body.copy(color = c.ink))
+                    Text("تعلّم تحرّك من ${ar(a.loggedDays)} يوماً مسجّلاً أن حرقك نحو ${ar(a.tdee)} سعرة يومياً، فعدّل هدفك إلى ${ar(t.kcal)} سعرة.", style = Type.body.copy(color = c.ink))
                     Spacer(Modifier.height(8.dp))
                     Text("الثقة بالتقدير ${ar((a.confidence * 100).toInt())}%", style = Type.label.copy(color = c.inkSoft))
                     Spacer(Modifier.height(6.dp))
                     Meter(a.confidence.toFloat(), color = c.oasis, height = 8.dp)
                 } else {
-                    Text("نستخدم حالياً تقدير المعادلة (${ar(t.tdee)} سعرة). بعد 7 أيام من تسجيل الأكل و3 أوزان، يحسب سند حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
+                    Text("نستخدم حالياً تقدير المعادلة (${ar(t.tdee)} سعرة). بعد 7 أيام من تسجيل الأكل و3 أوزان، يحسب تحرّك حرقك الفعلي من بياناتك ويعدّل هدفك، مثل أخصائي يتابعك أسبوعياً.", style = Type.body.copy(color = c.ink))
                 }
             }
         }
@@ -308,7 +308,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         item {
             SCard {
                 Text("خططك «إذا… فإني…»", style = Type.h2.copy(color = c.ink))
-                if (p.ifThens.isEmpty()) Text("اطلب من سند أن يجهّز لك خطة لأصعب موقف عندك.", style = Type.small.copy(color = c.inkSoft))
+                if (p.ifThens.isEmpty()) Text("اطلب من المدرب أن يجهّز لك خطة لأصعب موقف عندك.", style = Type.small.copy(color = c.inkSoft))
                 p.ifThens.forEach { r ->
                     Row(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface2).padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("${r.whenText} ← ${r.thenText}", style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f).padding(vertical = 10.dp))
@@ -515,7 +515,7 @@ private fun WeekReviewCard(r: WeeklyReview, modifier: Modifier, onAsk: () -> Uni
             Text(r.focusText, style = Type.small.copy(color = c.ink), modifier = Modifier.weight(1f))
         }
         Spacer(Modifier.height(12.dp))
-        SButton("ناقشها مع سند", onAsk, Modifier.fillMaxWidth(), style = BtnStyle.SOFT)
+        SButton("ناقشها مع المدرب", onAsk, Modifier.fillMaxWidth(), style = BtnStyle.SOFT)
     }
 }
 

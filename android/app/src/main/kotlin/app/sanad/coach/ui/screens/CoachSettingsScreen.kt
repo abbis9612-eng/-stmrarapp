@@ -107,9 +107,9 @@ fun CoachSettingsScreen(settings: CoachSettings, nav: NavHostController) {
             NightCard {
                 if (settings.cloudAvailable) {
                     Text("المدرب الذكي يعمل", style = Type.h2.copy(color = c.ink))
-                    Text("سند السحابي مفعّل للجميع بلا مفتاح ولا إعداد. إن أردت استعمال مفتاحك الخاص بدلاً منه، فاختره بالأسفل (اختياري).", style = Type.small.copy(color = c.inkSoft))
+                    Text("المدرب السحابي مفعّل للجميع بلا مفتاح ولا إعداد. إن أردت استعمال مفتاحك الخاص بدلاً منه، فاختره بالأسفل (اختياري).", style = Type.small.copy(color = c.inkSoft))
                 } else {
-                    Text("اربط سند بعقل حقيقي", style = Type.h2.copy(color = c.ink))
+                    Text("اربط المدرب بعقل حقيقي", style = Type.h2.copy(color = c.ink))
                     Text("اختر المزوّد، والصق مفتاح الـ API، واختبر. بلا مفتاح يعمل المدرب المحلي.", style = Type.small.copy(color = c.inkSoft))
                 }
                 if (current != null) {

@@ -102,7 +102,7 @@ data class DayLog(
     val slowMeals: Int = 0,
     /** الدرس اللي انقرا هذا اليوم */
     val lesson: String? = null,
-    /** درجات «صحن سند» لهذا اليوم */
+    /** درجات «صحن تحرّك» لهذا اليوم */
     val plates: List<Int> = emptyList(),
 ) {
     val intake: Int get() = meals.sumOf { it.kcal }

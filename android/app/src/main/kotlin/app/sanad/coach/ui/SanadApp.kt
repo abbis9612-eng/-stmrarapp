@@ -295,7 +295,7 @@ private fun LogSheet(onClose: () -> Unit, onGo: (String) -> Unit) {
             Box(Modifier.align(Alignment.CenterHorizontally).size(width = 40.dp, height = 4.dp).clip(CircleShape).background(c.line))
             Spacer(Modifier.height(8.dp))
             Text("سجّل", style = Type.h2.copy(color = c.ink))
-            LogRow(Ico.CAMERA, "صوّر صحنك", "سند يحسب السعرات بالصحن والرغيف") { onGo(Routes.coach(camera = true)) }
+            LogRow(Ico.CAMERA, "صوّر صحنك", "تحرّك يحسب السعرات بالصحن والرغيف") { onGo(Routes.coach(camera = true)) }
             LogRow(Ico.WRITE, "اكتب ما أكلت", "جملة واحدة تكفي: «تغدّيت كبسة وسلطة»") { onGo(Routes.COACH) }
             LogRow(Ico.REPEAT, "وجبة معتادة", "وجباتك المتكررة بضغطة واحدة") { onGo(Routes.EAT) }
             LogRow(Ico.SCALE, "سجّل وزنك", "مرة بالأسبوع تكفي") { onGo(Routes.PROGRESS) }

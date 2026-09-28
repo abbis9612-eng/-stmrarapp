@@ -204,11 +204,11 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
         "نحو ${ar(proteinMeal)} غ (بيض، زبادي، دجاج، تونة). التعب يرفع الجوع والبروتين يهدّئه.",
     ) else Mission(
         "eat", MissionKind.EAT, "سجّل وجباتك، ولو بجملة",
-        "صوّر صحنك أو قل لسند \"تغدّيت كبسة دجاج\" ويحسبها. هدفك ${ar(t.protein)} غ بروتين اليوم.",
+        "صوّر صحنك أو قل للمدرب \"تغدّيت كبسة دجاج\" ويحسبها. هدفك ${ar(t.protein)} غ بروتين اليوم.",
     )
     val restore = when {
         energy == Energy.LOW -> Mission("restore", MissionKind.RESTORE, "نم أبكر بنصف ساعة", "قلة النوم ترفع هرمون الجوع وتضعف الإرادة. الليلة استثمار.")
-        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يُغلق الساعة 9", "بعدها شاي أو ماء فقط. خطتك لجوع الليل جاهزة عند سند.")
+        Barrier.NIGHT in p.barriers -> Mission("restore", MissionKind.RESTORE, "المطبخ يُغلق الساعة 9", "بعدها شاي أو ماء فقط. خطتك لجوع الليل جاهزة عند المدرب.")
         else -> Mission("restore", MissionKind.RESTORE, "8 أكواب ماء", "ابدأ بكوب قبل كل وجبة؛ يساعد على الشبع.")
     }
     return listOf(move, eat, restore)

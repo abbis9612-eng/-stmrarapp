@@ -130,7 +130,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 QuickTile(Ico.WRITE, "اكتب جملة", Modifier.weight(1f)) { nav.navigate(Routes.COACH) }
-                QuickTile(Ico.EAT, "صحن سند", Modifier.weight(1f)) { nav.navigate(Routes.PLATE) }
+                QuickTile(Ico.EAT, "صحن تحرّك", Modifier.weight(1f)) { nav.navigate(Routes.PLATE) }
                 QuickTile(Ico.PLAY, "كُل على مهل", Modifier.weight(1f)) { nav.navigate(Routes.PACER) }
             }
         }
@@ -155,7 +155,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
         }
         if (results.isEmpty()) item {
             Text(
-                if (q.isNotBlank()) "لم نجد \"$q\". سجّلها يدوياً بالأسفل، أو اسأل سند ليقدّرها." else "اضغط ☆ على أي أكلة تتكرر عندك لتجدها هنا بضغطة.",
+                if (q.isNotBlank()) "لم نجد \"$q\". سجّلها يدوياً بالأسفل، أو اسأل المدرب ليقدّرها." else "اضغط ☆ على أي أكلة تتكرر عندك لتجدها هنا بضغطة.",
                 style = Type.small.copy(color = c.inkSoft),
             )
         }
@@ -197,7 +197,7 @@ fun EatScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(m.name, style = Type.bodyStrong.copy(color = c.ink))
-                        Text("${ar(m.kcal)} سعرة، ${ar(m.protein)} غ بروتين" + if (m.source == MealSource.COACH) "، قدّرها سند" else "", style = Type.label.copy(color = c.inkSoft))
+                        Text("${ar(m.kcal)} سعرة، ${ar(m.protein)} غ بروتين" + if (m.source == MealSource.COACH) "، قدّرها المدرب" else "", style = Type.label.copy(color = c.inkSoft))
                     }
                     Box(Modifier.size(48.dp).press({ store.removeMeal(m.id) }).semantics { contentDescription = "احذف ${m.name}" }, contentAlignment = Alignment.Center) {
                         SIcon(Ico.TRASH, size = 20.dp, tint = c.inkSoft)

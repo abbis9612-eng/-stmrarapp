@@ -184,7 +184,7 @@ fun HandNote(text: String, modifier: Modifier = Modifier, signed: Boolean = true
     ) {
         Text(text, style = Type.hand.copy(color = c.ink))
         if (signed || action != null) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            if (signed) Text("— سند", style = Type.hand.copy(fontSize = 18.sp, color = c.inkSoft))
+            if (signed) Text("— مدرّبك", style = Type.hand.copy(fontSize = 18.sp, color = c.inkSoft))
             Spacer(Modifier.weight(1f))
             if (action != null) Text(
                 action,
