@@ -35,7 +35,7 @@ data class SanadColors(
     val primary: Color,
     val primaryTint: Color,
     val onPrimary: Color,
-    /** كهرماني للتعبئة (أشرطة، القمر، رسومات)؛ مو للنص */
+    /** كهرماني للتعبئة (أشرطة، رسومات)؛ مو للنص */
     val amber: Color,
     val amberTint: Color,
     /** زعفران غامق — نص التقدّم والسلسلة */
@@ -51,7 +51,7 @@ data class SanadColors(
     /** ورقة ملاحظة سند */
     val note: Color,
     val noteLine: Color,
-    /** سماء القمر في صفحة التقدّم */
+    /** البطاقة الغامقة «مسيرتك» في صفحة التقدّم */
     val nightSky: Color,
     val nightSky2: Color,
     val moonLight: Color,

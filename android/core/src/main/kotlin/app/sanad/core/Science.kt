@@ -182,7 +182,7 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(
             "move", MissionKind.MOVE, "دقيقتان من الحركة فقط",
-            "3 تمارين هادئة وأنت في مكانك. الهدف أن تحفظ قمرك، لا أن تتعب.",
+            "3 تمارين هادئة وأنت في مكانك. الهدف أن تحفظ سلسلتك، لا أن تتعب.",
             if (energy == Energy.LOW) "reset-2" else "wake-2",
         )
         time == TimeBudget.TEN -> Mission(
@@ -215,7 +215,7 @@ fun dayMissions(energy: Energy, time: TimeBudget, t: Targets, p: Profile): List<
 }
 
 val ENERGY_COPY = mapOf(
-    Energy.LOW to ("متعب" to "لا بأس. اليوم نحفظ قمرك بأصغر خطوة ممكنة."),
+    Energy.LOW to ("متعب" to "لا بأس. اليوم نحفظ سلسلتك بأصغر خطوة ممكنة."),
     Energy.MID to ("عادي" to "يوم متوازن: خطوات ثابتة بلا ضغط."),
     Energy.HIGH to ("نشيط" to "استغلها! اليوم نبني العضل ونسبق الخطة."),
 )

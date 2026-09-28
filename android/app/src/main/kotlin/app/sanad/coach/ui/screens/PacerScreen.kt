@@ -58,7 +58,7 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.glass
@@ -130,7 +130,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
             }
 
             Spacer(Modifier.height(8.dp))
-            // الساعة: حلقة تمتلئ مع الوقت، والقمر يكبر ويتنفس في وسطها
+            // الساعة: حلقة تمتلئ مع الوقت، والأيقونة تتنفس في وسطها
             Box(Modifier.size(280.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
                     val sw = 8.dp.toPx()
@@ -139,7 +139,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                     drawArc(c.surface2, 0f, 360f, false, tl, sz, style = Stroke(sw))
                     drawArc(c.oasis, -90f, 360f * frac, false, tl, sz, style = Stroke(sw, cap = StrokeCap.Round))
                 }
-                Moon(170.dp, phase = 0.08f + 0.92f * frac, breathe = true, kick = kick)
+                MoveMark(150.dp, breathe = true, kick = kick, ring = false)
             }
             Text(
                 "${ar(left / 60)}:${ar(left % 60).padStart(2, '0')}",
@@ -188,7 +188,7 @@ fun PacerScreen(store: AppStore, nav: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
             ) {
-                Moon(110.dp, phase = 1f, kick = kick)
+                MoveMark(110.dp, progress = 1f, kick = kick)
                 Text("أكلت على مهل ${ar(minutes)} دقيقة", style = Type.h1.copy(color = c.ink), textAlign = TextAlign.Center)
                 Text(
                     if (elapsed >= 15 * 60) "هكذا يصل الشبع قبل أن تمتلئ زيادة. كرّرها في العشاء."

@@ -87,7 +87,7 @@ import app.sanad.coach.data.CoachSettings
 import app.sanad.coach.data.targets
 import app.sanad.coach.ui.Routes
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.burstFrom
@@ -195,12 +195,12 @@ fun CoachScreen(store: AppStore, settings: CoachSettings, state: AppState, nav: 
     LaunchedEffect(state.chat.size, busy) { if (state.chat.isNotEmpty()) list.animateScrollToItem(state.chat.size + 1) }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        // الرأس: قمر سند يتمايل وهو يرد
+        // الرأس: أيقونة سند، سهماها يمشيان وهو يرد
         Row(
             Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = top + 14.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Moon(48.dp, phase = sky.phase, speaking = busy)
+            MoveMark(48.dp, progress = sky.phase, speaking = busy)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("سند", style = Type.h2.copy(color = c.ink))
@@ -382,7 +382,7 @@ private fun Bubble(m: ChatMessage, store: AppStore, nav: NavHostController, scan
 private fun Thinking() {
     val c = Sanad.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Moon(26.dp, speaking = true)
+        MoveMark(26.dp, speaking = true, ring = false)
         Spacer(Modifier.width(10.dp))
         Text("سند يفكر…", style = Type.small.copy(color = c.inkSoft))
     }

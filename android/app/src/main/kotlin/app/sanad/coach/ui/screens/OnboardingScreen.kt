@@ -52,7 +52,7 @@ import app.sanad.coach.data.AppStore
 import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.NightCard
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.HandNote
 import app.sanad.coach.ui.components.Wordmark
 import app.sanad.coach.ui.components.BrandMark
@@ -289,7 +289,7 @@ fun OnboardingScreen(store: AppStore, demo: Boolean = false, onDone: () -> Unit)
     }
 }
 
-private val SECTIONS = listOf("أنت", "هدفك", "عوائقك", "سلامتك", "قمرك")
+private val SECTIONS = listOf("أنت", "هدفك", "عوائقك", "سلامتك", "بدايتك")
 
 /** بعد الهدف مباشرة: متى تصل تقريباً، بصراحة. */
 private const val HONEST_STEP = 3
@@ -317,21 +317,21 @@ private fun HonestForecast(f: Forecast) {
     )
 }
 
-/** «هلالك الأول»: القمر يولد أمامك، وكل يوم تسجّله يضيف له ليلة. */
+/** «يومك الأول»: الحلقة حول الأيقونة تبدأ تمتلئ، وكل يوم تسجّله يضيف لها. */
 @Composable
 private fun FirstCrescent() {
     val c = Sanad.colors
     val grow = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { grow.animateTo(0.08f, tween(1400, easing = FastOutSlowInEasing)) }
+    LaunchedEffect(Unit) { grow.animateTo(1f / 30f, tween(1400, easing = FastOutSlowInEasing)) }
     Row(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.nightSky).padding(18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Moon(72.dp, phase = grow.value, night = true, description = "هلالك الأول")
+        MoveMark(72.dp, progress = grow.value, dark = true, description = "يومك الأول من 30")
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
-            Text("هلالك الأول", style = Type.h2.copy(color = Color.White))
-            Text("كل يوم تسجّل فيه يضيف ليلة. بعد 30 ليلة يكتمل بدرك.", style = Type.small.copy(color = Color(0xFFC9D3E0)))
+            Text("يومك الأول", style = Type.h2.copy(color = Color.White))
+            Text("كل يوم تسجّل فيه يملأ جزءاً من الحلقة. بعد 30 يوماً تكتمل.", style = Type.small.copy(color = Color(0xFFB7C0B2)))
         }
     }
 }
@@ -363,7 +363,7 @@ private fun Welcome() {
         Triple(Ico.SPARK, "أخبرنا بطاقتك، فتأتي الخطة على قدرها", "متعب؟ دقيقتان تكفيان. نشيط؟ نبني العضل."),
         Triple(Ico.CAMERA, "صوّر صحنك أو اكتبه بجملة", "«تغدّيت كبسة دجاج وزبادي» وسند يحسبها لك."),
         Triple(Ico.MOVE, "تمارين تراها تتحرك", "كل تمرين برسم متحرك، بلا أدوات، ولطيف على الركبتين."),
-        Triple(Ico.FLAME, "كل يوم تسجّله يكبر قمرك", "يوم واحد فائت لا يطفئه. نعود غداً بلا لوم."),
+        Triple(Ico.FLAME, "كل يوم تسجّله يملأ دائرتك", "يوم واحد فائت لا يمسحها. نعود غداً بلا لوم."),
     ).forEach { (icon, t, s) ->
         Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(18.dp)).padding(14.dp), verticalAlignment = Alignment.Top) {
             Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(c.primaryTint), contentAlignment = Alignment.Center) {

@@ -71,7 +71,7 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.ExerciseFigure
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.BodyMap
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SButton
@@ -401,7 +401,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Moon(120.dp, phase = 0.5f, breathe = true)
+                        MoveMark(110.dp, breathe = true, ring = false)
                         Spacer(Modifier.height(18.dp))
                         Text(if ((left / 3) % 2 == 0) "خذ نفساً…" else "أخرِجه بهدوء…", style = Type.h1.copy(fontSize = 22.sp, color = c.ink))
                         nextName?.let { Text("التالي: $it", style = Type.small.copy(color = c.inkSoft)) }
@@ -457,7 +457,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
             ) {
-                Moon(110.dp, Modifier.burstFrom(finPoint), phase = 1f, kick = kick)
+                MoveMark(110.dp, Modifier.burstFrom(finPoint), progress = 1f, kick = kick)
                 Text("أنهيت تمرينك!", style = Type.h1.copy(color = c.ink))
                 Text("كل تمرين قوة يحمي عضلاتك، ويجعل ما تخسره من الدهون لا من العضل.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

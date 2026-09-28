@@ -81,7 +81,7 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.Eyebrow
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.Meter
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.core.Sky
 import app.sanad.core.skyOf
 import app.sanad.core.weightChanges
@@ -424,15 +424,15 @@ private fun WeightChangeTable(trend: List<TrendPoint>) {
 }
 
 /**
- * سماء سند: القمر يكبر ليلة مع كل يوم تسجّل فيه، والنجوم للأسابيع الكاملة.
- * بطاقة زرقاء صلبة؛ الشيء الوحيد الغامق في التطبيق حتى يبرز.
+ * «مسيرتك»: أيقونة «تحرّك» بحلقة تمتلئ يوماً مع كل يوم تسجّل فيه (30 يوماً)، وتحتها الأسابيع الكاملة.
+ * بطاقة غامقة؛ الشيء الوحيد الغامق في الصفحة حتى يبرز.
  */
 @Composable
 private fun SkyCard(sky: Sky, modifier: Modifier) {
     val c = Sanad.colors
-    val starLit = c.moonLight
-    val starOff = Color(0xFF4A5E7E)
-    val soft = Color(0xFFC9D3E0)
+    val lit = c.brand
+    val off = Color(0xFF3F4F44)
+    val soft = Color(0xFFB7C0B2)
     Column(
         modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.nightSky).padding(18.dp)
             .semantics(mergeDescendants = true) {},
@@ -440,33 +440,32 @@ private fun SkyCard(sky: Sky, modifier: Modifier) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("سماؤك", style = Type.label.copy(color = soft))
+                Text("مسيرتك", style = Type.label.copy(color = soft))
                 Text(
-                    if (sky.nights == 0 && sky.fullMoons > 0) "اكتمل بدرك!" else "الليلة ${ar(sky.nights)} من ${ar(NIGHTS_PER_MOON)}",
+                    if (sky.nights == 0 && sky.fullMoons > 0) "أكملت 30 يوماً!" else "يوم ${ar(sky.nights)} من ${ar(NIGHTS_PER_MOON)}",
                     style = Type.h2.copy(color = Color.White),
                 )
-                Text("كل يوم تسجّل فيه يضيف ليلة لقمرك.", style = Type.small.copy(color = soft))
+                Text("كل يوم تسجّل فيه يملأ جزءاً من الحلقة.", style = Type.small.copy(color = soft))
             }
-            Moon(96.dp, phase = sky.phase, night = true, description = "قمرك: ليلة ${sky.nights} من $NIGHTS_PER_MOON")
+            MoveMark(96.dp, progress = sky.phase, dark = true, description = "تقدّمك: يوم ${sky.nights} من $NIGHTS_PER_MOON")
         }
-        // النجوم: أسبوع كامل بلا يومين فارغين متتاليين = نجمة. نعرض 8 خانات حتى يبان المكان الفاضي
+        // الأسابيع الكاملة: أسبوع بلا يومين فارغين متتاليين = سهم مضيء. نعرض 8 خانات حتى يبان المكان الفاضي
         val slots = max(8, sky.stars)
         Canvas(Modifier.fillMaxWidth().height(22.dp)) {
             val gap = size.width / slots
             repeat(slots) { i ->
                 val cx = size.width - gap * (i + 0.5f)
                 val cy = size.height / 2
-                val r = size.height * 0.42f
-                val k = r * 0.3f
-                val star = Path().apply {
-                    moveTo(cx, cy - r); lineTo(cx + k, cy - k); lineTo(cx + r, cy); lineTo(cx + k, cy + k)
-                    lineTo(cx, cy + r); lineTo(cx - k, cy + k); lineTo(cx - r, cy); lineTo(cx - k, cy - k); close()
-                }
-                if (i < sky.stars) drawPath(star, starLit) else drawPath(star, starOff, style = Stroke(1.2.dp.toPx()))
+                val h = size.height * 0.36f
+                val chev = Path().apply { moveTo(cx + h * 0.55f, cy - h); lineTo(cx - h * 0.45f, cy); lineTo(cx + h * 0.55f, cy + h) }
+                drawPath(
+                    chev, if (i < sky.stars) lit else off,
+                    style = Stroke(if (i < sky.stars) 3.5.dp.toPx() else 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(ar(sky.fullMoons) to "بدر مكتمل", ar(sky.stars) to "نجمة", ar(sky.daysWithSanad) to "يوماً مع تحرّك").forEach { (v, l) ->
+            listOf(ar(sky.fullMoons) to "شهر مكتمل", ar(sky.stars) to "أسبوع كامل", ar(sky.daysWithSanad) to "يوماً مع تحرّك").forEach { (v, l) ->
                 Column(
                     Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(c.nightSky2).padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

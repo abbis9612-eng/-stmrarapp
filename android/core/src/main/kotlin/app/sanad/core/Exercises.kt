@@ -304,7 +304,7 @@ private fun rest(s: Int) = Move(null, s)
 val ROUTINES: List<Routine> = listOf(
     Routine(
         "reset-2", "إعادة شحن", 2, 1, "وأنت جالس",
-        "لأيام التعب: تحريك الدورة الدموية بلا إجهاد. يُحسب لك ليلة كاملة في قمرك.",
+        "لأيام التعب: تحريك الدورة الدموية بلا إجهاد. يُحسب لك يوماً كاملاً في سلسلتك.",
         listOf(Move("shoulder-roll", 30), Move("seated-knee", 40), Move("sit-stand", 50)),
     ),
     Routine(

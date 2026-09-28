@@ -81,7 +81,7 @@ import app.sanad.coach.ui.components.BtnStyle
 import app.sanad.coach.ui.components.ConfettiLayer
 import app.sanad.coach.ui.components.ConfettiState
 import app.sanad.coach.ui.components.Ico
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SIcon
@@ -137,7 +137,7 @@ object Routes {
 
 private data class Tab(val route: String, val label: String, val icon: Ico)
 
-/** شريط التنقل: أربع صفحات، وبالنص زر التسجيل (أكثر فعل يتكرر). المدرب من قمر «اليوم». */
+/** شريط التنقل: أربع صفحات، وبالنص زر التسجيل (أكثر فعل يتكرر). المدرب من أيقونة «اليوم». */
 private val LEFT_TABS = listOf(Tab(Routes.TODAY, "اليوم", Ico.SUN), Tab(Routes.EAT, "الأكل", Ico.EAT))
 private val RIGHT_TABS = listOf(Tab(Routes.MOVE, "حركة", Ico.DUMBBELL), Tab(Routes.PROGRESS, "تقدّمي", Ico.TREND))
 
@@ -323,7 +323,7 @@ private fun LogRow(icon: Ico, title: String, hint: String, onClick: () -> Unit) 
     }
 }
 
-/** الافتتاحية: القمر يكبر من هلال إلى بدر، واسم سند يُكتب بخط اليد. */
+/** الافتتاحية: السهمان يدخلان على الليموني، ثم يظهر اسم «تحرّك». */
 @Composable
 private fun Intro(onDone: () -> Unit) {
     val c = Sanad.colors
@@ -356,7 +356,7 @@ private fun Intro(onDone: () -> Unit) {
     }
 }
 
-/** "اكتمل يومك": القمر يكبر ليلة، والسلسلة تنقلب للرقم الجديد. */
+/** "اكتمل يومك": حلقة الأيقونة تتقدّم يوماً، والسلسلة تنقلب للرقم الجديد. */
 @Composable
 private fun DayComplete(streak: Int, state: AppState, onClose: () -> Unit) {
     val c = Sanad.colors
@@ -378,7 +378,7 @@ private fun DayComplete(streak: Int, state: AppState, onClose: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Column(Modifier.padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Moon(130.dp, Modifier.burstFrom(point), phase = sky.phase, kick = kick)
+            MoveMark(130.dp, Modifier.burstFrom(point), progress = sky.phase, kick = kick)
             Spacer(Modifier.height(6.dp))
             Text("اكتمل يومك", style = Type.h1.copy(color = c.ink))
             Text(
@@ -389,7 +389,7 @@ private fun DayComplete(streak: Int, state: AppState, onClose: () -> Unit) {
                     scaleX = 0.6f + 0.4f * flip.value; scaleY = 0.6f + 0.4f * flip.value
                 },
             )
-            Text("يوم في السلسلة، وقمرك كبر ليلة", style = Type.body.copy(color = c.inkSoft))
+            Text("يوم في السلسلة، ودائرتك تقدّمت يوماً", style = Type.body.copy(color = c.inkSoft))
             Text("هذه الأيام الصغيرة هي التي تُنزل الوزن فعلاً. نراك غداً.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
             SButton("تمام", onClose, Modifier.width(220.dp))
         }

@@ -12,21 +12,21 @@ class SkyTest {
     private fun daysFrom(start: String, n: Int, skip: Set<Int> = emptySet()) =
         (0 until n).filter { it !in skip }.associate { logged(addDays(start, it.toLong())) }
 
-    @Test fun firstNightShowsThinCrescent() {
+    @Test fun firstDayFillsOneThirtiethOfTheRing() {
         val s = skyOf(daysFrom("2026-09-26", 1), "2026-09-26", "2026-09-26")
         assertEquals(1, s.nights)
         assertEquals(0, s.fullMoons)
-        assertTrue(s.phase in 0.05f..0.1f)
+        assertEquals(1f / 30f, s.phase, 0.0001f)
     }
 
-    @Test fun thirtyLoggedDaysMakeAFullMoon() {
+    @Test fun thirtyLoggedDaysCompleteTheRing() {
         val s = skyOf(daysFrom("2026-08-28", 30), "2026-09-26", "2026-08-28")
         assertEquals(1, s.fullMoons)
         assertEquals(0, s.nights)
         assertEquals(1f, s.phase)
     }
 
-    @Test fun missedDaysDoNotGrowTheMoon() {
+    @Test fun missedDaysDoNotAdvanceTheRing() {
         val s = skyOf(daysFrom("2026-09-17", 10, skip = setOf(3, 4)), "2026-09-26", "2026-09-17")
         assertEquals(8, s.nights)
         assertEquals(10, s.daysWithSanad)

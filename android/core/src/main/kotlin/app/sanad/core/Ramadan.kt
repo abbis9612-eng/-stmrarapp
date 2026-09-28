@@ -50,7 +50,7 @@ internal fun ramadanMissions(energy: Energy, time: TimeBudget, t: Targets): List
     val move = when {
         energy == Energy.LOW || time == TimeBudget.TWO -> Mission(
             "move", MissionKind.MOVE, "دقيقتان من التمدد بعد الفطور",
-            "حركة هادئة تحفظ قمرك دون أن تتعب وأنت صائم.", "reset-2",
+            "حركة هادئة تحفظ سلسلتك دون أن تتعب وأنت صائم.", "reset-2",
         )
         time == TimeBudget.TEN -> Mission(
             "move", MissionKind.MOVE,

@@ -82,7 +82,7 @@ import app.sanad.coach.ui.components.HeroCard
 import app.sanad.coach.ui.components.Ico
 import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.Meter
-import app.sanad.coach.ui.components.Moon
+import app.sanad.coach.ui.components.MoveMark
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SCard
 import app.sanad.coach.ui.components.SIcon
@@ -191,7 +191,7 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
     }
 
     Page {
-        // الرأس: التاريخ، التحية بخط اليد، المدرب، والقمر
+        // الرأس: التاريخ، التحية بخط اليد، المدرب، وأيقونة التقدّم
         item {
             Row(Modifier.rise(rise, 0), verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f)) {
@@ -206,9 +206,9 @@ fun TodayScreen(store: AppStore, state: AppState, nav: NavHostController) {
                     ) { SIcon(Ico.COACH, size = 23.dp) }
                     Box(
                         Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(c.surface).border(1.dp, c.line, RoundedCornerShape(14.dp))
-                            .press({ nav.navigate(Routes.PROGRESS) }).semantics { contentDescription = "قمرك: ${ar(sky.nights)} ليلة" },
+                            .press({ nav.navigate(Routes.PROGRESS) }).semantics { contentDescription = "تقدّمك: ${ar(sky.nights)} من 30 يوماً" },
                         contentAlignment = Alignment.Center,
-                    ) { Moon(36.dp, phase = sky.phase, kick = kick) }
+                    ) { MoveMark(40.dp, progress = sky.phase, kick = kick) }
                 }
             }
         }
@@ -490,7 +490,7 @@ private fun AllDone(modifier: Modifier) {
     val c = Sanad.colors
     SCard(modifier, color = c.primary) {
         Text("خطة اليوم اكتملت", style = Type.h2.copy(color = c.ink))
-        Text("أحسنت. ارتح الآن، وقمرك كبر ليلة.", style = Type.body.copy(color = c.inkSoft))
+        Text("أحسنت. ارتح الآن، ودائرتك تقدّمت يوماً.", style = Type.body.copy(color = c.inkSoft))
     }
 }
 
@@ -772,7 +772,7 @@ private fun WelcomeCard(w: Welcome, phase: Float) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Moon(34.dp, phase = phase)
+            MoveMark(36.dp, progress = phase)
             Spacer(Modifier.width(10.dp))
             Text(w.headline, style = Type.h2.copy(color = c.ink))
         }
