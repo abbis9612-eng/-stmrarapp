@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
@@ -108,12 +109,42 @@ fun Moon(
     }
 }
 
-/** اسم سند بخط الرقعة: شعار بسيط يُكتب مثل خط اليد. */
+/** اسم «تحرّك» بخط عريض: الشعار المكتوب. */
 @Composable
 fun Wordmark(fontSize: TextUnit, modifier: Modifier = Modifier, color: Color = Sanad.colors.ink) {
     Text(
-        "سند",
-        style = Type.handTitle.copy(fontSize = fontSize, color = color, lineHeight = fontSize * 1.4f),
-        modifier = modifier.semantics { contentDescription = "سند" },
+        "تحرّك",
+        style = Type.h1.copy(fontSize = fontSize, color = color, lineHeight = fontSize * 1.3f),
+        modifier = modifier.semantics { contentDescription = "تحرّك" },
     )
 }
+
+/**
+ * علامة «تحرّك»: سهمان للأمام (من شدّة الاسم) وأمام كل سهم أصابع قدم، على مربع ليموني.
+ * [progress] من ٠ إلى ١ يُدخل السهمين من اليمين لليسار (للأمام في العربي).
+ */
+@Composable
+fun BrandMark(size: Dp, modifier: Modifier = Modifier, progress: Float = 1f, tile: Boolean = true) {
+    val c = Sanad.colors
+    Canvas(modifier.size(size).semantics { contentDescription = "شعار تحرّك" }) {
+        val u = this.size.minDimension / 180f
+        if (tile) drawRoundRect(c.brand, cornerRadius = androidx.compose.ui.geometry.CornerRadius(41f * u))
+        fun chevron(x: Float, col: Color, t: Float) {
+            if (t <= 0f) return
+            val dx = (1f - t) * 40f * u
+            val a = t.coerceIn(0f, 1f)
+            val s = 34f * u
+            val cx = x * u + dx
+            val cy = 90f * u
+            val p = Path().apply { moveTo(cx + s, cy - s); lineTo(cx, cy); lineTo(cx + s, cy + s) }
+            drawPath(p, col.copy(alpha = a), style = Stroke(22f * u, cap = StrokeCap.Round, join = StrokeJoin.Round))
+            listOf(Triple(-22f, -15f, 6f), Triple(-27f, 0f, 7.5f), Triple(-22f, 15f, 6f)).forEach { (ox, oy, r) ->
+                drawCircle(col.copy(alpha = a), r * u, Offset(cx + ox * u, cy + oy * u))
+            }
+        }
+        // الخلفي يدخل أولاً ثم الأمامي
+        chevron(105f, c.brandOlive, (progress / 0.6f).coerceIn(0f, 1f))
+        chevron(65f, c.ink, ((progress - 0.3f) / 0.7f).coerceIn(0f, 1f))
+    }
+}
+

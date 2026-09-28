@@ -56,6 +56,9 @@ data class SanadColors(
     val nightSky2: Color,
     val moonLight: Color,
     val moonDark: Color,
+    /** هوية «تحرّك»: ليموني الأيقونة وزيتوني السهم الخلفي. للعلامة والبداية فقط، ليس للنص */
+    val brand: Color = Color(0xFFD4F25C),
+    val brandOlive: Color = Color(0xFF7E9A2E),
 ) {
     // أسماء قديمة تبقى تعمل في الشاشات الثانوية
     val ember: Color get() = primary

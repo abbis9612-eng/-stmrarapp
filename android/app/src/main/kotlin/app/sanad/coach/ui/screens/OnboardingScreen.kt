@@ -55,6 +55,7 @@ import app.sanad.coach.ui.components.NightCard
 import app.sanad.coach.ui.components.Moon
 import app.sanad.coach.ui.components.HandNote
 import app.sanad.coach.ui.components.Wordmark
+import app.sanad.coach.ui.components.BrandMark
 import app.sanad.coach.ui.components.glass
 import app.sanad.coach.ui.components.Note
 import app.sanad.coach.ui.components.SButton
@@ -348,13 +349,13 @@ private fun NumBox(label: String, value: String, onChange: (String) -> Unit, uni
 @Composable
 private fun Welcome() {
     val c = Sanad.colors
-    val grow = remember { Animatable(0.04f) }
-    LaunchedEffect(Unit) { grow.animateTo(0.3f, tween(1600, easing = FastOutSlowInEasing)) }
+    val grow = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { grow.animateTo(1f, tween(1100, easing = FastOutSlowInEasing)) }
     Spacer(Modifier.height(12.dp))
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Moon(110.dp, phase = grow.value)
+        BrandMark(96.dp, progress = grow.value)
         Spacer(Modifier.height(14.dp))
-        Wordmark(72.sp)
+        Wordmark(56.sp)
         Text("مدرّب تنحيف يمشي على قدر طاقتك.", style = Type.body.copy(color = c.inkSoft), textAlign = TextAlign.Center)
     }
     Spacer(Modifier.height(10.dp))
@@ -375,5 +376,5 @@ private fun Welcome() {
             }
         }
     }
-    Text("بياناتك تبقى على جهازك. سند مدرّب سلوكي، وليس بديلاً عن الطبيب.", style = Type.label.copy(color = c.faint), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Text("بياناتك تبقى على جهازك. «تحرّك» مدرّب سلوكي، وليس بديلاً عن الطبيب.", style = Type.label.copy(color = c.faint), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }

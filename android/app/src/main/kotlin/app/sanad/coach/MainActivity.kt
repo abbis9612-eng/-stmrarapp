@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     val t = st.profile?.let { p -> app.sanad.core.computeTargets(p, st.days.values.mapNotNull { d -> d.weightKg }.lastOrNull() ?: p.startWeightKg) }
                     val r = t?.let { tt -> app.sanad.core.nextReminder(st, tt, java.time.LocalDateTime.now().minusHours(12)) }
                     app.sanad.coach.notify.Reminders.ensureChannel(this)
-                    app.sanad.coach.notify.Reminders.show(this, r?.id ?: "test", r?.title ?: "سند", r?.body ?: "تنبيه تجريبي")
+                    app.sanad.coach.notify.Reminders.show(this, r?.id ?: "test", r?.title ?: "تحرّك", r?.body ?: "تنبيه تجريبي")
                 }
                 // شاشة الصراحة في التعريف ببيانات جاهزة
                 if (it.getBooleanExtra("onboardDemo", false)) { Graph.store.reset(); onboardDemo = true }

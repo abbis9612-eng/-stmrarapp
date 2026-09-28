@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- سند فاتح دائماً: خلفية الورق حتى لا يومض لون ثاني عند الفتح -->
+    <!-- «تحرّك» فاتح دائماً: خلفية الورق حتى لا يومض لون ثاني عند الفتح -->
     <style name="Theme.Sanad" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/paper_bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

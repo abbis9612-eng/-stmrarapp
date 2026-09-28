@@ -7,7 +7,7 @@ package app.sanad.core
  */
 fun partnerReport(p: Profile, r: WeeklyReview, streak: Int, showWeight: Boolean): String = buildString {
     val name = p.name.ifBlank { "صديقك" }
-    appendLine("تقرير ${name} الأسبوعي من «سند» 🌿")
+    appendLine("تقرير ${name} الأسبوعي من «تحرّك» 🌿")
     appendLine("• حضر ${ar(r.activeDays)} من ٧ أيام")
     if (r.workouts > 0) appendLine("• تمرّن ${ar(r.workouts)} مرات (${ar(r.workoutMinutes)} دقيقة)")
     if (r.proteinDays > 0) appendLine("• وصل هدف البروتين ${ar(r.proteinDays)} أيام")

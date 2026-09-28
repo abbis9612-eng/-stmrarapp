@@ -328,7 +328,7 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
             }
         }
         item {
-            Text("سند أداة تدريب سلوكي ومعلومات عامة، ولا يغني عن الطبيب أو أخصائي التغذية.", style = Type.label.copy(color = c.faint))
+            Text("«تحرّك» أداة تدريب سلوكي ومعلومات عامة، ولا يغني عن الطبيب أو أخصائي التغذية.", style = Type.label.copy(color = c.faint))
         }
     }
 }
@@ -461,7 +461,7 @@ private fun SkyCard(sky: Sky, modifier: Modifier) {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(ar(sky.fullMoons) to "بدر مكتمل", ar(sky.stars) to "نجمة", ar(sky.daysWithSanad) to "يوماً مع سند").forEach { (v, l) ->
+            listOf(ar(sky.fullMoons) to "بدر مكتمل", ar(sky.stars) to "نجمة", ar(sky.daysWithSanad) to "يوماً مع تحرّك").forEach { (v, l) ->
                 Column(
                     Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(c.nightSky2).padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

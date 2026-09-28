@@ -83,7 +83,7 @@ class ReminderReceiver : BroadcastReceiver() {
         Reminders.show(
             context,
             intent.getStringExtra("id") ?: "coach",
-            intent.getStringExtra("title") ?: "سند",
+            intent.getStringExtra("title") ?: "تحرّك",
             intent.getStringExtra("body") ?: "",
         )
         Reminders.schedule(context)

@@ -86,6 +86,7 @@ import app.sanad.coach.ui.components.LocalConfetti
 import app.sanad.coach.ui.components.SButton
 import app.sanad.coach.ui.components.SIcon
 import app.sanad.coach.ui.components.Wordmark
+import app.sanad.coach.ui.components.BrandMark
 import app.sanad.coach.ui.components.burstFrom
 import app.sanad.coach.ui.components.press
 import app.sanad.coach.ui.components.rememberBurstPoint
@@ -337,17 +338,17 @@ private fun Intro(onDone: () -> Unit) {
         onDone()
     }
     Box(
-        Modifier.fillMaxSize().alpha(fade.value).background(c.bg)
+        Modifier.fillMaxSize().alpha(fade.value).background(c.brand)
             .clickable(remember { MutableInteractionSource() }, indication = null) {},
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Moon(120.dp, phase = grow.value)
-            Spacer(Modifier.height(18.dp))
+            BrandMark(150.dp, progress = grow.value, tile = false)
+            Spacer(Modifier.height(10.dp))
             Wordmark(64.sp, Modifier.alpha(word.value))
             Text(
-                "خطوة صغيرة كل يوم… وسند معك",
-                style = Type.body.copy(color = c.inkSoft),
+                "تحرّك… وجسمك يشكرك",
+                style = Type.hand.copy(fontSize = 24.sp, color = c.ink.copy(alpha = 0.75f)),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.alpha(word.value),
             )
