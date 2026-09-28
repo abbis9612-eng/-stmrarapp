@@ -163,7 +163,12 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
         item {
             Row(Modifier.rise(rise, 3), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Stat(ar(toGo), "كغ للهدف", Modifier.weight(1f))
-                Stat(if (toGo > 0) ar(weeks) else "وصلت", if (toGo > 0) "أسبوع تقريباً" else "الهدف", Modifier.weight(1f))
+                // نفس مدى «متى تصل؟» حتى لا يظهر رقمان مختلفان في الصفحة نفسها
+                val range = forecast(current, p.goalWeightKg, p.pace, day.date)
+                Stat(
+                    when { toGo <= 0 -> "وصلت"; range != null -> "${ar(range.weeksFast)}–${ar(range.weeksSlow)}"; else -> ar(weeks) },
+                    if (toGo > 0) "أسبوعاً تقريباً" else "الهدف", Modifier.weight(1f),
+                )
                 Stat(ar(workouts), "تمرين", Modifier.weight(1f))
             }
         }
