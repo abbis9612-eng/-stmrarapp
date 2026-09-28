@@ -82,6 +82,8 @@ import app.sanad.coach.ui.components.Moon
 import app.sanad.core.Sky
 import app.sanad.core.skyOf
 import app.sanad.core.weightChanges
+import app.sanad.core.forecast
+import app.sanad.coach.ui.components.ForecastCard
 import app.sanad.core.NIGHTS_PER_MOON
 import androidx.compose.ui.graphics.drawscope.translate
 import app.sanad.coach.ui.components.SButton
@@ -163,6 +165,22 @@ fun ProgressScreen(store: AppStore, state: AppState, nav: NavHostController) {
                 Stat(ar(toGo), "كغ للهدف", Modifier.weight(1f))
                 Stat(if (toGo > 0) ar(weeks) else "وصلت", if (toGo > 0) "أسبوع تقريباً" else "الهدف", Modifier.weight(1f))
                 Stat(ar(workouts), "تمرين", Modifier.weight(1f))
+            }
+        }
+        // متى تصل: نفس رسم «شاشة الصراحة»، يبدأ من وزنك الاتجاهي الحالي فيتحدّث مع كل وزن
+        if (p.maintainSince == null) forecast(current, p.goalWeightKg, p.pace, day.date)?.let { f ->
+            item(key = "forecast") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("متى تصل؟", style = Type.h2.copy(color = c.ink), modifier = Modifier.weight(1f))
+                        Text("يتحدّث مع كل وزن تسجّله", style = Type.label.copy(color = c.inkSoft))
+                    }
+                    ForecastCard(f, startLabel = "اتجاهك الآن")
+                    Text(
+                        "على نزول ${ar(f.slowKgWeek, 2)}–${ar(f.fastKgWeek, 2)} كغ في الأسبوع. الأسابيع الثابتة جزء من الطريق، لا خروج عنه.",
+                        style = Type.small.copy(color = c.faint),
+                    )
+                }
             }
         }
         if (reachedGoal(p, state.days)) item(key = "goal-reached") {
