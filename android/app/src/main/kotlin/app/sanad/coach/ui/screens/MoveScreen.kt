@@ -250,7 +250,7 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
         }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                e.muscles.forEachIndexed { i, m -> Badge(m.label, gold = i < 2) }
+                e.muscles.forEachIndexed { i, m -> Badge(m.label) }
             }
         }
         if (e.mistakes.isNotEmpty()) item {
@@ -273,7 +273,7 @@ fun ExerciseScreen(id: String, nav: NavHostController) {
                     Column(Modifier.weight(1f).glass(RoundedCornerShape(20.dp)).press({ nav.navigate(Routes.exercise(alt.id)) }).padding(12.dp)) {
                         ExerciseFigure(alt, Modifier.fillMaxWidth().aspectRatio(1.3f).stage(TINTS[i + 1]))
                         Spacer(Modifier.height(6.dp))
-                        Text(label, style = Type.label.copy(color = c.saffron))
+                        Text(label, style = Type.label.copy(color = c.oasis))
                         Text(alt.name, style = Type.bodyStrong.copy(color = c.ink))
                     }
                 }
@@ -382,7 +382,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                     Text(ex?.name ?: "خذ نفساً", style = Type.h1.copy(fontSize = 28.sp, color = c.ink))
                 }
                 ex?.muscles?.firstOrNull()?.let {
-                    Box(Modifier.clip(RoundedCornerShape(8.dp)).background(c.amberTint).padding(horizontal = 11.dp, vertical = 6.dp)) {
+                    Box(Modifier.clip(RoundedCornerShape(8.dp)).background(c.primaryTint).padding(horizontal = 11.dp, vertical = 6.dp)) {
                         Text(ex.muscles.take(2).joinToString(" و") { m -> m.label }, style = Type.label.copy(color = c.ink))
                     }
                 }
@@ -428,7 +428,7 @@ fun PlayerScreen(routineId: String, store: AppStore, nav: NavHostController) {
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    if (!move.isRest) Text("العدّة ${ar(reps)}", style = Type.h3.copy(fontFamily = Type.number.fontFamily, color = c.saffron))
+                    if (!move.isRest) Text("العدّة ${ar(reps)}", style = Type.h3.copy(fontFamily = Type.number.fontFamily, color = c.oasis))
                     Text(move.cue ?: ex?.cue ?: "تنفّس بعمق من الأنف.", style = Type.body.copy(fontSize = 16.sp, color = c.ink))
                     if (!move.isRest && nextName != null) Text("التالي: $nextName", style = Type.label.copy(color = c.faint))
                 }
