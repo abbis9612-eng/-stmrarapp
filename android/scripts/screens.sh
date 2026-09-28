@@ -39,7 +39,7 @@ tap_text() {
 # يمرّر لتحت لحد ما يبين النص $1، بعدين يلتقط $2
 scroll_to() {
   local found=0
-  for i in 1 2 3 4 5 6 7 8 9; do
+  for i in $(seq 1 "${3:-9}"); do
     adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 || true
     if adb shell cat /sdcard/ui.xml | grep -qF "$1"; then found=1; break; fi
     adb shell input swipe 540 1700 540 900 500
@@ -136,7 +136,7 @@ shot 23b-onboarding-honest 6 --ez skipIntro true --ez onboardDemo true
 
 # نماذج الألوان: «المظهر» في تقدّمي، ثم «اليوم» بكل نموذج، ونرجع لـ«ضوء»
 shot 64-appearance 8 --ez demo true --ez skipIntro true --es route progress
-scroll_to "اختر الألوان التي تريحك" 64b-appearance-card
+scroll_to "أبيض وأسود بسيط" 64b-appearance-card 25
 for P in NIGHT ENERGY CLEAN; do
   shot "65-today-$P" 7 --ez demo true --ez skipIntro true --es checkin HIGH --es palette $P
 done

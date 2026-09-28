@@ -553,9 +553,9 @@ private fun Heatmap(state: AppState, today: String) {
                     val s = remember { Animatable(0f) }
                     LaunchedEffect(Unit) { kotlinx.coroutines.delay(200L + i * 18L); s.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = 300f)) }
                     val color = when (level) {
-                        3 -> c.primary
-                        2 -> c.primary.copy(alpha = 0.55f)
-                        1 -> c.primary.copy(alpha = 0.25f)
+                        3 -> c.oasis
+                        2 -> c.oasis.copy(alpha = 0.6f)
+                        1 -> c.oasis.copy(alpha = 0.3f)
                         else -> c.surface2
                     }
                     Box(
